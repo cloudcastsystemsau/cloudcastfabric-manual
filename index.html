@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CloudcastFabric manual</title>
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#0d1117; --surface:#151d27; --stage:#1b2530; --ink:#e6edf6; --muted:#8b9bb0;
+  --acc:#2dd4bf; --acc-2:#0d9488; --acc-3:#115e59; --line:#243040;
+  --display:'Space Grotesk',system-ui,sans-serif;
+  --body:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:light){
+  :root{
+    --bg:#ffffff; --surface:#f0fdfa; --stage:#ccfbf1; --ink:#0d1117; --muted:#5b6b80;
+    /* The ramp steps down a stop on a light surface. The brand's own rule:
+       #2dd4bf is a dark-surface accent only and #115e59 is the readable
+       accent on white — #0d9488 is ~3.5:1 there, which fails AA for body
+       text, so it is kept for rules and edges rather than for anything read. */
+    --acc:#115e59; --acc-2:#0d9488; --acc-3:#134e4a; --line:#cfe6e2;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:290px minmax(0,1fr);gap:0;max-width:1440px;margin:0 auto}
+nav{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:26px 18px 60px;
+  border-right:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:22px;text-decoration:none;color:inherit}
+.brand .name{font-family:var(--display);font-weight:600;letter-spacing:-.01em;font-size:17px}
+.brand .name em{font-style:normal;color:var(--acc)}
+nav a{display:block;text-decoration:none;color:var(--muted);padding:5px 10px;border-radius:7px;
+  font-size:13.5px;line-height:1.4}
+nav a:hover{background:var(--stage);color:var(--ink)}
+nav a.l2{color:var(--ink);font-weight:550;margin-top:9px}
+.kids{margin:2px 0 6px 9px;border-left:1px solid var(--line);padding-left:7px}
+nav a.l3{font-size:12.5px}
+main{padding:44px 52px 120px;min-width:0}
+h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.015em;line-height:1.25}
+h1{font-size:2.1rem;margin:0 0 .6em}
+h2{font-size:1.5rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line)}
+h3{font-size:1.16rem;margin:1.9em 0 .5em;color:var(--acc)}
+h4{font-size:1rem;margin:1.5em 0 .4em}
+p,li{max-width:78ch}
+a{color:var(--acc);text-decoration-thickness:1px;text-underline-offset:2px}
+code{font-family:var(--mono);font-size:.875em;background:var(--stage);
+  padding:.14em .4em;border-radius:5px}
+pre{background:var(--stage);border:1px solid var(--line);border-radius:10px;
+  padding:14px 16px;overflow-x:auto}
+pre code{background:none;padding:0;font-size:.83rem;line-height:1.6}
+table{border-collapse:collapse;width:100%;margin:1.1em 0;font-size:.93rem;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:var(--stage);font-family:var(--display);font-weight:600;font-size:.86rem;
+  letter-spacing:.01em}
+blockquote{margin:1.2em 0;padding:.6em 1.1em;border-left:3px solid var(--acc);
+  background:var(--surface);border-radius:0 9px 9px 0;color:var(--ink)}
+blockquote p{margin:.45em 0}
+img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:9px;display:block;margin:1.2em 0}
+hr{border:0;border-top:1px solid var(--line);margin:2.4em 0}
+kbd{font-family:var(--mono);font-size:.82em;border:1px solid var(--line);
+  border-bottom-width:2px;border-radius:5px;padding:.1em .4em;background:var(--surface)}
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr}
+  nav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+  main{padding:28px 20px 80px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <a class="brand" href="#top"><span class="mk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="30" height="30" role="img" aria-label="CloudcastFabric"><style>.mk .b0{fill:#99f6e4}.mk .b1{fill:#2dd4bf}.mk .b2{fill:#0d9488}.mk .b3{fill:#115e59}@media (prefers-color-scheme:light){.mk .b0{fill:#2dd4bf}.mk .b1{fill:#0d9488}.mk .b2{fill:#115e59}.mk .b3{fill:#134e4a}}</style><polygon points="28,12 50,12 50,50 28,50" class="b0"/><polygon points="50,28 88,28 88,50 50,50" class="b1"/><polygon points="50,50 72,50 72,88 50,88" class="b2"/><polygon points="12,50 50,50 50,72 12,72" class="b3"/><rect x="44" y="44" width="12" height="12" fill="#0d1117"/></svg></span>
+    <span class="name">cloudcast<em>fabric</em></span></a>
+  <a class="l2" href="#contents">Contents</a><a class="l2" href="#1-core-concepts">1. Core concepts</a><a class="l2" href="#2-architecture">2. Architecture</a><div class="kids"><a class="l3" href="#the-data-plane">The data plane</a><a class="l3" href="#the-control-plane">The control plane</a><a class="l3" href="#the-encapsulation-header">The encapsulation header</a><a class="l3" href="#timing-per-host-grandmasters">Timing: per-host grandmasters</a><a class="l3" href="#modes-at-a-glance">Modes at a glance</a></div><a class="l2" href="#3-deployment-requirements">3. Deployment requirements</a><div class="kids"><a class="l3" href="#instances-and-the-phc">Instances and the PHC</a><a class="l3" href="#kernel-and-interface-settings">Kernel and interface settings</a><a class="l3" href="#mtu">MTU</a><a class="l3" href="#ports-and-security-groups">Ports and security groups</a></div><a class="l2" href="#4-installation">4. Installation</a><div class="kids"><a class="l3" href="#41-building">4.1 Building</a><a class="l3" href="#42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</a><a class="l3" href="#43-controller">4.3 Controller</a><a class="l3" href="#44-ptp-grandmaster">4.4 PTP grandmaster</a><a class="l3" href="#45-router-optional">4.5 Router (optional)</a><a class="l3" href="#46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</a></div><a class="l2" href="#5-configuration-reference">5. Configuration reference</a><div class="kids"><a class="l3" href="#51-agent-command-line-flags">5.1 Agent command-line flags</a><a class="l3" href="#52-agent-environment-file">5.2 Agent environment file</a><a class="l3" href="#53-controller-environment-variables">5.3 Controller environment variables</a><a class="l3" href="#54-ptp-gmconf">5.4 ptp-gm.conf</a><a class="l3" href="#55-systemd-units">5.5 systemd units</a></div><a class="l2" href="#6-operations">6. Operations</a><div class="kids"><a class="l3" href="#61-the-dashboard">6.1 The dashboard</a><a class="l3" href="#62-http-surface">6.2 HTTP surface</a><a class="l3" href="#63-metrics">6.3 Metrics</a><a class="l3" href="#64-adding-an-agent">6.4 Adding an agent</a><a class="l3" href="#65-bridging-a-site">6.5 Bridging a site</a><a class="l3" href="#66-verifying-a-path-with-ccf-spike">6.6 Verifying a path with ccf-spike</a><a class="l3" href="#67-checking-the-clock">6.7 Checking the clock</a></div><a class="l2" href="#7-troubleshooting">7. Troubleshooting</a><a class="l2" href="#8-limits-and-known-gaps">8. Limits and known gaps</a>
+</nav>
+<main id="top">
+<h1 id="cloudcastfabric-manual">CloudcastFabric manual</h1>
+<p><strong>CloudcastFabric</strong> carries real IP multicast between machines that have no
+multicast network — cloud instances, and on-prem plants reached over a VPN.
+An agent runs on every participating host; applications send to and join
+ordinary multicast groups on a virtual interface, and the fabric moves the
+packets between hosts as unicast UDP. Nothing in the application changes: it
+binds a group, it joins with <code>IP_ADD_MEMBERSHIP</code>, and the kernel delivers real
+multicast frames at the far end.</p>
+<p>It is built for professional audio-over-IP — AES67 and Livewire — so two
+things matter more than throughput:</p>
+<ul>
+<li><strong>The jitter tail.</strong> The data plane is Rust with pinned real-time threads,
+batched <code>recvmmsg</code>/<code>sendmmsg</code> and pre-allocated buffers. Measured fabric hop
+delay is p50 17 µs, 100 % under 500 µs at every load tested.</li>
+<li><strong>Clocking.</strong> Every host runs its own PTP grandmaster fed from the AWS Nitro
+PHC. <strong>PTP is never tunnelled through the fabric</strong> — it is deliberately
+dropped at the encapsulation point. Receivers lock to a local master that
+serves the same GPS-traceable time as every other host&#39;s local master.</li>
+</ul>
+<p>This manual describes the system as it ships today: agent mesh, router and
+bridge modes, the controller and its web dashboard, the metrics surface, the
+timing stack, and the deployment conditions that must be met for any of it to
+work. Design rationale and the phased roadmap are in
+<a href="PLAN.md">PLAN.md</a>; measured results and the bugs found along the way are in
+<a href="VALIDATION.md">VALIDATION.md</a>.</p>
+<blockquote>
+<p><strong>Branding.</strong> CloudcastFabric is the fifth product in the Airlock /
+Datamorph / VDM / Remote Play family. The wordmark is set lowercase —
+<code>cloudcast**fabric**</code>, bold on the second word — but prose (including this
+manual) writes it <strong>CloudcastFabric</strong>. Logos, favicons, motion and the
+machine-readable palette live in <a href="../brand/"><code>brand/</code></a>; open
+<code>brand/brand-guidelines.html</code> for the full guidelines. A cover or title-page
+logo takes <code>brand/logo/lockup-horizontal-dark.svg</code> (or <code>-light</code>, or
+<code>-adaptive</code> for the icon). Colour is the teal ramp — on dark surfaces
+<code>#99f6e4</code> → <code>#2dd4bf</code> → <code>#0d9488</code> → <code>#115e59</code>, on light
+<code>#2dd4bf</code> → <code>#0d9488</code> → <code>#115e59</code> → <code>#134e4a</code>, with hub and page <code>#0d1117</code>;
+<code>#2dd4bf</code> is a dark-surface accent only, <code>#115e59</code> is the readable accent on
+white. Type is Space Grotesk for the wordmark and headings, IBM Plex Sans for
+body, IBM Plex Mono for data and code. The controller UI ships in this brand
+(dark-native, teal blade ramp, pinwheel mark with the chase animation as the
+live-refresh indicator).</p>
+</blockquote>
+<hr>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#1-core-concepts">Core concepts</a></li>
+<li><a href="#2-architecture">Architecture</a><ul>
+<li><a href="#the-data-plane">The data plane</a> · <a href="#the-control-plane">The control plane</a> · <a href="#the-encapsulation-header">The encapsulation header</a> · <a href="#timing-per-host-grandmasters">Timing</a> · <a href="#modes-at-a-glance">Modes at a glance</a></li>
+</ul>
+</li>
+<li><a href="#3-deployment-requirements">Deployment requirements</a><ul>
+<li><a href="#instances-and-the-phc">Instances and the PHC</a> · <a href="#kernel-and-interface-settings">Kernel and interface settings</a> · <a href="#mtu">MTU</a> · <a href="#ports-and-security-groups">Ports and security groups</a></li>
+</ul>
+</li>
+<li><a href="#4-installation">Installation</a><ul>
+<li><a href="#41-building">Building</a> · <a href="#42-cloud-agent-mesh-mode">Cloud agent (mesh)</a> · <a href="#43-controller">Controller</a> · <a href="#44-ptp-grandmaster">PTP grandmaster</a> · <a href="#45-router-optional">Router</a> · <a href="#46-ground-to-cloud-bridge">Ground-to-cloud bridge</a></li>
+</ul>
+</li>
+<li><a href="#5-configuration-reference">Configuration reference</a><ul>
+<li><a href="#51-agent-command-line-flags">Agent flags</a> · <a href="#52-agent-environment-file">Agent environment file</a> · <a href="#53-controller-environment-variables">Controller environment</a> · <a href="#54-ptp-gmconf">ptp-gm.conf</a> · <a href="#55-systemd-units">systemd units</a></li>
+</ul>
+</li>
+<li><a href="#6-operations">Operations</a><ul>
+<li><a href="#61-the-dashboard">The dashboard</a> · <a href="#62-http-surface">HTTP surface</a> · <a href="#63-metrics">Metrics</a> · <a href="#64-adding-an-agent">Adding an agent</a> · <a href="#65-bridging-a-site">Bridging a site</a> · <a href="#66-verifying-a-path-with-ccf-spike">Verifying a path</a> · <a href="#67-checking-the-clock">Checking the clock</a></li>
+</ul>
+</li>
+<li><a href="#7-troubleshooting">Troubleshooting</a></li>
+<li><a href="#8-limits-and-known-gaps">Limits and known gaps</a></li>
+</ol>
+<hr>
+<h2 id="1-core-concepts">1. Core concepts</h2>
+<p><strong>The virtual interface is the product.</strong> Each mesh agent creates <code>ccf0</code>, a
+<strong>TAP</strong> (layer-2) device with a fabric address, and installs a route for
+<code>224.0.0.0/4</code> into it. Applications bind their sends and joins to that
+interface and behave exactly as they would on a multicast LAN. <code>ccf0</code> is a TAP
+rather than a TUN for a specific reason: a TUN has no MAC address, so every
+<code>ptp4l</code> on the fabric derived the same clock identity
+(<code>000000.fffe.000000</code>) and clients rejected each other&#39;s announces as their
+own. A real per-host MAC also keeps ARP and discovery traffic working for AoIP
+applications.</p>
+<p><strong>Subscriptions come from the kernel, not from config.</strong> The agent reads
+<code>/proc/net/igmp</code> for <code>ccf0</code> every loop — whatever local applications have
+actually joined — and reports that set to the controller. Two group ranges are
+never reported: link-local <code>224.0.0.0/24</code>, and the PTP group <code>224.0.1.129</code>.</p>
+<p><strong>Routes are receiver sets.</strong> The controller answers with, per group, the
+list of agents that have subscribers, minus the recipient itself. A sender
+transmits a group only while somebody wants it; with no subscribers the TX
+pump drops the frame <strong>and does not advance the sequence number</strong>, so a
+receiver joining later does not count the idle stretch as loss.</p>
+<p><strong>Delivery is de-duplicated and reordered per source.</strong> Every received fabric
+packet passes through a 1024-slot sliding window keyed by the sending agent&#39;s
+address: a packet is <em>Accept</em> (new, injected), <em>Dup</em> (already seen) or <em>Late</em>
+(older than the window). This window is the foundation for SMPTE 2022-7-style
+dual-path merge — that merge is not wired up yet (see
+<a href="#8-limits-and-known-gaps">§8</a>) but the mechanism it needs is in place and
+counted.</p>
+<p><strong>PTP never crosses the fabric.</strong> UDP 319 and 320 are dropped by both the mesh
+TX pump and the bridge LAN pump unless <code>--forward-ptp</code> is given. Tunnelled PTP
+would fight the local grandmasters through BMCA and carry fabric jitter into
+clock servos; instead every host serves identical, independently-sourced GPS
+time. Do not &quot;fix&quot; this.</p>
+<h2 id="2-architecture">2. Architecture</h2>
+<pre><code>                    ┌──────────────────────────────┐
+                    │  Controller (.NET 8)          │
+                    │  NDJSON :8600 · web :8601/:8443│
+                    └───────▲──────────────▲────────┘
+      hello / subs (TCP)    │              │   routes push
+                            │              │
+   ┌──────────┐   fabric UDP 7777    ┌──────┴───┐        ┌───────────┐
+   │ Agent A  │◀────────────────────▶│ Agent B  │        │  Bridge   │
+   │ TAP ccf0 │      (mesh: direct)  │ TAP ccf0 │        │ AF_PACKET │
+   │ local GM │                      │ local GM │        │  on eth   │
+   └────▲─────┘                      └────▲─────┘        └─────▲─────┘
+        │ app sends/joins 239.x.x.x       │                    │ real plant LAN
+        │ on ccf0, locks PTP locally      │                    │ multicast + IGMP
+</code></pre>
+<h3 id="the-data-plane">The data plane</h3>
+<p><code>ccf-agent</code> is one Rust binary with three modes, and two pinned threads on the
+packet path in each of them.</p>
+<p><strong>Mesh</strong> (<code>--mode mesh</code>) is what runs on a participating instance. The TX pump
+reads Ethernet frames from <code>ccf0</code>, keeps only IPv4 multicast UDP, prepends the
+16-byte fabric header, and unicasts one copy per target. The RX pump receives
+fabric datagrams with <code>recvmmsg</code> (batch 32, <code>MSG_WAITFORONE</code>), de-duplicates,
+and writes the original frame back into <code>ccf0</code>, where the kernel delivers it to
+every locally joined socket.</p>
+<blockquote>
+<p><code>MSG_WAITFORONE</code> is not an optimisation, it is a correctness fix. A blocking
+<code>recvmmsg</code> without it waits for the <em>full</em> batch: at 1,000 pps a 32-slot
+batch silently added ~32 ms of latency (measured p50 15.3 ms — exactly half
+the batch window).</p>
+</blockquote>
+<p><strong>Router</strong> (<code>--mode router</code>) has no TAP. It receives fabric packets and
+forwards each to every configured member except the one it came from — the
+relay counterpart to mesh mode&#39;s direct paths, for fan-outs large enough that
+per-sender replication is wasteful.</p>
+<p><strong>Bridge</strong> (<code>--mode bridge</code>) has no TAP either. On one side is the fabric; on
+the other, a real interface carrying genuine plant multicast, captured with an
+<code>AF_PACKET</code> raw socket. See <a href="#46-ground-to-cloud-bridge">§4.6</a>.</p>
+<h3 id="the-control-plane">The control plane</h3>
+<p>The controller is a .NET 8 service. Agents hold a TCP session to port <strong>8600</strong>
+and speak newline-delimited JSON:</p>
+<pre><code>-&gt; {&quot;type&quot;:&quot;hello&quot;,&quot;id&quot;:&quot;&lt;host&gt;&quot;,&quot;data&quot;:&quot;&lt;ip:port&gt;&quot;}
+-&gt; {&quot;type&quot;:&quot;subs&quot;,&quot;groups&quot;:[&quot;239.69.1.1&quot;,...]}          on change, and every 5 s
+&lt;- {&quot;type&quot;:&quot;routes&quot;,&quot;routes&quot;:{&quot;239.69.1.1&quot;:[&quot;172.31.50.81:7777&quot;,...]}}
+</code></pre>
+<p>The <code>data</code> address is discovered, not configured: the agent opens a UDP socket
+towards the controller and takes the source address the kernel picks. That is
+the address other agents will send fabric traffic to, so <strong>the controller must
+be reachable over the same interface the fabric should use</strong>. On a bridge
+behind WireGuard this yields the tunnel address, which is why the cloud-side
+WireGuard host must route the VPC range back down the tunnel.</p>
+<p>Each agent session gets a <strong>dedicated synchronous thread</strong>. The original
+<code>Task.Run</code> + <code>await ReadLineAsync()</code> design processed the hello instantly and
+then delivered subsequent lines tens of seconds late on 1-vCPU hosts, with the
+kernel receive queue empty — the stall was inside the .NET async machinery.
+Subscription-to-route latency is now ~1 ms.</p>
+<p>Routes are recomputed and pushed to every agent whenever an agent registers,
+disconnects, or changes its subscription set. If the control session drops, the
+agent <strong>clears its route table</strong> and stops sending until it reconnects
+(retry every 2 s).</p>
+<h3 id="the-encapsulation-header">The encapsulation header</h3>
+<p>16 bytes, big-endian, prepended to the captured Ethernet frame:</p>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Size</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>2</td>
+<td>magic <code>0x4346</code> (<code>&quot;CF&quot;</code>)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>version = 1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1</td>
+<td>flags (reserved, 0)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>sequence number, per sending agent, wrapping</td>
+</tr>
+<tr>
+<td>8</td>
+<td>8</td>
+<td>send timestamp, <code>CLOCK_REALTIME</code> nanoseconds</td>
+</tr>
+</tbody></table>
+<p>The timestamp is what produces the <code>ccf_fabric_delay_us</code> histogram at the
+receiver, and it is only meaningful because both hosts are disciplined to the
+same PHC. Version 2 will add an origin id so dual-path copies of one origin
+share a de-dup window.</p>
+<h3 id="timing-per-host-grandmasters">Timing: per-host grandmasters</h3>
+<pre><code>Nitro PHC (/dev/ptp0, GPS-disciplined)
+   └─ chrony ──▶ system clock  (root dispersion ~1 µs, measured)
+        └─ ptp4l -f /etc/ccf/ptp-gm.conf  ──▶  PTPv2 master on ccf0
+                                                └─ AES67 receivers on this host
+</code></pre>
+<p>One grandmaster per host, all serving the same traceable time, none of them
+talking to each other. Because inter-instance clock offset is single-digit
+microseconds and standard AES67 receive link-offsets are 1–4 ms, the residual
+disagreement is orders of magnitude inside budget.</p>
+<h3 id="modes-at-a-glance">Modes at a glance</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>mesh</th>
+<th>router</th>
+<th>bridge</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Creates <code>ccf0</code> TAP</td>
+<td>yes</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Talks to the controller</td>
+<td>when <code>--controller</code> is given</td>
+<td>no — static <code>--members</code> only</td>
+<td>required</td>
+</tr>
+<tr>
+<td>Where packets come from</td>
+<td>apps on <code>ccf0</code></td>
+<td>other agents</td>
+<td><code>AF_PACKET</code> on <code>--lan-iface</code></td>
+</tr>
+<tr>
+<td>Subscriptions reported</td>
+<td>kernel IGMP on <code>ccf0</code></td>
+<td>none</td>
+<td>IGMP snooped on the LAN + <code>--lan-subs</code></td>
+</tr>
+<tr>
+<td>Honours <code>--cpu</code></td>
+<td>yes</td>
+<td>yes</td>
+<td>no</td>
+</tr>
+</tbody></table>
+<h2 id="3-deployment-requirements">3. Deployment requirements</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OS</td>
+<td>Linux. Root (or <code>CAP_NET_ADMIN</code> + <code>CAP_NET_RAW</code> + RT privileges) — v1 runs as root.</td>
+</tr>
+<tr>
+<td>Build toolchain</td>
+<td>Rust stable for <code>ccf-agent</code>; .NET 8 SDK for the controller.</td>
+</tr>
+<tr>
+<td>Timing packages</td>
+<td><code>chrony</code> on every host; <code>linuxptp</code> (<code>ptp4l</code>) on hosts serving PTP to local AES67 apps.</td>
+</tr>
+<tr>
+<td>Instances</td>
+<td>Nitro, ENA ≥ 2.10, <strong>PHC support</strong> — see below.</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>Same VPC/AZ preferred (intra-AZ private traffic is free and lower jitter); cluster placement group for latency-critical members.</td>
+</tr>
+</tbody></table>
+<h3 id="instances-and-the-phc">Instances and the PHC</h3>
+<p>The PTP Hardware Clock is exposed as <code>/dev/ptp0</code> by the ENA driver, but only on
+instance types that support it and only once the driver option is set:</p>
+<pre><code class="language-bash">echo &#39;options ena phc_enable=1&#39; | sudo tee /etc/modprobe.d/ena.conf
+sudo reboot
+ls /dev/ptp*            # expect /dev/ptp0
+ethtool -T ens5         # hardware timestamp capabilities
+</code></pre>
+<p><strong><code>c7g</code> does not support PHC at all</strong> — validated hosts were <code>m7g.medium</code>;
+<code>c8g</code> and <code>r7g</code> also carry it. Confirm before you launch with
+<code>aws ec2 describe-instance-types --query &#39;InstanceTypes[].[InstanceType,PhcSupport]&#39;</code>.
+A host without a PHC still carries fabric traffic perfectly well; it just has
+no GPS-traceable reference for its local grandmaster, and one-way delay figures
+measured against it are clock-offset artefacts rather than real numbers.</p>
+<h3 id="kernel-and-interface-settings">Kernel and interface settings</h3>
+<p><strong>Reverse-path filtering must be off on the fabric interface.</strong> Bridged streams
+arrive carrying their original plant source IPs, for which cloud hosts have no
+route; strict or loose RPF drops them silently at the IP layer — the symptom is
+<code>UdpInErrors</code> climbing in <code>netstat -su</code> while the application receives nothing.
+The agent writes <code>/proc/sys/net/ipv4/conf/ccf0/rp_filter = 0</code> itself when it
+creates the interface, but the kernel uses the <strong>maximum</strong> of the <code>all</code> and
+per-interface values, so check:</p>
+<pre><code class="language-bash">sysctl net.ipv4.conf.all.rp_filter      # must be 0 for bridged source IPs
+</code></pre>
+<p><strong>Host firewalls eat fabric traffic by default.</strong> A <code>ufw</code> default-deny policy
+swallowed the first bridge run entirely. Allow the fabric port, and on a bridge
+allow the tunnel and LAN interfaces (<code>ufw allow in on wg0</code>).</p>
+<p><strong>Virtualised bridge hosts need TX checksum offload disabled on the capture
+interface.</strong> Frames captured from a veth or vNIC before the NIC computes
+checksums carry deferred (zero) checksums; the far end rejects every one of
+them as <code>UdpInErrors</code>. <code>sudo ethtool -K $IFACE tx off</code>. Physical plant capture
+is unaffected — real senders checksum before the wire.</p>
+<h3 id="mtu">MTU</h3>
+<p><code>ccf0</code> defaults to <strong>MTU 1300</strong> (<code>--mtu</code>). A 1300-byte IP packet becomes a
+1314-byte Ethernet frame, plus the 16-byte fabric header, plus 28 bytes of
+outer UDP/IP = 1358 bytes on the wire — inside a 1500-byte path and inside a
+typical WireGuard MTU. Raise it only when the whole path (including any tunnel)
+is known to be jumbo-clean; a VPC supports 9001 intra-VPC. AES67 packets are
+far smaller than any of these limits, so the default never fragments real
+media.</p>
+<h3 id="ports-and-security-groups">Ports and security groups</h3>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Proto</th>
+<th>Direction</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>7777</td>
+<td>UDP</td>
+<td>agent ↔ agent, agent ↔ router</td>
+<td>Fabric data (<code>--listen</code>; any port, but all peers must agree)</td>
+</tr>
+<tr>
+<td>8600</td>
+<td>TCP</td>
+<td>agent → controller</td>
+<td>Control channel (NDJSON)</td>
+</tr>
+<tr>
+<td>8601</td>
+<td>TCP</td>
+<td>operator → controller</td>
+<td>Web dashboard, HTTP</td>
+</tr>
+<tr>
+<td>8443</td>
+<td>TCP</td>
+<td>operator → controller</td>
+<td>Web dashboard, HTTPS (when configured, see <a href="#43-controller">§4.3</a>)</td>
+</tr>
+<tr>
+<td>9464</td>
+<td>TCP</td>
+<td>controller → agent, operator → agent</td>
+<td>Prometheus metrics (<code>--metrics</code>; <strong>the controller&#39;s poller always scrapes 9464</strong>)</td>
+</tr>
+<tr>
+<td>51820</td>
+<td>UDP</td>
+<td>bridge ↔ cloud gateway</td>
+<td>WireGuard, in bridged deployments</td>
+</tr>
+<tr>
+<td>319/320</td>
+<td>UDP</td>
+<td>host-local only</td>
+<td>PTP event/general — must <em>not</em> traverse the fabric</td>
+</tr>
+</tbody></table>
+<h2 id="4-installation">4. Installation</h2>
+<h3 id="41-building">4.1 Building</h3>
+<pre><code class="language-bash">cargo build --release -p ccf-agent -p ccf-spike     # target/release/ccf-agent
+dotnet publish controller -c Release -o /opt/ccf-controller
+</code></pre>
+<p><code>ccf-agent</code> has one dependency (<code>libc</code>) and builds in seconds. <code>ccf-spike</code> is
+the bench tool used for verification (<a href="#66-verifying-a-path-with-ccf-spike">§6.6</a>).</p>
+<h3 id="42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</h3>
+<p><code>packaging/install.sh</code> installs the binary, writes the environment file and
+enables the systemd unit:</p>
+<pre><code class="language-bash">sudo packaging/install.sh target/release/ccf-agent mesh 7777 &quot;&quot; 10.77.0.1/24
+</code></pre>
+<p>Arguments are <code>&lt;binary&gt; &lt;mode&gt; &lt;listen&gt; &lt;peers&gt; &lt;tun-cidr&gt;</code>. Give each host a
+distinct address in the fabric /24. Leave <code>&lt;peers&gt;</code> empty for a
+controller-driven deployment — but note the installer writes no
+<code>--controller</code>, so add it to <code>CCF_EXTRA</code> in <code>/etc/ccf/agent.env</code>:</p>
+<pre><code class="language-ini">CCF_EXTRA=--rt --controller 172.31.50.10:8600
+</code></pre>
+<p>then <code>sudo systemctl restart ccf-agent</code>. The journal should show:</p>
+<pre><code>ccf-agent mesh: tun=ccf0 addr=10.77.0.1/24 listen=:7777 peers=[] metrics=:9464 rt=true
+control: connected to 172.31.50.10:8600
+</code></pre>
+<p>Without <code>--controller</code> the agent uses the static <code>--peers</code> list and replicates
+every multicast frame to all of them regardless of who is listening.</p>
+<h3 id="43-controller">4.3 Controller</h3>
+<pre><code class="language-bash">sudo mkdir -p /etc/ccf
+sudo tee /etc/ccf/controller.env &gt;/dev/null &lt;&lt;&#39;EOF&#39;
+CCF_ADMIN_PASSWORD=&lt;break-glass password&gt;
+CCF_OIDC_AUTHORITY=https://cognito-idp.&lt;region&gt;.amazonaws.com/&lt;user-pool-id&gt;
+CCF_OIDC_CLIENT_ID=&lt;app client id&gt;
+CCF_OIDC_CLIENT_SECRET=&lt;app client secret&gt;
+ASPNETCORE_URLS=https://0.0.0.0:8443;http://0.0.0.0:8601
+EOF
+sudo install -m644 packaging/ccf-controller.service /etc/systemd/system/
+sudo systemctl enable --now ccf-controller
+</code></pre>
+<p>Startup logs <code>ccf-controller: control on :8600, ui on :8601/:8443, oidc=on</code>.</p>
+<p>Points to be aware of:</p>
+<ul>
+<li>The control port <strong>8600 is compiled in</strong>; it is not configurable.</li>
+<li>With no <code>ASPNETCORE_URLS</code>, the controller binds <code>http://0.0.0.0:8601</code> only.
+HTTPS on 8443 is standard ASP.NET Core Kestrel configuration — the URL above
+plus a certificate (<code>ASPNETCORE_Kestrel__Certificates__Default__Path</code> /
+<code>__Password</code>, or the dev certificate). The reference deployment uses a
+self-signed certificate, so browsers warn on first visit.</li>
+<li>OIDC is enabled only when <strong>both</strong> <code>CCF_OIDC_AUTHORITY</code> and
+<code>CCF_OIDC_CLIENT_ID</code> are set; otherwise the login page offers the password
+alone. The Cognito app client&#39;s callback URL is the ASP.NET Core default,
+<code>https://&lt;host&gt;:8443/signin-oidc</code>, and the sign-out URL <code>/signout-callback-oidc</code>.
+Scopes requested are <code>openid</code>, <code>email</code>, <code>profile</code>.</li>
+<li>If <code>CCF_ADMIN_PASSWORD</code> is unset or empty, password sign-in is refused
+outright — SSO or loopback only.</li>
+</ul>
+<h3 id="44-ptp-grandmaster">4.4 PTP grandmaster</h3>
+<p>On every host whose local applications need to lock to PTP:</p>
+<pre><code class="language-bash">sudo apt install chrony linuxptp        # or dnf, per distro
+sudo install -m644 packaging/ptp-gm.conf /etc/ccf/ptp-gm.conf
+sudo install -m644 packaging/ccf-ptp-gm.service /etc/systemd/system/
+sudo systemctl enable --now ccf-ptp-gm
+</code></pre>
+<p>Point chrony at the PHC first (<code>refclock PHC /dev/ptp0 poll 0 dpoll -2 offset 0</code>
+is the usual AWS form) and confirm with <code>chronyc tracking</code> — the reference
+hosts show root dispersion 0.4–1.0 µs. The unit waits for <code>ccf0</code> to appear
+before starting <code>ptp4l</code>, requires <code>ccf-agent</code>, and expects the binary at
+<code>/usr/local/sbin/ptp4l</code> (adjust <code>ExecStart</code> if your distro installs to
+<code>/usr/sbin</code>).</p>
+<h3 id="45-router-optional">4.5 Router (optional)</h3>
+<pre><code class="language-bash">ccf-agent --mode router --listen 7777 \
+  --members 172.31.50.81:7777,172.31.170.100:7777 --metrics 9464 --rt
+</code></pre>
+<p>Router mode is <strong>static only</strong> — it takes no <code>--controller</code> and holds no
+subscription state. Every valid fabric packet goes to every member except its
+source. Mesh agents pointed at a router simply list it as their peer. For the
+fan-outs validated so far, direct mesh paths are both simpler and lower
+latency; the router exists for large fan-outs and as the future HA pair.</p>
+<h3 id="46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</h3>
+<p>The bridge joins the fabric on behalf of a physical LAN. It needs IP
+reachability to the controller and to the cloud agents — in the validated
+deployment, WireGuard to a cloud instance that also acts as router
+(<code>net.ipv4.ip_forward=1</code>, source/destination check disabled, and a security
+group entry for the tunnel subnet; the bridge holds a route for the VPC range
+via <code>wg0</code>).</p>
+<pre><code class="language-bash">sudo systemd-run --unit ccf-bridge --property Restart=always \
+  /opt/ccf/ccf-agent --mode bridge \
+  --lan-iface eth0 --lan-ip 192.168.1.50 \
+  --controller 10.99.0.1:8600 --listen 7777 --metrics 9464 --rt
+</code></pre>
+<p>Wired Ethernet is strongly preferred — Wi-Fi access points mangle multicast.
+What the bridge then does, with no static configuration:</p>
+<ul>
+<li><strong>LAN → fabric.</strong> An <code>AF_PACKET</code> socket captures IPv4 frames on the LAN
+interface. Multicast UDP for a group the controller has routed is
+encapsulated and unicast to the subscribing agents; everything else is
+ignored. A membership manager holds a <strong>real IGMP join</strong> on the LAN for every
+routed group (re-evaluated each second), so plant switches actually forward
+those streams to this port.</li>
+<li><strong>fabric → LAN.</strong> Received fabric packets are de-duplicated and re-emitted as
+genuine multicast frames on the LAN interface, addressed to the original
+destination MAC.</li>
+<li><strong>IGMP snooping.</strong> LAN hosts&#39; IGMPv1/v2/v3 membership reports and leaves are
+parsed and become this bridge&#39;s fabric subscriptions. An entry expires 95 s
+after its last refresh. v3 record types 2/4/5 (EXCLUDE/CHANGE_TO_EXCLUDE/
+ALLOW) count as joins; types 1/3 with no sources count as leaves.</li>
+<li><strong>Querier.</strong> Every 30 s the bridge emits an IGMPv2 general query (router-alert
+IP option, max response 10 s, sourced from <code>--lan-ip</code>) so memberships keep
+refreshing on LANs that have no querier. On a plant that already has one,
+both coexist and the lowest source IP wins the election.</li>
+<li><strong>Loop safety.</strong> <code>PACKET_IGNORE_OUTGOING</code> keeps the bridge&#39;s own emissions
+out of its capture path, and the bridge never reports kernel IGMP state — its
+own forwarding joins would otherwise reflect routes straight back as
+subscriptions.</li>
+</ul>
+<p><code>--lan-subs</code> remains available as a static seed, merged with whatever snooping
+finds. It is no longer required: the validated sequence programs both
+directions from live IGMP alone.</p>
+<p>The bridge appears on the dashboard as <code>bridge-&lt;hostname&gt;</code>.</p>
+<h2 id="5-configuration-reference">5. Configuration reference</h2>
+<h3 id="51-agent-command-line-flags">5.1 Agent command-line flags</h3>
+<p>Flags are positional-free <code>--key value</code> pairs; an unknown flag is ignored, and
+a flag whose value is missing (or is itself another <code>--flag</code>, which is what an
+empty environment variable expands to) is treated as unset.</p>
+<p><strong>All modes</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--mode mesh|router|bridge</code></td>
+<td>—</td>
+<td>Required. Anything else prints usage and exits 2.</td>
+</tr>
+<tr>
+<td><code>--listen &lt;port&gt;</code></td>
+<td><code>7777</code></td>
+<td>UDP port for fabric traffic. All peers must agree.</td>
+</tr>
+<tr>
+<td><code>--metrics &lt;port&gt;</code></td>
+<td><code>9464</code></td>
+<td>Prometheus endpoint. The controller&#39;s poller scrapes 9464 regardless of this value.</td>
+</tr>
+<tr>
+<td><code>--rt</code></td>
+<td>off</td>
+<td><code>SCHED_FIFO</code> priority 50 on both packet pumps. Warns and continues if unavailable.</td>
+</tr>
+<tr>
+<td><code>--cpu &lt;n&gt;</code></td>
+<td>unset</td>
+<td>Pin the pumps to CPU <em>n</em>. Ignored in bridge mode.</td>
+</tr>
+</tbody></table>
+<p><strong>Mesh mode</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--addr &lt;cidr&gt;</code></td>
+<td>—</td>
+<td><strong>Required.</strong> Address for <code>ccf0</code>, e.g. <code>10.77.0.1/24</code>.</td>
+</tr>
+<tr>
+<td><code>--tun &lt;name&gt;</code></td>
+<td><code>ccf0</code></td>
+<td>Interface name (max 15 chars).</td>
+</tr>
+<tr>
+<td><code>--mtu &lt;n&gt;</code></td>
+<td><code>1300</code></td>
+<td>MTU set on the interface.</td>
+</tr>
+<tr>
+<td><code>--controller &lt;ip:port&gt;</code></td>
+<td>unset</td>
+<td>Enables controller-driven routing. When set, <code>--peers</code> is ignored.</td>
+</tr>
+<tr>
+<td><code>--peers &lt;ip:port,...&gt;</code></td>
+<td>empty</td>
+<td>Static replication targets, used only without <code>--controller</code>.</td>
+</tr>
+<tr>
+<td><code>--forward-ptp</code></td>
+<td>off</td>
+<td>Forward UDP 319/320 across the fabric. Leave off.</td>
+</tr>
+</tbody></table>
+<p><strong>Router mode</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--members &lt;ip:port,...&gt;</code></td>
+<td>—</td>
+<td><strong>Required</strong>, non-empty. Fan-out targets.</td>
+</tr>
+</tbody></table>
+<p><strong>Bridge mode</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--lan-iface &lt;name&gt;</code></td>
+<td>—</td>
+<td><strong>Required.</strong> Interface carrying plant multicast.</td>
+</tr>
+<tr>
+<td><code>--lan-ip &lt;ipv4&gt;</code></td>
+<td>—</td>
+<td><strong>Required.</strong> This host&#39;s address on that LAN; used for IGMP joins and as the querier source.</td>
+</tr>
+<tr>
+<td><code>--controller &lt;ip:port&gt;</code></td>
+<td>—</td>
+<td><strong>Required.</strong></td>
+</tr>
+<tr>
+<td><code>--lan-subs &lt;group,...&gt;</code></td>
+<td>empty</td>
+<td>Static groups to pull down from the fabric, merged with snooped state.</td>
+</tr>
+<tr>
+<td><code>--forward-ptp</code></td>
+<td>off</td>
+<td>As above.</td>
+</tr>
+</tbody></table>
+<p>The agent identifies itself to the controller as the contents of
+<code>/proc/sys/kernel/hostname</code> (mesh/router) or <code>bridge-&lt;hostname&gt;</code> (bridge).
+There is no flag to override it.</p>
+<h3 id="52-agent-environment-file">5.2 Agent environment file</h3>
+<p><code>packaging/install.sh</code> writes <code>/etc/ccf/agent.env</code>, which the systemd unit
+expands into its <code>ExecStart</code> line:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Written as</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CCF_MODE</code></td>
+<td><code>--mode</code></td>
+<td><code>mesh</code> or <code>router</code> from the installer; <code>bridge</code> works if you also supply the bridge flags via <code>CCF_EXTRA</code>.</td>
+</tr>
+<tr>
+<td><code>CCF_LISTEN</code></td>
+<td><code>--listen</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>CCF_PEERS</code></td>
+<td><code>--peers</code></td>
+<td>Empty value is safely ignored by the argument parser.</td>
+</tr>
+<tr>
+<td><code>CCF_TUN</code></td>
+<td><code>--tun</code></td>
+<td>Installer always writes <code>ccf0</code>.</td>
+</tr>
+<tr>
+<td><code>CCF_ADDR</code></td>
+<td><code>--addr</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>CCF_MTU</code></td>
+<td><code>--mtu</code></td>
+<td>Installer writes <code>1300</code>.</td>
+</tr>
+<tr>
+<td><code>CCF_METRICS</code></td>
+<td><code>--metrics</code></td>
+<td>Installer writes <code>9464</code>.</td>
+</tr>
+<tr>
+<td><code>CCF_EXTRA</code></td>
+<td>appended verbatim</td>
+<td>Installer writes <code>--rt</code>. Put <code>--controller</code>, <code>--cpu</code>, bridge flags here.</td>
+</tr>
+</tbody></table>
+<h3 id="53-controller-environment-variables">5.3 Controller environment variables</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CCF_ADMIN_PASSWORD</code></td>
+<td>empty</td>
+<td>Break-glass password. Empty disables password sign-in.</td>
+</tr>
+<tr>
+<td><code>CCF_OIDC_AUTHORITY</code></td>
+<td>empty</td>
+<td>Cognito user-pool issuer URL.</td>
+</tr>
+<tr>
+<td><code>CCF_OIDC_CLIENT_ID</code></td>
+<td>empty</td>
+<td>App client id. SSO turns on only when authority <em>and</em> client id are both set.</td>
+</tr>
+<tr>
+<td><code>CCF_OIDC_CLIENT_SECRET</code></td>
+<td>empty</td>
+<td>App client secret.</td>
+</tr>
+<tr>
+<td><code>ASPNETCORE_URLS</code></td>
+<td><code>http://0.0.0.0:8601</code></td>
+<td>Standard ASP.NET Core binding; set both HTTP and HTTPS URLs here.</td>
+</tr>
+</tbody></table>
+<p>Standard ASP.NET Core Kestrel and logging variables also apply. Command-line
+arguments are passed to the web host builder, so <code>--urls</code> works too.</p>
+<h3 id="54-ptp-gmconf">5.4 ptp-gm.conf</h3>
+<p>The shipped grandmaster profile (<code>packaging/ptp-gm.conf</code>), applied to <code>ccf0</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Value</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>masterOnly</code></td>
+<td>1</td>
+<td>Never becomes a slave; there is nothing on <code>ccf0</code> to sync to.</td>
+</tr>
+<tr>
+<td><code>domainNumber</code></td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td><code>priority1</code> / <code>priority2</code></td>
+<td>128 / 128</td>
+<td>Identical fabric-wide — hosts are peers, not a hierarchy.</td>
+</tr>
+<tr>
+<td><code>clockClass</code></td>
+<td>6</td>
+<td>Locked to a primary reference (the GPS-backed PHC via chrony).</td>
+</tr>
+<tr>
+<td><code>clockAccuracy</code></td>
+<td><code>0x21</code></td>
+<td>Within 100 ns.</td>
+</tr>
+<tr>
+<td><code>timeSource</code></td>
+<td><code>0x20</code></td>
+<td>GPS.</td>
+</tr>
+<tr>
+<td><code>logSyncInterval</code></td>
+<td>−3</td>
+<td>8 syncs/s.</td>
+</tr>
+<tr>
+<td><code>logAnnounceInterval</code></td>
+<td>1</td>
+<td>Announce every 2 s; <code>announceReceiptTimeout 3</code>.</td>
+</tr>
+<tr>
+<td><code>logMinDelayReqInterval</code></td>
+<td>0</td>
+<td>1 delay request/s.</td>
+</tr>
+<tr>
+<td><code>network_transport</code></td>
+<td><code>UDPv4</code></td>
+<td>AES67-style multicast PTP over IPv4.</td>
+</tr>
+<tr>
+<td><code>time_stamping</code></td>
+<td><code>software</code></td>
+<td><code>ccf0</code> is virtual; the traceable reference is already in the system clock.</td>
+</tr>
+</tbody></table>
+<h3 id="55-systemd-units">5.5 systemd units</h3>
+<table>
+<thead>
+<tr>
+<th>Unit</th>
+<th>Runs</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ccf-agent.service</code></td>
+<td><code>/usr/local/bin/ccf-agent</code></td>
+<td><code>After=network-online.target chronyd.service</code>, <code>Restart=always</code> (2 s), <code>LimitRTPRIO=99</code>, <code>LimitMEMLOCK=infinity</code>. Runs as root in v1.</td>
+</tr>
+<tr>
+<td><code>ccf-controller.service</code></td>
+<td><code>dotnet /opt/ccf-controller/CloudCastFabric.Controller.dll</code></td>
+<td>Optional <code>EnvironmentFile=-/etc/ccf/controller.env</code>, <code>Restart=always</code>.</td>
+</tr>
+<tr>
+<td><code>ccf-ptp-gm.service</code></td>
+<td><code>/usr/local/sbin/ptp4l -f /etc/ccf/ptp-gm.conf -m</code></td>
+<td><code>Requires=ccf-agent.service</code>; waits for <code>ccf0</code> in <code>ExecStartPre</code>.</td>
+</tr>
+</tbody></table>
+<h2 id="6-operations">6. Operations</h2>
+<h3 id="61-the-dashboard">6.1 The dashboard</h3>
+<p>Browse to the controller — <code>https://&lt;host&gt;:8443</code> (or <code>http://&lt;host&gt;:8601</code>). The
+sign-in page offers <strong>Sign in with Cognito SSO</strong> and, below the divider <em>&quot;or
+break-glass password&quot;</em>, a password field and <strong>Sign in</strong>; a bad password
+returns <em>&quot;Wrong password.&quot;</em> Requests originating from loopback are treated as
+authenticated and skip the page entirely, which is what lets local scripts and
+health checks read <code>/state</code>.</p>
+<p>The header carries the two tabs — <strong>Overview</strong> and <strong>Analytics</strong> — a clock, a
+<strong>◐ theme</strong> toggle (light/dark, remembered in local storage) and <strong>Sign out</strong>.
+Everything refreshes every 3 seconds.</p>
+<p><strong>Overview.</strong> Six tiles across the top: <strong>Agents online</strong>, <strong>Active routes</strong>,
+<strong>Fabric out</strong>, <strong>Fabric in</strong>, <strong>Delivered to apps</strong>, <strong>Lost (total)</strong>. Below
+them, one card per agent showing its short hostname, data address, the four
+live rates (<strong>cap</strong> captured from the app side, <strong>tx</strong> sent to the fabric,
+<strong>rx</strong> received from the fabric, <strong>inj</strong> injected to local apps), its
+subscription pills, and a sparkline of tx+rx. With nothing connected the list
+reads <em>&quot;no agents connected&quot;</em>; an agent with no joins shows <em>&quot;no
+subscriptions&quot;</em>. To the right, <strong>Active routes</strong> lists each group against its
+target endpoints (<em>&quot;no active routes — no app has joined a group&quot;</em> when idle)
+and <strong>Events</strong> shows the last 40 controller events — agent up/down,
+subscription changes, sign-ins, admin actions — or <em>&quot;quiet&quot;</em>.</p>
+<p>Clicking an agent card opens a detail dialog: <strong>Status</strong> (online, and how many
+seconds since its metrics were last scraped), <strong>Subscriptions</strong>, <strong>Rates</strong>,
+<strong>Integrity</strong> (lost/dup/late), <strong>Delay (≤µs)</strong> — the share of packets inside
+each histogram bound — and three buttons: <strong>Disconnect session (agent
+re-registers)</strong>, <strong>Recompute all routes</strong>, <strong>Close</strong>.</p>
+<p><strong>Analytics</strong> charts the poller&#39;s history: <strong>Fabric throughput — packets/s</strong>
+(tx and rx per agent), <strong>Injected to apps — packets/s</strong>, <strong>Fabric delay — share
+≤ bound (latest)</strong> as a bar chart over the 20/50/100/200/500/1000 µs bounds for
+one receiving agent, and <strong>Loss / duplicates / late (totals)</strong> as a table.</p>
+<p>The footer states the operating principle: <em>&quot;agents report kernel IGMP joins ·
+routes are per-group receiver sets&quot;</em>.</p>
+<h3 id="62-http-surface">6.2 HTTP surface</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/</code></td>
+<td>Dashboard (redirects to <code>/login</code> when unauthenticated)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/login</code></td>
+<td>Sign-in page</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/login</code></td>
+<td>Form field <code>password</code>; sets the <code>ccf_session</code> cookie (HttpOnly, 7 days)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/auth/cognito</code></td>
+<td>Starts the OIDC challenge (redirects to <code>/login</code> when SSO is off)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/logout</code></td>
+<td>Drops the session and cookie</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/overview</code></td>
+<td>Everything the dashboard renders: agents, rates, series, routes, events, fabric totals</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/action/disconnect/{id}</code></td>
+<td>Closes that agent&#39;s control session; it reconnects within ~2 s</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/action/recompute</code></td>
+<td>Forces a route recompute and push</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/state</code></td>
+<td>Compact JSON — agents (id, data address, groups) and the full route table. Intended for loopback scripts and health checks</td>
+</tr>
+</tbody></table>
+<h3 id="63-metrics">6.3 Metrics</h3>
+<p>Every agent serves Prometheus text format on <code>0.0.0.0:&lt;--metrics&gt;</code> (default
+9464), for any request path, with no authentication and no TLS. All values are
+atomics updated on the hot path.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ccf_tun_rx_packets_total</code></td>
+<td>counter</td>
+<td>Frames taken from the app side — <code>ccf0</code> in mesh mode, the LAN capture in bridge mode (bridge counts only frames that had a route).</td>
+</tr>
+<tr>
+<td><code>ccf_tun_tx_packets_total</code></td>
+<td>counter</td>
+<td>Frames delivered to the app side — injected into <code>ccf0</code>, or emitted onto the LAN.</td>
+</tr>
+<tr>
+<td><code>ccf_fabric_tx_packets_total</code></td>
+<td>counter</td>
+<td>Datagrams sent to peers. Counts <strong>once per target</strong>, so it is N× the capture rate for a fan-out of N.</td>
+</tr>
+<tr>
+<td><code>ccf_fabric_tx_bytes_total</code></td>
+<td>counter</td>
+<td>As above, header included.</td>
+</tr>
+<tr>
+<td><code>ccf_fabric_rx_packets_total</code></td>
+<td>counter</td>
+<td>Valid fabric datagrams received.</td>
+</tr>
+<tr>
+<td><code>ccf_fabric_rx_bytes_total</code></td>
+<td>counter</td>
+<td>As above.</td>
+</tr>
+<tr>
+<td><code>ccf_fabric_lost_total</code></td>
+<td>counter</td>
+<td>Sequence gaps evicted unfilled from the de-dup window.</td>
+</tr>
+<tr>
+<td><code>ccf_fabric_dup_total</code></td>
+<td>counter</td>
+<td>Packets already marked received.</td>
+</tr>
+<tr>
+<td><code>ccf_fabric_late_total</code></td>
+<td>counter</td>
+<td>Packets older than the 1024-slot window.</td>
+</tr>
+<tr>
+<td><code>ccf_fabric_delay_us</code></td>
+<td>histogram</td>
+<td>Send-to-receive delay in microseconds. Buckets 10, 20, 50, 100, 200, 500, 1000, 5000, 10000, <code>+Inf</code>, plus <code>_sum</code> and <code>_count</code>.</td>
+</tr>
+</tbody></table>
+<p>The controller&#39;s poller scrapes <code>http://&lt;agent data ip&gt;:9464/metrics</code> every 5 s
+and keeps 720 samples (~1 hour) per agent in memory. Nothing is persisted: a
+controller restart loses the history, though the counters on the agents keep
+running. A scrape failure is silent — it surfaces as the growing <em>metrics Ns
+ago</em> value in the agent dialog.</p>
+<blockquote>
+<p>Because the poller&#39;s port is hard-coded, an agent started with a non-default
+<code>--metrics</code> will register and route normally but show all-zero rates on the
+dashboard.</p>
+</blockquote>
+<h3 id="64-adding-an-agent">6.4 Adding an agent</h3>
+<ol>
+<li>Launch a PHC-capable instance; set <code>phc_enable=1</code> and reboot
+(<a href="#instances-and-the-phc">§3</a>).</li>
+<li>Security group: UDP 7777 from the other fabric members, TCP 9464 from the
+controller, TCP 8600 outbound to the controller.</li>
+<li>Install the agent with a free fabric address
+(<a href="#42-cloud-agent-mesh-mode">§4.2</a>), adding <code>--controller</code> to <code>CCF_EXTRA</code>.</li>
+<li>Install chrony against the PHC and, if local apps need PTP, the grandmaster
+unit (<a href="#44-ptp-grandmaster">§4.4</a>).</li>
+<li>Confirm on the dashboard: the agent appears in <strong>Overview</strong> with its data
+address and <em>&quot;no subscriptions&quot;</em>, and <strong>Events</strong> logs <code>agent up: &lt;host&gt;</code>.</li>
+<li>Join a group from an application on <code>ccf0</code>. Within a poll cycle the pill
+appears on the card, the group shows in <strong>Active routes</strong>, and the sender&#39;s
+route table updates — measured at ~1 ms controller-side, ≤2 s end-to-end in
+validation.</li>
+</ol>
+<p>Nothing needs restarting anywhere else: route pushes go to every agent on every
+change.</p>
+<h3 id="65-bridging-a-site">6.5 Bridging a site</h3>
+<ol>
+<li>Stand up connectivity to the cloud (WireGuard in the validated deployment),
+with the cloud-side host forwarding and routing the VPC range back down the
+tunnel.</li>
+<li>Check the host firewall allows the tunnel and LAN interfaces, and — on a VM
+— disable TX checksum offload on the capture interface.</li>
+<li>Start the bridge (<a href="#46-ground-to-cloud-bridge">§4.6</a>). The journal should
+log <code>control: connected to &lt;controller&gt;</code>.</li>
+<li><strong>Cloud → plant:</strong> a LAN receiver joins a group; the bridge logs <code>bridge: LAN host wants &lt;group&gt;</code>, subscribes, and the cloud sender starts transmitting.
+On exit you should see <code>bridge: LAN host left &lt;group&gt;</code> and the route clear.</li>
+<li><strong>Plant → cloud:</strong> a cloud application joins a group; the bridge installs a
+real IGMP join on the LAN within ~2 s (<code>bridge: joined &lt;group&gt; on LAN</code>,
+visible in <code>ip maddr show dev &lt;iface&gt;</code>) and plant traffic starts flowing up.</li>
+</ol>
+<p>Measured over Canada↔Sydney public internet: 20,000/20,000 packets each way,
+zero loss, ~1.1–1.5 ms jitter (p50→p99.9). The absolute one-way delay was pure
+geography; an in-country site sees 5–15 ms.</p>
+<h3 id="66-verifying-a-path-with-ccf-spike">6.6 Verifying a path with <code>ccf-spike</code></h3>
+<p><code>ccf-spike</code> is the bench tool from the original proof. Two of its three modes
+are still the quickest way to test a fabric path end to end:</p>
+<pre><code class="language-bash"># receiver, on the destination host
+ccf-spike sink   --group 239.69.1.1:5004 --bind 10.77.0.2 --secs 75
+# sender, on the source host — AES67-shaped: L24 stereo 48 kHz, 1 ms packets
+ccf-spike source --group 239.69.1.1:5004 --bind 10.77.0.1 --pps 1000 --secs 60
+</code></pre>
+<p><code>--bind</code> is the local interface address to use (<code>ccf0</code>&#39;s address in the cloud,
+the LAN address on a bridge). The sink reports received/lost counts and
+one-way delay percentiles; those delay figures are only meaningful when both
+hosts are PHC-disciplined. <code>ccf-spike agent --peer &lt;ip:port&gt; --listen &lt;port&gt; [--tun ccf0]</code> is the original standalone two-host encapsulator, superseded by
+<code>ccf-agent</code>.</p>
+<p>Start the sink first — a group with no subscriber is not routed, so a sender
+started alone transmits nothing at all (by design).</p>
+<h3 id="67-checking-the-clock">6.7 Checking the clock</h3>
+<pre><code class="language-bash">chronyc tracking            # reference should be PHC0; root dispersion ~1 µs
+chronyc sources
+systemctl status ccf-ptp-gm
+journalctl -u ccf-ptp-gm    # ptp4l -m logs its master state here
+</code></pre>
+<p>A host that has lost its PHC reference still forwards media perfectly; what
+degrades is the traceability of the time its local grandmaster serves, and the
+credibility of the <code>ccf_fabric_delay_us</code> histogram.</p>
+<h2 id="7-troubleshooting">7. Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>What to check</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent connects and subscribes, but the receiving application gets nothing; <code>netstat -su</code> shows <code>UdpInErrors</code> climbing</td>
+<td>Reverse-path filtering, or bad checksums from a virtualised capture</td>
+<td><code>sysctl net.ipv4.conf.all.rp_filter</code> must be 0 (the kernel takes the max of <code>all</code> and the interface value; the agent only sets the interface one). On a virtualised bridge host, <code>ethtool -K &lt;iface&gt; tx off</code> — deferred TX checksums in captured frames make the far end drop every packet.</td>
+</tr>
+<tr>
+<td>Nothing at all crosses the fabric; no errors anywhere</td>
+<td>Host firewall</td>
+<td>A <code>ufw</code> default-deny policy ate the first bridge run entirely. Allow the fabric port, the tunnel interface (<code>ufw allow in on wg0</code>) and, on a bridge, the LAN interface. Check the <code>INPUT</code> policy directly if in doubt.</td>
+</tr>
+<tr>
+<td>Agent shows on the dashboard with correct routes but all rates read 0</td>
+<td>Metrics unreachable on 9464</td>
+<td>The poller&#39;s port is hard-coded — an agent started with a different <code>--metrics</code> will never be scraped. Otherwise open TCP 9464 from the controller and confirm <code>curl http://&lt;agent&gt;:9464/metrics</code>. The agent dialog&#39;s <em>metrics Ns ago</em> value tells you how stale the last successful scrape is.</td>
+</tr>
+<tr>
+<td><code>/dev/ptp0</code> does not exist</td>
+<td>Missing driver option, or an instance type without PHC support</td>
+<td><code>options ena phc_enable=1</code> in <code>/etc/modprobe.d/</code> <strong>and a reboot</strong>. If it is still absent, the instance type has no PHC — <code>c7g</code> does not support it at all. Check <code>PhcSupport</code> in <code>describe-instance-types</code> before relaunching.</td>
+</tr>
+<tr>
+<td><code>ptp4l</code> starts but clients reject its announces, or two hosts claim the same clock identity</td>
+<td>The fabric interface is a TUN, not a TAP</td>
+<td>An interface with no MAC makes every <code>ptp4l</code> derive identity <code>000000.fffe.000000</code>. <code>ccf0</code> must be the agent-created TAP; check <code>ip link show ccf0</code> has a real MAC.</td>
+</tr>
+<tr>
+<td>A receiver reports a large burst of loss the moment it joins</td>
+<td>Expected, if you are reading <code>ccf_fabric_lost_total</code> from before the join</td>
+<td>The TX pump does not advance the sequence number while a group has no subscribers, precisely so this does not happen at the fabric layer. Application-level gaps at first join usually mean the receiver bound <code>ANY:port</code> and is seeing other groups on the same port — bind per group.</td>
+</tr>
+<tr>
+<td>A .NET bench tool or receiver &quot;runs&quot; but its sockets are dead</td>
+<td>The dotnet launch race</td>
+<td><code>nohup dotnet … &amp;</code> from an ssh session that exits immediately races the .NET runtime&#39;s signal/startup handling; sockets get torn down while the process keeps running, and a <code>catch (SocketException) continue</code> loop hides it. Keep the launching session alive, or use a systemd unit.</td>
+</tr>
+<tr>
+<td>Controller processes the hello and then goes quiet for tens of seconds</td>
+<td>The async read stall (fixed)</td>
+<td>Symptom of the pre-CCF-4 controller: kernel receive queue empty, delivery late. Current builds use one synchronous thread per agent session. If you see it, you are running an old binary.</td>
+</tr>
+<tr>
+<td>Agent journal repeats <code>control: &lt;error&gt;; reconnecting in 2s</code></td>
+<td>Controller unreachable or refusing</td>
+<td>Confirm TCP 8600 reachability and that <code>--controller</code> points at an address on the interface you want fabric traffic to use — the agent advertises whichever source IP the kernel picks for that route. While disconnected the agent clears its routes and sends nothing.</td>
+</tr>
+<tr>
+<td>Bridge never joins a group the cloud is asking for</td>
+<td>The bridge only joins what the controller routes to it</td>
+<td>Check the group is in <strong>Active routes</strong> with the bridge as a target, then <code>ip maddr show dev &lt;iface&gt;</code>. Remember the bridge deliberately never reports its own kernel IGMP state as subscriptions.</td>
+</tr>
+<tr>
+<td>Browser warns about the certificate on :8443</td>
+<td>Self-signed certificate</td>
+<td>Expected in the reference deployment. Replace the Kestrel certificate for anything long-lived.</td>
+</tr>
+<tr>
+<td>Sign-in page shows no SSO button</td>
+<td>OIDC not fully configured</td>
+<td>Both <code>CCF_OIDC_AUTHORITY</code> and <code>CCF_OIDC_CLIENT_ID</code> must be set; the service logs <code>oidc=off</code> at startup otherwise.</td>
+</tr>
+</tbody></table>
+<p>Quick sequence when a stream is missing, in order: <strong>Active routes</strong> on the
+dashboard (is the group routed at all, and to the right endpoint?), the
+sender&#39;s <strong>cap</strong> and <strong>tx</strong> rates, the receiver&#39;s <strong>rx</strong> and <strong>inj</strong> rates, then
+<strong>Integrity</strong> for lost/dup/late. Those five numbers localise almost every
+fault to a specific hop.</p>
+<h2 id="8-limits-and-known-gaps">8. Limits and known gaps</h2>
+<p>This is a young system. What it does, it does well — zero loss at every load
+tested up to 32,000 pps, 100 % of packets under 500 µs — but the following are
+real and current:</p>
+<ul>
+<li><strong>No agent authentication.</strong> Any host that can reach TCP 8600 can register
+under any id, receive the full route table, and be sent traffic. PSK/mTLS is
+designed but not built. Keep 8600 inside a security group or a tunnel.</li>
+<li><strong>Single controller, no persistence.</strong> One process holds all state in memory.
+If it stops, agents keep forwarding on their last route table until their
+session drops, then clear it and stop. Poller history is lost on restart.</li>
+<li><strong>Self-signed certificate</strong> on the HTTPS dashboard in the reference
+deployment, and <strong>no authorisation model</strong> — every authenticated identity is
+an administrator, including any user in the Cognito pool. Loopback requests
+bypass authentication entirely.</li>
+<li><strong>Static peers without a controller.</strong> A mesh agent with <code>--peers</code> replicates
+every multicast frame to every peer regardless of interest; only the
+controller path is subscriber-driven. <strong>Router mode is static-only</strong> — it
+takes no controller connection at all.</li>
+<li><strong>No dual-path hitless merge yet.</strong> The 1024-slot de-dup window is per
+<em>sending agent address</em>, so two copies of one origin arriving via different
+relays occupy separate windows and both get injected. SMPTE 2022-7 merge
+needs an origin id in a v2 header.</li>
+<li><strong>IPv4 multicast UDP only.</strong> Anything else on <code>ccf0</code> — IPv6, non-UDP, unicast
+— is dropped by the capture filter.</li>
+<li><strong>Runs as root.</strong> TAP creation, <code>AF_PACKET</code> and <code>SCHED_FIFO</code> all need
+privilege; the non-root <code>CAP_NET_ADMIN</code> build is not done.</li>
+<li><strong>No CLI.</strong> Operations go through the dashboard, <code>/state</code>, and systemd.</li>
+<li><strong>Not yet validated against real Axia hardware</strong> — clock advertisements,
+LWRP, <code>lwrd -stat</code> acceptance — nor against a third-party AES67 receiver
+locking to a local grandmaster. Multi-stream scaling, the NodeTwin emulated
+fleet and software AES67 senders are validated
+(<a href="VALIDATION.md">VALIDATION.md</a>).</li>
+<li><strong>Linux only.</strong> No Windows agent (wintun), no Kubernetes DaemonSet.</li>
+</ul>
+<hr>
+<p><em>Written against main @ <code>8f6cf81</code> (CCF-1 … CCF-8). Behaviour described here was
+read from <code>agent/src/</code>, <code>controller/</code> and <code>packaging/</code> in that revision;
+performance figures come from <a href="VALIDATION.md">VALIDATION.md</a> and
+<a href="../spike/RESULTS.md">../spike/RESULTS.md</a>.</em></p>
+
+</main>
+</div>
+</body>
+</html>
