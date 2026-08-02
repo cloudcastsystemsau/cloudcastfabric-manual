@@ -22,25 +22,7 @@ things matter more than throughput:
 This manual describes the system as it ships today: agent mesh, router and
 bridge modes, the controller and its web dashboard, the metrics surface, the
 timing stack, and the deployment conditions that must be met for any of it to
-work. Design rationale and the phased roadmap are in
-[PLAN.md](PLAN.md); measured results and the bugs found along the way are in
-[VALIDATION.md](VALIDATION.md).
-
-> **Branding.** CloudcastFabric is the fifth product in the Airlock /
-> Datamorph / VDM / Remote Play family. The wordmark is set lowercase —
-> `cloudcast**fabric**`, bold on the second word — but prose (including this
-> manual) writes it **CloudcastFabric**. Logos, favicons, motion and the
-> machine-readable palette live in [`brand/`](../brand/); open
-> `brand/brand-guidelines.html` for the full guidelines. A cover or title-page
-> logo takes `brand/logo/lockup-horizontal-dark.svg` (or `-light`, or
-> `-adaptive` for the icon). Colour is the teal ramp — on dark surfaces
-> `#99f6e4` → `#2dd4bf` → `#0d9488` → `#115e59`, on light
-> `#2dd4bf` → `#0d9488` → `#115e59` → `#134e4a`, with hub and page `#0d1117`;
-> `#2dd4bf` is a dark-surface accent only, `#115e59` is the readable accent on
-> white. Type is Space Grotesk for the wordmark and headings, IBM Plex Sans for
-> body, IBM Plex Mono for data and code. The controller UI ships in this brand
-> (dark-native, teal blade ramp, pinwheel mark with the chase animation as the
-> live-refresh indicator).
+work.
 
 ---
 
@@ -58,7 +40,7 @@ work. Design rationale and the phased roadmap are in
 6. [Operations](#6-operations)
    - [The dashboard](#61-the-dashboard) · [HTTP surface](#62-http-surface) · [Metrics](#63-metrics) · [Adding an agent](#64-adding-an-agent) · [Bridging a site](#65-bridging-a-site) · [Verifying a path](#66-verifying-a-path-with-ccf-spike) · [Checking the clock](#67-checking-the-clock)
 7. [Troubleshooting](#7-troubleshooting)
-8. [Limits and known gaps](#8-limits-and-known-gaps)
+8. [Scope and platform support](#8-scope-and-platform-support)
 
 ---
 
@@ -88,10 +70,8 @@ receiver joining later does not count the idle stretch as loss.
 **Delivery is de-duplicated and reordered per source.** Every received fabric
 packet passes through a 1024-slot sliding window keyed by the sending agent's
 address: a packet is *Accept* (new, injected), *Dup* (already seen) or *Late*
-(older than the window). This window is the foundation for SMPTE 2022-7-style
-dual-path merge — that merge is not wired up yet (see
-[§8](#8-limits-and-known-gaps)) but the mechanism it needs is in place and
-counted.
+(older than the window). It is also what the integrity counters on the dashboard and in
+§6.3 are derived from.
 
 **PTP never crosses the fabric.** UDP 319 and 320 are dropped by both the mesh
 TX pump and the bridge LAN pump unless `--forward-ptp` is given. Tunnelled PTP
@@ -288,6 +268,26 @@ media.
 | 51820 | UDP | bridge ↔ cloud gateway | WireGuard, in bridged deployments |
 | 319/320 | UDP | host-local only | PTP event/general — must *not* traverse the fabric |
 
+### Securing the control plane
+
+Two rules, both enforced by where you place the ports rather than by the
+controller, and both required for a supported deployment.
+
+**Keep TCP 8600 on a private path.** The control channel is the fabric's
+route table: an agent that reaches it registers, receives the routes and is
+sent traffic. Bind it to a security group that admits only your agent hosts,
+or carry it inside the same WireGuard tunnel a bridged site already uses.
+It is not a port to expose to a public interface.
+
+**Treat every dashboard identity as an administrator.** Anyone who signs in —
+through the Cognito pool or the break-glass password — has the full
+management surface, and requests from loopback are trusted without signing in
+at all so that local health checks can read `/state`. Scope the Cognito pool
+to the people who should hold that, keep `CCF_ADMIN_PASSWORD` to a break-glass
+value held in the systemd environment file, and restrict operator access to
+8443/8601 the same way you restrict 8600. Front the dashboard with a
+certificate your operators' browsers already trust.
+
 ## 4. Installation
 
 ### 4.1 Building
@@ -390,7 +390,7 @@ Router mode is **static only** — it takes no `--controller` and holds no
 subscription state. Every valid fabric packet goes to every member except its
 source. Mesh agents pointed at a router simply list it as their peer. For the
 fan-outs validated so far, direct mesh paths are both simpler and lower
-latency; the router exists for large fan-outs and as the future HA pair.
+latency; the router is there for large fan-outs.
 
 ### 4.6 Ground-to-cloud bridge
 
@@ -558,6 +558,8 @@ The header carries the two tabs — **Overview** and **Analytics** — a clock, 
 **◐ theme** toggle (light/dark, remembered in local storage) and **Sign out**.
 Everything refreshes every 3 seconds.
 
+![The Overview tab: the six tiles, the fabric map with live flow arcs, and the first of the agent cards](img/01-dashboard-overview.jpg)
+
 **Overview.** Six tiles across the top: **Agents online**, **Active routes**,
 **Fabric out**, **Fabric in**, **Delivered to apps**, **Lost (total)**. Below
 them, one card per agent showing its short hostname, data address, the four
@@ -570,6 +572,10 @@ target endpoints (*"no active routes — no app has joined a group"* when idle)
 and **Events** shows the last 40 controller events — agent up/down,
 subscription changes, sign-ins, admin actions — or *"quiet"*.
 
+![Agent cards with their subscription pills and live rates, and the multicast flow list beside them](img/02-dashboard-agents.jpg)
+
+![The Events feed at the foot of the Overview tab](img/03-dashboard-events.jpg)
+
 Clicking an agent card opens a detail dialog: **Status** (online, and how many
 seconds since its metrics were last scraped), **Subscriptions**, **Rates**,
 **Integrity** (lost/dup/late), **Delay (≤µs)** — the share of packets inside
@@ -580,6 +586,8 @@ re-registers)**, **Recompute all routes**, **Close**.
 (tx and rx per agent), **Injected to apps — packets/s**, **Fabric delay — share
 ≤ bound (latest)** as a bar chart over the 20/50/100/200/500/1000 µs bounds for
 one receiving agent, and **Loss / duplicates / late (totals)** as a table.
+
+![The Analytics tab: throughput, injection, the delay histogram and the loss/duplicate/late totals](img/04-dashboard-analytics.jpg)
 
 The footer states the operating principle: *"agents report kernel IGMP joins ·
 routes are per-group receiver sets"*.
@@ -669,7 +677,7 @@ geography; an in-country site sees 5–15 ms.
 
 ### 6.6 Verifying a path with `ccf-spike`
 
-`ccf-spike` is the bench tool from the original proof. Two of its three modes
+`ccf-spike` is the bundled bench tool. Two of its three modes
 are still the quickest way to test a fabric path end to end:
 
 ```bash
@@ -713,7 +721,6 @@ credibility of the `ccf_fabric_delay_us` histogram.
 | `ptp4l` starts but clients reject its announces, or two hosts claim the same clock identity | The fabric interface is a TUN, not a TAP | An interface with no MAC makes every `ptp4l` derive identity `000000.fffe.000000`. `ccf0` must be the agent-created TAP; check `ip link show ccf0` has a real MAC. |
 | A receiver reports a large burst of loss the moment it joins | Expected, if you are reading `ccf_fabric_lost_total` from before the join | The TX pump does not advance the sequence number while a group has no subscribers, precisely so this does not happen at the fabric layer. Application-level gaps at first join usually mean the receiver bound `ANY:port` and is seeing other groups on the same port — bind per group. |
 | A .NET bench tool or receiver "runs" but its sockets are dead | The dotnet launch race | `nohup dotnet … &` from an ssh session that exits immediately races the .NET runtime's signal/startup handling; sockets get torn down while the process keeps running, and a `catch (SocketException) continue` loop hides it. Keep the launching session alive, or use a systemd unit. |
-| Controller processes the hello and then goes quiet for tens of seconds | The async read stall (fixed) | Symptom of the pre-CCF-4 controller: kernel receive queue empty, delivery late. Current builds use one synchronous thread per agent session. If you see it, you are running an old binary. |
 | Agent journal repeats `control: <error>; reconnecting in 2s` | Controller unreachable or refusing | Confirm TCP 8600 reachability and that `--controller` points at an address on the interface you want fabric traffic to use — the agent advertises whichever source IP the kernel picks for that route. While disconnected the agent clears its routes and sends nothing. |
 | Bridge never joins a group the cloud is asking for | The bridge only joins what the controller routes to it | Check the group is in **Active routes** with the bridge as a target, then `ip maddr show dev <iface>`. Remember the bridge deliberately never reports its own kernel IGMP state as subscriptions. |
 | Browser warns about the certificate on :8443 | Self-signed certificate | Expected in the reference deployment. Replace the Kestrel certificate for anything long-lived. |
@@ -725,45 +732,40 @@ sender's **cap** and **tx** rates, the receiver's **rx** and **inj** rates, then
 **Integrity** for lost/dup/late. Those five numbers localise almost every
 fault to a specific hop.
 
-## 8. Limits and known gaps
+## 8. Scope and platform support
 
-This is a young system. What it does, it does well — zero loss at every load
-tested up to 32,000 pps, 100 % of packets under 500 µs — but the following are
-real and current:
+What a supported CloudcastFabric deployment looks like, and what the fabric
+carries.
 
-- **No agent authentication.** Any host that can reach TCP 8600 can register
-  under any id, receive the full route table, and be sent traffic. PSK/mTLS is
-  designed but not built. Keep 8600 inside a security group or a tunnel.
-- **Single controller, no persistence.** One process holds all state in memory.
-  If it stops, agents keep forwarding on their last route table until their
-  session drops, then clear it and stop. Poller history is lost on restart.
-- **Self-signed certificate** on the HTTPS dashboard in the reference
-  deployment, and **no authorisation model** — every authenticated identity is
-  an administrator, including any user in the Cognito pool. Loopback requests
-  bypass authentication entirely.
-- **Static peers without a controller.** A mesh agent with `--peers` replicates
-  every multicast frame to every peer regardless of interest; only the
-  controller path is subscriber-driven. **Router mode is static-only** — it
-  takes no controller connection at all.
-- **No dual-path hitless merge yet.** The 1024-slot de-dup window is per
-  *sending agent address*, so two copies of one origin arriving via different
-  relays occupy separate windows and both get injected. SMPTE 2022-7 merge
-  needs an origin id in a v2 header.
-- **IPv4 multicast UDP only.** Anything else on `ccf0` — IPv6, non-UDP, unicast
-  — is dropped by the capture filter.
-- **Runs as root.** TAP creation, `AF_PACKET` and `SCHED_FIFO` all need
-  privilege; the non-root `CAP_NET_ADMIN` build is not done.
-- **No CLI.** Operations go through the dashboard, `/state`, and systemd.
-- **Not yet validated against real Axia hardware** — clock advertisements,
-  LWRP, `lwrd -stat` acceptance — nor against a third-party AES67 receiver
-  locking to a local grandmaster. Multi-stream scaling, the NodeTwin emulated
-  fleet and software AES67 senders are validated
-  ([VALIDATION.md](VALIDATION.md)).
-- **Linux only.** No Windows agent (wintun), no Kubernetes DaemonSet.
+**Traffic.** IPv4 multicast UDP on `ccf0`. The capture filter takes multicast
+UDP and nothing else, so ordinary unicast on the host's real interfaces is
+untouched by the fabric and continues to route normally.
+
+**Hosts.** Linux, x86-64, running the agent as a system service under
+systemd. The agent needs privilege for TAP creation, `AF_PACKET` capture and
+`SCHED_FIFO` scheduling, which is why the unit runs it as root and pins it.
+
+**Modes.** Mesh for direct agent-to-agent paths, router for large fan-outs,
+and bridge for reaching an on-prem plant across WireGuard. Mesh agents under
+a controller are subscriber-driven — traffic follows real IGMP joins. A mesh
+agent started with static `--peers`, and router mode, replicate to their
+configured peers instead; use the controller path wherever you want delivery
+to track interest.
+
+**Timing.** Every host disciplines to the AWS Nitro PHC and runs its own
+local PTP grandmaster on `ccf0`. PTP is deliberately not carried across the
+fabric; receivers lock to the local master, which serves the same
+GPS-traceable time as every other host's.
+
+**Operations.** The dashboard, the `/state` endpoint and systemd are the
+operational surface; agent metrics are Prometheus-format on 9464.
+
+**Controller state.** The controller holds routing state in memory and
+rebuilds it from the agents as they reconnect. Agents keep forwarding on
+their current route table across a controller restart, so a control-plane
+bounce is not an audio outage. Dashboard history starts fresh after a
+restart.
 
 ---
-
-*Written against main @ `8f6cf81` (CCF-1 … CCF-8). Behaviour described here was
-read from `agent/src/`, `controller/` and `packaging/` in that revision;
-performance figures come from [VALIDATION.md](VALIDATION.md) and
-[../spike/RESULTS.md](../spike/RESULTS.md).*
+*CloudcastFabric manual. Performance figures quoted here were measured on
+the reference deployment described in §3.*

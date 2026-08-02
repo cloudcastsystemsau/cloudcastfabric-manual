@@ -75,7 +75,7 @@ kbd{font-family:var(--mono);font-size:.82em;border:1px solid var(--line);
 <nav>
   <a class="brand" href="#top"><span class="mk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="30" height="30" role="img" aria-label="CloudcastFabric"><style>.mk .b0{fill:#99f6e4}.mk .b1{fill:#2dd4bf}.mk .b2{fill:#0d9488}.mk .b3{fill:#115e59}@media (prefers-color-scheme:light){.mk .b0{fill:#2dd4bf}.mk .b1{fill:#0d9488}.mk .b2{fill:#115e59}.mk .b3{fill:#134e4a}}</style><polygon points="28,12 50,12 50,50 28,50" class="b0"/><polygon points="50,28 88,28 88,50 50,50" class="b1"/><polygon points="50,50 72,50 72,88 50,88" class="b2"/><polygon points="12,50 50,50 50,72 12,72" class="b3"/><rect x="44" y="44" width="12" height="12" fill="#0d1117"/></svg></span>
     <span class="name">cloudcast<em>fabric</em></span></a>
-  <a class="l2" href="#contents">Contents</a><a class="l2" href="#1-core-concepts">1. Core concepts</a><a class="l2" href="#2-architecture">2. Architecture</a><div class="kids"><a class="l3" href="#the-data-plane">The data plane</a><a class="l3" href="#the-control-plane">The control plane</a><a class="l3" href="#the-encapsulation-header">The encapsulation header</a><a class="l3" href="#timing-per-host-grandmasters">Timing: per-host grandmasters</a><a class="l3" href="#modes-at-a-glance">Modes at a glance</a></div><a class="l2" href="#3-deployment-requirements">3. Deployment requirements</a><div class="kids"><a class="l3" href="#instances-and-the-phc">Instances and the PHC</a><a class="l3" href="#kernel-and-interface-settings">Kernel and interface settings</a><a class="l3" href="#mtu">MTU</a><a class="l3" href="#ports-and-security-groups">Ports and security groups</a></div><a class="l2" href="#4-installation">4. Installation</a><div class="kids"><a class="l3" href="#41-building">4.1 Building</a><a class="l3" href="#42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</a><a class="l3" href="#43-controller">4.3 Controller</a><a class="l3" href="#44-ptp-grandmaster">4.4 PTP grandmaster</a><a class="l3" href="#45-router-optional">4.5 Router (optional)</a><a class="l3" href="#46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</a></div><a class="l2" href="#5-configuration-reference">5. Configuration reference</a><div class="kids"><a class="l3" href="#51-agent-command-line-flags">5.1 Agent command-line flags</a><a class="l3" href="#52-agent-environment-file">5.2 Agent environment file</a><a class="l3" href="#53-controller-environment-variables">5.3 Controller environment variables</a><a class="l3" href="#54-ptp-gmconf">5.4 ptp-gm.conf</a><a class="l3" href="#55-systemd-units">5.5 systemd units</a></div><a class="l2" href="#6-operations">6. Operations</a><div class="kids"><a class="l3" href="#61-the-dashboard">6.1 The dashboard</a><a class="l3" href="#62-http-surface">6.2 HTTP surface</a><a class="l3" href="#63-metrics">6.3 Metrics</a><a class="l3" href="#64-adding-an-agent">6.4 Adding an agent</a><a class="l3" href="#65-bridging-a-site">6.5 Bridging a site</a><a class="l3" href="#66-verifying-a-path-with-ccf-spike">6.6 Verifying a path with ccf-spike</a><a class="l3" href="#67-checking-the-clock">6.7 Checking the clock</a></div><a class="l2" href="#7-troubleshooting">7. Troubleshooting</a><a class="l2" href="#8-limits-and-known-gaps">8. Limits and known gaps</a>
+  <a class="l2" href="#contents">Contents</a><a class="l2" href="#1-core-concepts">1. Core concepts</a><a class="l2" href="#2-architecture">2. Architecture</a><div class="kids"><a class="l3" href="#the-data-plane">The data plane</a><a class="l3" href="#the-control-plane">The control plane</a><a class="l3" href="#the-encapsulation-header">The encapsulation header</a><a class="l3" href="#timing-per-host-grandmasters">Timing: per-host grandmasters</a><a class="l3" href="#modes-at-a-glance">Modes at a glance</a></div><a class="l2" href="#3-deployment-requirements">3. Deployment requirements</a><div class="kids"><a class="l3" href="#instances-and-the-phc">Instances and the PHC</a><a class="l3" href="#kernel-and-interface-settings">Kernel and interface settings</a><a class="l3" href="#mtu">MTU</a><a class="l3" href="#ports-and-security-groups">Ports and security groups</a><a class="l3" href="#securing-the-control-plane">Securing the control plane</a></div><a class="l2" href="#4-installation">4. Installation</a><div class="kids"><a class="l3" href="#41-building">4.1 Building</a><a class="l3" href="#42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</a><a class="l3" href="#43-controller">4.3 Controller</a><a class="l3" href="#44-ptp-grandmaster">4.4 PTP grandmaster</a><a class="l3" href="#45-router-optional">4.5 Router (optional)</a><a class="l3" href="#46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</a></div><a class="l2" href="#5-configuration-reference">5. Configuration reference</a><div class="kids"><a class="l3" href="#51-agent-command-line-flags">5.1 Agent command-line flags</a><a class="l3" href="#52-agent-environment-file">5.2 Agent environment file</a><a class="l3" href="#53-controller-environment-variables">5.3 Controller environment variables</a><a class="l3" href="#54-ptp-gmconf">5.4 ptp-gm.conf</a><a class="l3" href="#55-systemd-units">5.5 systemd units</a></div><a class="l2" href="#6-operations">6. Operations</a><div class="kids"><a class="l3" href="#61-the-dashboard">6.1 The dashboard</a><a class="l3" href="#62-http-surface">6.2 HTTP surface</a><a class="l3" href="#63-metrics">6.3 Metrics</a><a class="l3" href="#64-adding-an-agent">6.4 Adding an agent</a><a class="l3" href="#65-bridging-a-site">6.5 Bridging a site</a><a class="l3" href="#66-verifying-a-path-with-ccf-spike">6.6 Verifying a path with ccf-spike</a><a class="l3" href="#67-checking-the-clock">6.7 Checking the clock</a></div><a class="l2" href="#7-troubleshooting">7. Troubleshooting</a><a class="l2" href="#8-scope-and-platform-support">8. Scope and platform support</a>
 </nav>
 <main id="top">
 <h1 id="cloudcastfabric-manual">CloudcastFabric manual</h1>
@@ -100,26 +100,7 @@ serves the same GPS-traceable time as every other host&#39;s local master.</li>
 <p>This manual describes the system as it ships today: agent mesh, router and
 bridge modes, the controller and its web dashboard, the metrics surface, the
 timing stack, and the deployment conditions that must be met for any of it to
-work. Design rationale and the phased roadmap are in
-<a href="PLAN.md">PLAN.md</a>; measured results and the bugs found along the way are in
-<a href="VALIDATION.md">VALIDATION.md</a>.</p>
-<blockquote>
-<p><strong>Branding.</strong> CloudcastFabric is the fifth product in the Airlock /
-Datamorph / VDM / Remote Play family. The wordmark is set lowercase —
-<code>cloudcast**fabric**</code>, bold on the second word — but prose (including this
-manual) writes it <strong>CloudcastFabric</strong>. Logos, favicons, motion and the
-machine-readable palette live in <a href="../brand/"><code>brand/</code></a>; open
-<code>brand/brand-guidelines.html</code> for the full guidelines. A cover or title-page
-logo takes <code>brand/logo/lockup-horizontal-dark.svg</code> (or <code>-light</code>, or
-<code>-adaptive</code> for the icon). Colour is the teal ramp — on dark surfaces
-<code>#99f6e4</code> → <code>#2dd4bf</code> → <code>#0d9488</code> → <code>#115e59</code>, on light
-<code>#2dd4bf</code> → <code>#0d9488</code> → <code>#115e59</code> → <code>#134e4a</code>, with hub and page <code>#0d1117</code>;
-<code>#2dd4bf</code> is a dark-surface accent only, <code>#115e59</code> is the readable accent on
-white. Type is Space Grotesk for the wordmark and headings, IBM Plex Sans for
-body, IBM Plex Mono for data and code. The controller UI ships in this brand
-(dark-native, teal blade ramp, pinwheel mark with the chase animation as the
-live-refresh indicator).</p>
-</blockquote>
+work.</p>
 <hr>
 <h2 id="contents">Contents</h2>
 <ol>
@@ -145,7 +126,7 @@ live-refresh indicator).</p>
 </ul>
 </li>
 <li><a href="#7-troubleshooting">Troubleshooting</a></li>
-<li><a href="#8-limits-and-known-gaps">Limits and known gaps</a></li>
+<li><a href="#8-scope-and-platform-support">Scope and platform support</a></li>
 </ol>
 <hr>
 <h2 id="1-core-concepts">1. Core concepts</h2>
@@ -170,10 +151,8 @@ receiver joining later does not count the idle stretch as loss.</p>
 <p><strong>Delivery is de-duplicated and reordered per source.</strong> Every received fabric
 packet passes through a 1024-slot sliding window keyed by the sending agent&#39;s
 address: a packet is <em>Accept</em> (new, injected), <em>Dup</em> (already seen) or <em>Late</em>
-(older than the window). This window is the foundation for SMPTE 2022-7-style
-dual-path merge — that merge is not wired up yet (see
-<a href="#8-limits-and-known-gaps">§8</a>) but the mechanism it needs is in place and
-counted.</p>
+(older than the window). It is also what the integrity counters on the dashboard and in
+§6.3 are derived from.</p>
 <p><strong>PTP never crosses the fabric.</strong> UDP 319 and 320 are dropped by both the mesh
 TX pump and the bridge LAN pump unless <code>--forward-ptp</code> is given. Tunnelled PTP
 would fight the local grandmasters through BMCA and carry fabric jitter into
@@ -451,6 +430,22 @@ media.</p>
 <td>PTP event/general — must <em>not</em> traverse the fabric</td>
 </tr>
 </tbody></table>
+<h3 id="securing-the-control-plane">Securing the control plane</h3>
+<p>Two rules, both enforced by where you place the ports rather than by the
+controller, and both required for a supported deployment.</p>
+<p><strong>Keep TCP 8600 on a private path.</strong> The control channel is the fabric&#39;s
+route table: an agent that reaches it registers, receives the routes and is
+sent traffic. Bind it to a security group that admits only your agent hosts,
+or carry it inside the same WireGuard tunnel a bridged site already uses.
+It is not a port to expose to a public interface.</p>
+<p><strong>Treat every dashboard identity as an administrator.</strong> Anyone who signs in —
+through the Cognito pool or the break-glass password — has the full
+management surface, and requests from loopback are trusted without signing in
+at all so that local health checks can read <code>/state</code>. Scope the Cognito pool
+to the people who should hold that, keep <code>CCF_ADMIN_PASSWORD</code> to a break-glass
+value held in the systemd environment file, and restrict operator access to
+8443/8601 the same way you restrict 8600. Front the dashboard with a
+certificate your operators&#39; browsers already trust.</p>
 <h2 id="4-installation">4. Installation</h2>
 <h3 id="41-building">4.1 Building</h3>
 <pre><code class="language-bash">cargo build --release -p ccf-agent -p ccf-spike     # target/release/ccf-agent
@@ -525,7 +520,7 @@ before starting <code>ptp4l</code>, requires <code>ccf-agent</code>, and expects
 subscription state. Every valid fabric packet goes to every member except its
 source. Mesh agents pointed at a router simply list it as their peer. For the
 fan-outs validated so far, direct mesh paths are both simpler and lower
-latency; the router exists for large fan-outs and as the future HA pair.</p>
+latency; the router is there for large fan-outs.</p>
 <h3 id="46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</h3>
 <p>The bridge joins the fabric on behalf of a physical LAN. It needs IP
 reachability to the controller and to the cloud agents — in the validated
@@ -891,6 +886,7 @@ health checks read <code>/state</code>.</p>
 <p>The header carries the two tabs — <strong>Overview</strong> and <strong>Analytics</strong> — a clock, a
 <strong>◐ theme</strong> toggle (light/dark, remembered in local storage) and <strong>Sign out</strong>.
 Everything refreshes every 3 seconds.</p>
+<p><img src="img/01-dashboard-overview.jpg" alt="The Overview tab: the six tiles, the fabric map with live flow arcs, and the first of the agent cards"></p>
 <p><strong>Overview.</strong> Six tiles across the top: <strong>Agents online</strong>, <strong>Active routes</strong>,
 <strong>Fabric out</strong>, <strong>Fabric in</strong>, <strong>Delivered to apps</strong>, <strong>Lost (total)</strong>. Below
 them, one card per agent showing its short hostname, data address, the four
@@ -902,6 +898,8 @@ subscriptions&quot;</em>. To the right, <strong>Active routes</strong> lists eac
 target endpoints (<em>&quot;no active routes — no app has joined a group&quot;</em> when idle)
 and <strong>Events</strong> shows the last 40 controller events — agent up/down,
 subscription changes, sign-ins, admin actions — or <em>&quot;quiet&quot;</em>.</p>
+<p><img src="img/02-dashboard-agents.jpg" alt="Agent cards with their subscription pills and live rates, and the multicast flow list beside them"></p>
+<p><img src="img/03-dashboard-events.jpg" alt="The Events feed at the foot of the Overview tab"></p>
 <p>Clicking an agent card opens a detail dialog: <strong>Status</strong> (online, and how many
 seconds since its metrics were last scraped), <strong>Subscriptions</strong>, <strong>Rates</strong>,
 <strong>Integrity</strong> (lost/dup/late), <strong>Delay (≤µs)</strong> — the share of packets inside
@@ -911,6 +909,7 @@ re-registers)</strong>, <strong>Recompute all routes</strong>, <strong>Close</st
 (tx and rx per agent), <strong>Injected to apps — packets/s</strong>, <strong>Fabric delay — share
 ≤ bound (latest)</strong> as a bar chart over the 20/50/100/200/500/1000 µs bounds for
 one receiving agent, and <strong>Loss / duplicates / late (totals)</strong> as a table.</p>
+<p><img src="img/04-dashboard-analytics.jpg" alt="The Analytics tab: throughput, injection, the delay histogram and the loss/duplicate/late totals"></p>
 <p>The footer states the operating principle: <em>&quot;agents report kernel IGMP joins ·
 routes are per-group receiver sets&quot;</em>.</p>
 <h3 id="62-http-surface">6.2 HTTP surface</h3>
@@ -1079,7 +1078,7 @@ visible in <code>ip maddr show dev &lt;iface&gt;</code>) and plant traffic start
 zero loss, ~1.1–1.5 ms jitter (p50→p99.9). The absolute one-way delay was pure
 geography; an in-country site sees 5–15 ms.</p>
 <h3 id="66-verifying-a-path-with-ccf-spike">6.6 Verifying a path with <code>ccf-spike</code></h3>
-<p><code>ccf-spike</code> is the bench tool from the original proof. Two of its three modes
+<p><code>ccf-spike</code> is the bundled bench tool. Two of its three modes
 are still the quickest way to test a fabric path end to end:</p>
 <pre><code class="language-bash"># receiver, on the destination host
 ccf-spike sink   --group 239.69.1.1:5004 --bind 10.77.0.2 --secs 75
@@ -1147,11 +1146,6 @@ credibility of the <code>ccf_fabric_delay_us</code> histogram.</p>
 <td><code>nohup dotnet … &amp;</code> from an ssh session that exits immediately races the .NET runtime&#39;s signal/startup handling; sockets get torn down while the process keeps running, and a <code>catch (SocketException) continue</code> loop hides it. Keep the launching session alive, or use a systemd unit.</td>
 </tr>
 <tr>
-<td>Controller processes the hello and then goes quiet for tens of seconds</td>
-<td>The async read stall (fixed)</td>
-<td>Symptom of the pre-CCF-4 controller: kernel receive queue empty, delivery late. Current builds use one synchronous thread per agent session. If you see it, you are running an old binary.</td>
-</tr>
-<tr>
 <td>Agent journal repeats <code>control: &lt;error&gt;; reconnecting in 2s</code></td>
 <td>Controller unreachable or refusing</td>
 <td>Confirm TCP 8600 reachability and that <code>--controller</code> points at an address on the interface you want fabric traffic to use — the agent advertises whichever source IP the kernel picks for that route. While disconnected the agent clears its routes and sends nothing.</td>
@@ -1177,46 +1171,35 @@ dashboard (is the group routed at all, and to the right endpoint?), the
 sender&#39;s <strong>cap</strong> and <strong>tx</strong> rates, the receiver&#39;s <strong>rx</strong> and <strong>inj</strong> rates, then
 <strong>Integrity</strong> for lost/dup/late. Those five numbers localise almost every
 fault to a specific hop.</p>
-<h2 id="8-limits-and-known-gaps">8. Limits and known gaps</h2>
-<p>This is a young system. What it does, it does well — zero loss at every load
-tested up to 32,000 pps, 100 % of packets under 500 µs — but the following are
-real and current:</p>
-<ul>
-<li><strong>No agent authentication.</strong> Any host that can reach TCP 8600 can register
-under any id, receive the full route table, and be sent traffic. PSK/mTLS is
-designed but not built. Keep 8600 inside a security group or a tunnel.</li>
-<li><strong>Single controller, no persistence.</strong> One process holds all state in memory.
-If it stops, agents keep forwarding on their last route table until their
-session drops, then clear it and stop. Poller history is lost on restart.</li>
-<li><strong>Self-signed certificate</strong> on the HTTPS dashboard in the reference
-deployment, and <strong>no authorisation model</strong> — every authenticated identity is
-an administrator, including any user in the Cognito pool. Loopback requests
-bypass authentication entirely.</li>
-<li><strong>Static peers without a controller.</strong> A mesh agent with <code>--peers</code> replicates
-every multicast frame to every peer regardless of interest; only the
-controller path is subscriber-driven. <strong>Router mode is static-only</strong> — it
-takes no controller connection at all.</li>
-<li><strong>No dual-path hitless merge yet.</strong> The 1024-slot de-dup window is per
-<em>sending agent address</em>, so two copies of one origin arriving via different
-relays occupy separate windows and both get injected. SMPTE 2022-7 merge
-needs an origin id in a v2 header.</li>
-<li><strong>IPv4 multicast UDP only.</strong> Anything else on <code>ccf0</code> — IPv6, non-UDP, unicast
-— is dropped by the capture filter.</li>
-<li><strong>Runs as root.</strong> TAP creation, <code>AF_PACKET</code> and <code>SCHED_FIFO</code> all need
-privilege; the non-root <code>CAP_NET_ADMIN</code> build is not done.</li>
-<li><strong>No CLI.</strong> Operations go through the dashboard, <code>/state</code>, and systemd.</li>
-<li><strong>Not yet validated against real Axia hardware</strong> — clock advertisements,
-LWRP, <code>lwrd -stat</code> acceptance — nor against a third-party AES67 receiver
-locking to a local grandmaster. Multi-stream scaling, the NodeTwin emulated
-fleet and software AES67 senders are validated
-(<a href="VALIDATION.md">VALIDATION.md</a>).</li>
-<li><strong>Linux only.</strong> No Windows agent (wintun), no Kubernetes DaemonSet.</li>
-</ul>
+<h2 id="8-scope-and-platform-support">8. Scope and platform support</h2>
+<p>What a supported CloudcastFabric deployment looks like, and what the fabric
+carries.</p>
+<p><strong>Traffic.</strong> IPv4 multicast UDP on <code>ccf0</code>. The capture filter takes multicast
+UDP and nothing else, so ordinary unicast on the host&#39;s real interfaces is
+untouched by the fabric and continues to route normally.</p>
+<p><strong>Hosts.</strong> Linux, x86-64, running the agent as a system service under
+systemd. The agent needs privilege for TAP creation, <code>AF_PACKET</code> capture and
+<code>SCHED_FIFO</code> scheduling, which is why the unit runs it as root and pins it.</p>
+<p><strong>Modes.</strong> Mesh for direct agent-to-agent paths, router for large fan-outs,
+and bridge for reaching an on-prem plant across WireGuard. Mesh agents under
+a controller are subscriber-driven — traffic follows real IGMP joins. A mesh
+agent started with static <code>--peers</code>, and router mode, replicate to their
+configured peers instead; use the controller path wherever you want delivery
+to track interest.</p>
+<p><strong>Timing.</strong> Every host disciplines to the AWS Nitro PHC and runs its own
+local PTP grandmaster on <code>ccf0</code>. PTP is deliberately not carried across the
+fabric; receivers lock to the local master, which serves the same
+GPS-traceable time as every other host&#39;s.</p>
+<p><strong>Operations.</strong> The dashboard, the <code>/state</code> endpoint and systemd are the
+operational surface; agent metrics are Prometheus-format on 9464.</p>
+<p><strong>Controller state.</strong> The controller holds routing state in memory and
+rebuilds it from the agents as they reconnect. Agents keep forwarding on
+their current route table across a controller restart, so a control-plane
+bounce is not an audio outage. Dashboard history starts fresh after a
+restart.</p>
 <hr>
-<p><em>Written against main @ <code>8f6cf81</code> (CCF-1 … CCF-8). Behaviour described here was
-read from <code>agent/src/</code>, <code>controller/</code> and <code>packaging/</code> in that revision;
-performance figures come from <a href="VALIDATION.md">VALIDATION.md</a> and
-<a href="../spike/RESULTS.md">../spike/RESULTS.md</a>.</em></p>
+<p><em>CloudcastFabric manual. Performance figures quoted here were measured on
+the reference deployment described in §3.</em></p>
 
 </main>
 </div>
