@@ -38,7 +38,7 @@ work.
 5. [Configuration reference](#5-configuration-reference)
    - [Agent flags](#51-agent-command-line-flags) · [Agent environment file](#52-agent-environment-file) · [Controller environment](#53-controller-environment-variables) · [ptp-gm.conf](#54-ptp-gmconf) · [systemd units](#55-systemd-units)
 6. [Operations](#6-operations)
-   - [The dashboard](#61-the-dashboard) · [HTTP surface](#62-http-surface) · [Metrics](#63-metrics) · [Adding an agent](#64-adding-an-agent) · [Bridging a site](#65-bridging-a-site) · [Verifying a path](#66-verifying-a-path-with-ccf-spike) · [Checking the clock](#67-checking-the-clock)
+   - [The dashboard](#61-the-dashboard) · [HTTP surface](#62-http-surface) · [Metrics](#63-metrics) · [Adding an agent](#64-adding-an-agent) · [Bridging a site](#65-bridging-a-site) · [Verifying a path](#66-verifying-a-path-with-ccf-spike) · [Checking the clock](#67-checking-the-clock) · [Discovery: SAP](#68-discovery-sap-announcements) · [Address collisions](#69-multicast-address-collisions)
 7. [Troubleshooting](#7-troubleshooting)
 8. [Scope and platform support](#8-scope-and-platform-support)
 
@@ -456,6 +456,7 @@ empty environment variable expands to) is treated as unset.
 | `--metrics <port>` | `9464` | Prometheus endpoint. The controller's poller scrapes 9464 regardless of this value. |
 | `--rt` | off | `SCHED_FIFO` priority 50 on both packet pumps. Warns and continues if unavailable. |
 | `--cpu <n>` | unset | Pin the pumps to CPU *n*. Ignored in bridge mode. |
+| `--no-sap` | off | Disable the SAP catalogue (mesh and bridge). The agent stops joining 239.255.255.255, advertises nothing to the controller and contributes nothing to the collision check. Router mode has no catalogue either way. |
 
 **Mesh mode**
 
@@ -482,6 +483,7 @@ empty environment variable expands to) is treated as unset.
 | `--lan-ip <ipv4>` | — | **Required.** This host's address on that LAN; used for IGMP joins and as the querier source. |
 | `--controller <ip:port>` | — | **Required.** |
 | `--lan-subs <group,...>` | empty | Static groups to pull down from the fabric, merged with snooped state. |
+| `--lan-jitter-ms <n>` | `0` | De-jitter budget for LAN egress. `0` forwards on arrival. A jittery WAN in front of real AoIP receivers wants 30–40. Adds exactly this much fixed latency. |
 | `--forward-ptp` | off | As above. |
 
 The agent identifies itself to the controller as the contents of
@@ -604,12 +606,14 @@ routes are per-group receiver sets"*.
 | GET | `/api/overview` | Everything the dashboard renders: agents, rates, series, routes, events, fabric totals |
 | POST | `/api/action/disconnect/{id}` | Closes that agent's control session; it reconnects within ~2 s |
 | POST | `/api/action/recompute` | Forces a route recompute and push |
+| POST | `/api/import` | Body `{"agent","group","name"}`. Allocates an address from the 239.193.0.0/16 pool and pushes the translation to that agent (see 6.9). Idempotent — re-posting an existing group returns the address already assigned |
 | GET | `/state` | Compact JSON — agents (id, data address, groups) and the full route table. Intended for loopback scripts and health checks |
 
 ### 6.3 Metrics
 
 Every agent serves Prometheus text format on `0.0.0.0:<--metrics>` (default
-9464), for any request path, with no authentication and no TLS. All values are
+9464) with no authentication and no TLS, on every request path except **`GET
+/sap`**, which returns that agent’s SAP catalogue as JSON (6.8). All values are
 atomics updated on the hot path.
 
 | Metric | Type | Meaning |
@@ -710,6 +714,120 @@ A host that has lost its PHC reference still forwards media perfectly; what
 degrades is the traceability of the time its local grandmaster serves, and the
 credibility of the `ccf_fabric_delay_us` histogram.
 
+### 6.8 Discovery: SAP announcements
+
+AoIP senders advertise themselves with SAP (RFC 2974) carrying an SDP body
+(RFC 4566): a periodic UDP announcement to **239.255.255.255:9875** describing
+one stream — its name, group, payload type, encoding and packet time. It is how
+a console populates its source list, and it is vendor-neutral: a single capture
+in one plant carried Axia, Dante and Airlock announcements side by side.
+
+![How a SAP announcement travels: a plant sender announces to 239.255.255.255:9875; the bridge agent joins that group, catalogues each source and reports the catalogue to the controller over TCP 8600; the controller aggregates every agent's catalogue into the dashboard inventory and the collision check. A mesh agent joins the same group on ccf0, and because that join is itself a subscription the plant's announcements travel up the fabric.](img/sap-discovery.svg)
+
+Every agent joins that group and keeps a **catalogue** of what it hears, in
+both mesh and bridge mode, unless started with `--no-sap`. An entry lives for
+**300 s** after its last announcement, so a sender that stops advertising ages
+out rather than lingering.
+
+| What is read | Notes |
+|---|---|
+| Session name (`s=`) | Shown as the source name everywhere |
+| Group and port (`c=` / `m=`) | The multicast address the stream is on |
+| Payload type and encoding (`a=rtpmap`) | e.g. `L24/48000/2` |
+| Packet time (`a=ptime`) | Drives the packet-time check in 6.9 |
+| Reference clock (`a=ts-refclk`) | RFC 7273; shows what the sender is locked to |
+| Vendor keywords | Retained as-is for identification |
+| `Delete` announcements | Withdraw an entry immediately rather than waiting for the TTL |
+
+Cataloguing is **read-only — it changes no forwarding decision.** An agent does
+not join a group because it heard it announced; subscriptions still come from
+IGMP on a bridge, or kernel membership on a mesh agent. What the catalogue
+gives you is an inventory, and the inputs to the collision check.
+
+One deliberate consequence: because a mesh agent joins 239.255.255.255 on its
+TUN, that join is itself reported as a subscription, so **a mesh node pulls the
+plant's announcements up the fabric with no extra configuration** — the cloud
+sees what the ground is advertising. Cloud senders announce in the same way, so
+a stream originating in the fabric appears in the plant's source list like any
+other source.
+
+Where to look:
+
+```bash
+curl -s http://<agent>:9464/sap | jq .     # that agent's catalogue, as JSON
+```
+
+and on the dashboard, the agent dialog's **Advertised** row, plus the source
+names shown against any collision.
+
+A SAP catalogue is an inventory of everything an agent can hear, and every
+agent reports its catalogue to the controller. Scope a fabric to one
+organisation, and use `--no-sap` on any agent that should not contribute to or
+receive that shared inventory.
+
+### 6.9 Multicast address collisions
+
+Two plants built independently will both be using 239.192.7.210, and neither
+knows. Joined into one fabric, that address now means two different things.
+
+![Address collision and the import that resolves it: two sites announce the same group from different SDP origins, so the controller removes the group from the route table. An operator posts to the import endpoint, the controller allocates an address from the 239.193.0.0/16 pool and pushes the translation, and the receiving bridge rewrites the destination MAC and IP on LAN egress and re-announces the stream locally.](img/sap-collision-import.svg)
+
+**Detection.** On every route recompute, the controller groups all catalogued
+sources by multicast group and counts **distinct SDP origins** — not distinct
+reporting agents. That distinction is the whole correctness of the check: every
+agent that has joined the SAP group catalogues the same announcement, so one
+source is legitimately reported by several agents. That is visibility, not a
+collision. A real collision is two different *originators* claiming one group.
+
+| Kind | Condition | Consequence |
+|---|---|---|
+| `duplicate` | One group, two or more distinct SDP origins | **The group is removed from the route table.** Logged `BLOCKED` if it was routed, `CONFLICT` if nobody had subscribed yet. |
+| `ptime` | A group an agent subscribes to, sourced elsewhere at a different packet time from that agent's own predominant ptime | Logged `WARN`. The group still routes — match the packet times, as below. |
+
+Serving neither copy is deliberate: forwarding one of two is arbitrary, and
+forwarding both interleaves two unrelated streams into one address, which
+sounds like corruption rather than like a configuration error. Collisions are
+reported even for groups nobody has subscribed to, because a collision you
+learn about *before* someone subscribes is the cheap one.
+
+Collisions log on transition, not on every recompute, so the journal shows
+changes rather than repeats.
+
+**Match packet times across a fabric.** The `ptime` warning is worth acting on
+promptly. A sender running 5 ms packets into receivers expecting 1 ms is
+audible damage — in one measured case, exactly 96 frames of every 240 — while
+every hardware counter at the receiving end reads zero. The fabric carries what
+it is given; it does not re-packetise, and neither does address translation.
+
+**The remedy for a collision: import with address translation.** Rather than
+renumber a plant, give the remote stream a new address on the receiving LAN:
+
+```bash
+curl -sX POST http://<controller>:8601/api/import \
+  -H 'content-type: application/json' \
+  -d '{"agent":"bridge-studio-a","group":"239.192.7.210","name":"SYD/Studio 1"}'
+# -> {"agent":"...","group":"239.192.7.210","local":"239.193.0.1","name":"SYD/Studio 1"}
+```
+
+The controller allocates an unused address from the **239.193.0.0/16** import
+pool, records it against that agent, and pushes the translation to it. On LAN
+egress the bridge rewrites the destination MAC and IP and patches the IP and
+UDP checksums incrementally (RFC 1624) — the RTP payload, SSRC, sequence and
+timestamps are untouched, so the stream stays byte-identical to receivers. It
+also **re-announces the translated stream locally over SAP every 5 s**, so it
+appears in the plant's source list under the name you gave it.
+
+Two things to know when you subscribe. The far end continues to advertise the
+**original** address, which has no audio behind it on this LAN — subscribe to
+the translated address, the one returned as `local`. And the local
+re-announcement describes the stream as 1 ms with a local reference clock, so
+take the packet time and clock from the originating plant rather than from the
+re-announcement.
+
+Imports survive an agent reconnect. They are held in controller memory and
+rebuilt from operator input, not from disk, so re-issue the POST after a
+controller restart.
+
 ## 7. Troubleshooting
 
 | Symptom | Likely cause | What to check |
@@ -723,6 +841,11 @@ credibility of the `ccf_fabric_delay_us` histogram.
 | A .NET bench tool or receiver "runs" but its sockets are dead | The dotnet launch race | `nohup dotnet … &` from an ssh session that exits immediately races the .NET runtime's signal/startup handling; sockets get torn down while the process keeps running, and a `catch (SocketException) continue` loop hides it. Keep the launching session alive, or use a systemd unit. |
 | Agent journal repeats `control: <error>; reconnecting in 2s` | Controller unreachable or refusing | Confirm TCP 8600 reachability and that `--controller` points at an address on the interface you want fabric traffic to use — the agent advertises whichever source IP the kernel picks for that route. While disconnected the agent clears its routes and sends nothing. |
 | Bridge never joins a group the cloud is asking for | The bridge only joins what the controller routes to it | Check the group is in **Active routes** with the bridge as a target, then `ip maddr show dev <iface>`. Remember the bridge deliberately never reports its own kernel IGMP state as subscriptions. |
+| A group stops routing; the journal shows `BLOCKED <group>: duplicate multicast` | Two sites advertise the same multicast address | Working as designed (6.9) — serving one of two would be arbitrary. The detail line names both origins and their session names. Import one of them onto a translated address, or renumber a plant. |
+| A source appears in the plant’s source list but has no audio | The original address of an imported group | After an import the far end still advertises the *original* address, which has no audio behind it on this LAN. Subscribe to the translated address — the one the controller returned as `local`, in 239.193.0.0/16. |
+| Journal shows `WARN <group>: packet-time mismatch` | A site is subscribing to a stream sent at a different ptime | The group still routes; the fabric does not re-packetise. Match the sender’s packet time to the receiving plant. Audio that arrives but sounds wrong, with every hardware counter reading zero, is this. |
+| An agent’s catalogue is empty; **Advertised** reads 0 | `--no-sap`, or nothing reaching 239.255.255.255 | Confirm the flag is absent, then `ip maddr show dev <iface>` for the SAP group and `tcpdump -i <iface> host 239.255.255.255 and port 9875`. On a bridge, a plant that announces on a VLAN the LAN interface cannot see catalogues nothing while audio still flows. |
+| Imports are gone after a controller restart | Imports are controller state, rebuilt from operator input | They survive an *agent* reconnect, not a *controller* restart. Re-POST `/api/import`; a group already imported returns the address it already has. |
 | Browser warns about the certificate on :8443 | Self-signed certificate | Expected in the reference deployment. Replace the Kestrel certificate for anything long-lived. |
 | Sign-in page shows no SSO button | OIDC not fully configured | Both `CCF_OIDC_AUTHORITY` and `CCF_OIDC_CLIENT_ID` must be set; the service logs `oidc=off` at startup otherwise. |
 
@@ -759,6 +882,14 @@ GPS-traceable time as every other host's.
 
 **Operations.** The dashboard, the `/state` endpoint and systemd are the
 operational surface; agent metrics are Prometheus-format on 9464.
+
+**Discovery and addressing.** Agents catalogue SAP/SDP announcements on
+239.255.255.255:9875 and report them to the controller, which builds a single
+inventory and checks it for two sites claiming one multicast group. A group
+with two distinct origins is withheld rather than served arbitrarily, and the
+239.193.0.0/16 range is reserved for imported streams that have been translated
+onto a new local address. A fabric is scoped to one organisation: every agent's
+catalogue is shared with the controller and visible on the dashboard.
 
 **Controller state.** The controller holds routing state in memory and
 rebuilds it from the agents as they reconnect. Agents keep forwarding on

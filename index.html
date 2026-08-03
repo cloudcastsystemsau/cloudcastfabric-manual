@@ -75,7 +75,7 @@ kbd{font-family:var(--mono);font-size:.82em;border:1px solid var(--line);
 <nav>
   <a class="brand" href="#top"><span class="mk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="30" height="30" role="img" aria-label="CloudcastFabric"><style>.mk .b0{fill:#99f6e4}.mk .b1{fill:#2dd4bf}.mk .b2{fill:#0d9488}.mk .b3{fill:#115e59}@media (prefers-color-scheme:light){.mk .b0{fill:#2dd4bf}.mk .b1{fill:#0d9488}.mk .b2{fill:#115e59}.mk .b3{fill:#134e4a}}</style><polygon points="28,12 50,12 50,50 28,50" class="b0"/><polygon points="50,28 88,28 88,50 50,50" class="b1"/><polygon points="50,50 72,50 72,88 50,88" class="b2"/><polygon points="12,50 50,50 50,72 12,72" class="b3"/><rect x="44" y="44" width="12" height="12" fill="#0d1117"/></svg></span>
     <span class="name">cloudcast<em>fabric</em></span></a>
-  <a class="l2" href="#contents">Contents</a><a class="l2" href="#1-core-concepts">1. Core concepts</a><a class="l2" href="#2-architecture">2. Architecture</a><div class="kids"><a class="l3" href="#the-data-plane">The data plane</a><a class="l3" href="#the-control-plane">The control plane</a><a class="l3" href="#the-encapsulation-header">The encapsulation header</a><a class="l3" href="#timing-per-host-grandmasters">Timing: per-host grandmasters</a><a class="l3" href="#modes-at-a-glance">Modes at a glance</a></div><a class="l2" href="#3-deployment-requirements">3. Deployment requirements</a><div class="kids"><a class="l3" href="#instances-and-the-phc">Instances and the PHC</a><a class="l3" href="#kernel-and-interface-settings">Kernel and interface settings</a><a class="l3" href="#mtu">MTU</a><a class="l3" href="#ports-and-security-groups">Ports and security groups</a><a class="l3" href="#securing-the-control-plane">Securing the control plane</a></div><a class="l2" href="#4-installation">4. Installation</a><div class="kids"><a class="l3" href="#41-building">4.1 Building</a><a class="l3" href="#42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</a><a class="l3" href="#43-controller">4.3 Controller</a><a class="l3" href="#44-ptp-grandmaster">4.4 PTP grandmaster</a><a class="l3" href="#45-router-optional">4.5 Router (optional)</a><a class="l3" href="#46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</a></div><a class="l2" href="#5-configuration-reference">5. Configuration reference</a><div class="kids"><a class="l3" href="#51-agent-command-line-flags">5.1 Agent command-line flags</a><a class="l3" href="#52-agent-environment-file">5.2 Agent environment file</a><a class="l3" href="#53-controller-environment-variables">5.3 Controller environment variables</a><a class="l3" href="#54-ptp-gmconf">5.4 ptp-gm.conf</a><a class="l3" href="#55-systemd-units">5.5 systemd units</a></div><a class="l2" href="#6-operations">6. Operations</a><div class="kids"><a class="l3" href="#61-the-dashboard">6.1 The dashboard</a><a class="l3" href="#62-http-surface">6.2 HTTP surface</a><a class="l3" href="#63-metrics">6.3 Metrics</a><a class="l3" href="#64-adding-an-agent">6.4 Adding an agent</a><a class="l3" href="#65-bridging-a-site">6.5 Bridging a site</a><a class="l3" href="#66-verifying-a-path-with-ccf-spike">6.6 Verifying a path with ccf-spike</a><a class="l3" href="#67-checking-the-clock">6.7 Checking the clock</a></div><a class="l2" href="#7-troubleshooting">7. Troubleshooting</a><a class="l2" href="#8-scope-and-platform-support">8. Scope and platform support</a>
+  <a class="l2" href="#contents">Contents</a><a class="l2" href="#1-core-concepts">1. Core concepts</a><a class="l2" href="#2-architecture">2. Architecture</a><div class="kids"><a class="l3" href="#the-data-plane">The data plane</a><a class="l3" href="#the-control-plane">The control plane</a><a class="l3" href="#the-encapsulation-header">The encapsulation header</a><a class="l3" href="#timing-per-host-grandmasters">Timing: per-host grandmasters</a><a class="l3" href="#modes-at-a-glance">Modes at a glance</a></div><a class="l2" href="#3-deployment-requirements">3. Deployment requirements</a><div class="kids"><a class="l3" href="#instances-and-the-phc">Instances and the PHC</a><a class="l3" href="#kernel-and-interface-settings">Kernel and interface settings</a><a class="l3" href="#mtu">MTU</a><a class="l3" href="#ports-and-security-groups">Ports and security groups</a><a class="l3" href="#securing-the-control-plane">Securing the control plane</a></div><a class="l2" href="#4-installation">4. Installation</a><div class="kids"><a class="l3" href="#41-building">4.1 Building</a><a class="l3" href="#42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</a><a class="l3" href="#43-controller">4.3 Controller</a><a class="l3" href="#44-ptp-grandmaster">4.4 PTP grandmaster</a><a class="l3" href="#45-router-optional">4.5 Router (optional)</a><a class="l3" href="#46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</a></div><a class="l2" href="#5-configuration-reference">5. Configuration reference</a><div class="kids"><a class="l3" href="#51-agent-command-line-flags">5.1 Agent command-line flags</a><a class="l3" href="#52-agent-environment-file">5.2 Agent environment file</a><a class="l3" href="#53-controller-environment-variables">5.3 Controller environment variables</a><a class="l3" href="#54-ptp-gmconf">5.4 ptp-gm.conf</a><a class="l3" href="#55-systemd-units">5.5 systemd units</a></div><a class="l2" href="#6-operations">6. Operations</a><div class="kids"><a class="l3" href="#61-the-dashboard">6.1 The dashboard</a><a class="l3" href="#62-http-surface">6.2 HTTP surface</a><a class="l3" href="#63-metrics">6.3 Metrics</a><a class="l3" href="#64-adding-an-agent">6.4 Adding an agent</a><a class="l3" href="#65-bridging-a-site">6.5 Bridging a site</a><a class="l3" href="#66-verifying-a-path-with-ccf-spike">6.6 Verifying a path with ccf-spike</a><a class="l3" href="#67-checking-the-clock">6.7 Checking the clock</a><a class="l3" href="#68-discovery-sap-announcements">6.8 Discovery: SAP</a><a class="l3" href="#69-multicast-address-collisions">6.9 Address collisions</a></div><a class="l2" href="#7-troubleshooting">7. Troubleshooting</a><a class="l2" href="#8-scope-and-platform-support">8. Scope and platform support</a>
 </nav>
 <main id="top">
 <h1 id="cloudcastfabric-manual">CloudcastFabric manual</h1>
@@ -122,7 +122,7 @@ work.</p>
 </ul>
 </li>
 <li><a href="#6-operations">Operations</a><ul>
-<li><a href="#61-the-dashboard">The dashboard</a> · <a href="#62-http-surface">HTTP surface</a> · <a href="#63-metrics">Metrics</a> · <a href="#64-adding-an-agent">Adding an agent</a> · <a href="#65-bridging-a-site">Bridging a site</a> · <a href="#66-verifying-a-path-with-ccf-spike">Verifying a path</a> · <a href="#67-checking-the-clock">Checking the clock</a></li>
+<li><a href="#61-the-dashboard">The dashboard</a> · <a href="#62-http-surface">HTTP surface</a> · <a href="#63-metrics">Metrics</a> · <a href="#64-adding-an-agent">Adding an agent</a> · <a href="#65-bridging-a-site">Bridging a site</a> · <a href="#66-verifying-a-path-with-ccf-spike">Verifying a path</a> · <a href="#67-checking-the-clock">Checking the clock</a> · <a href="#68-discovery-sap-announcements">Discovery: SAP</a> · <a href="#69-multicast-address-collisions">Address collisions</a></li>
 </ul>
 </li>
 <li><a href="#7-troubleshooting">Troubleshooting</a></li>
@@ -601,6 +601,11 @@ empty environment variable expands to) is treated as unset.</p>
 <td>unset</td>
 <td>Pin the pumps to CPU <em>n</em>. Ignored in bridge mode.</td>
 </tr>
+<tr>
+<td><code>--no-sap</code></td>
+<td>off</td>
+<td>Disable the SAP catalogue (mesh and bridge). The agent stops joining 239.255.255.255, advertises nothing to the controller and contributes nothing to the collision check. Router mode has no catalogue either way.</td>
+</tr>
 </tbody></table>
 <p><strong>Mesh mode</strong></p>
 <table>
@@ -685,6 +690,11 @@ empty environment variable expands to) is treated as unset.</p>
 <td><code>--lan-subs &lt;group,...&gt;</code></td>
 <td>empty</td>
 <td>Static groups to pull down from the fabric, merged with snooped state.</td>
+</tr>
+<tr>
+<td><code>--lan-jitter-ms &lt;n&gt;</code></td>
+<td><code>0</code></td>
+<td>De-jitter budget for LAN egress. <code>0</code> forwards on arrival. A jittery WAN in front of real AoIP receivers wants 30–40. Adds exactly this much fixed latency.</td>
 </tr>
 <tr>
 <td><code>--forward-ptp</code></td>
@@ -962,6 +972,11 @@ routes are per-group receiver sets&quot;</em>.</p>
 <td>Forces a route recompute and push</td>
 </tr>
 <tr>
+<td>POST</td>
+<td><code>/api/import</code></td>
+<td>Body <code>{"agent","group","name"}</code>. Allocates an address from the 239.193.0.0/16 pool and pushes the translation to that agent (see 6.9). Idempotent — re-posting an existing group returns the address already assigned</td>
+</tr>
+<tr>
 <td>GET</td>
 <td><code>/state</code></td>
 <td>Compact JSON — agents (id, data address, groups) and the full route table. Intended for loopback scripts and health checks</td>
@@ -969,7 +984,8 @@ routes are per-group receiver sets&quot;</em>.</p>
 </tbody></table>
 <h3 id="63-metrics">6.3 Metrics</h3>
 <p>Every agent serves Prometheus text format on <code>0.0.0.0:&lt;--metrics&gt;</code> (default
-9464), for any request path, with no authentication and no TLS. All values are
+9464) with no authentication and no TLS, on every request path except <strong><code>GET /sap</code></strong>,
+which returns that agent’s SAP catalogue as JSON (6.8). All values are
 atomics updated on the hot path.</p>
 <table>
 <thead>
@@ -1101,6 +1117,138 @@ journalctl -u ccf-ptp-gm    # ptp4l -m logs its master state here
 <p>A host that has lost its PHC reference still forwards media perfectly; what
 degrades is the traceability of the time its local grandmaster serves, and the
 credibility of the <code>ccf_fabric_delay_us</code> histogram.</p>
+<h3 id="68-discovery-sap-announcements">6.8 Discovery: SAP announcements</h3>
+<p>AoIP senders advertise themselves with SAP (RFC 2974) carrying an SDP body
+(RFC 4566): a periodic UDP announcement to <strong>239.255.255.255:9875</strong> describing
+one stream — its name, group, payload type, encoding and packet time. It is how
+a console populates its source list, and it is vendor-neutral: a single capture
+in one plant carried Axia, Dante and Airlock announcements side by side.</p>
+<p><img src="img/sap-discovery.svg" alt="How a SAP announcement travels: a plant sender announces to 239.255.255.255:9875; the bridge agent joins that group, catalogues each source and reports the catalogue to the controller over TCP 8600; the controller aggregates every agent&#39;s catalogue into the dashboard inventory and the collision check. A mesh agent joins the same group on ccf0, and because that join is itself a subscription the plant&#39;s announcements travel up the fabric."></p>
+<p>Every agent joins that group and keeps a <strong>catalogue</strong> of what it hears, in
+both mesh and bridge mode, unless started with <code>--no-sap</code>. An entry lives for
+<strong>300 s</strong> after its last announcement, so a sender that stops advertising ages
+out rather than lingering.</p>
+<table>
+<thead>
+<tr>
+<th>What is read</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Session name (<code>s=</code>)</td>
+<td>Shown as the source name everywhere</td>
+</tr>
+<tr>
+<td>Group and port (<code>c=</code> / <code>m=</code>)</td>
+<td>The multicast address the stream is on</td>
+</tr>
+<tr>
+<td>Payload type and encoding (<code>a=rtpmap</code>)</td>
+<td>e.g. <code>L24/48000/2</code></td>
+</tr>
+<tr>
+<td>Packet time (<code>a=ptime</code>)</td>
+<td>Drives the packet-time check in 6.9</td>
+</tr>
+<tr>
+<td>Reference clock (<code>a=ts-refclk</code>)</td>
+<td>RFC 7273; shows what the sender is locked to</td>
+</tr>
+<tr>
+<td>Vendor keywords</td>
+<td>Retained as-is for identification</td>
+</tr>
+<tr>
+<td><code>Delete</code> announcements</td>
+<td>Withdraw an entry immediately rather than waiting for the TTL</td>
+</tr>
+</tbody></table>
+<p>Cataloguing is <strong>read-only — it changes no forwarding decision.</strong> An agent does
+not join a group because it heard it announced; subscriptions still come from
+IGMP on a bridge, or kernel membership on a mesh agent. What the catalogue
+gives you is an inventory, and the inputs to the collision check.</p>
+<p>One deliberate consequence: because a mesh agent joins 239.255.255.255 on its
+TUN, that join is itself reported as a subscription, so <strong>a mesh node pulls the
+plant’s announcements up the fabric with no extra configuration</strong> — the cloud
+sees what the ground is advertising. Cloud senders announce in the same way, so
+a stream originating in the fabric appears in the plant’s source list like any
+other source.</p>
+<p>Where to look:</p>
+<pre><code class="language-bash">curl -s http://&lt;agent&gt;:9464/sap | jq .     # that agent&#39;s catalogue, as JSON
+</code></pre>
+<p>and on the dashboard, the agent dialog’s <strong>Advertised</strong> row, plus the source
+names shown against any collision.</p>
+<p>A SAP catalogue is an inventory of everything an agent can hear, and every
+agent reports its catalogue to the controller. Scope a fabric to one
+organisation, and use <code>--no-sap</code> on any agent that should not contribute to or
+receive that shared inventory.</p>
+<h3 id="69-multicast-address-collisions">6.9 Multicast address collisions</h3>
+<p>Two plants built independently will both be using 239.192.7.210, and neither
+knows. Joined into one fabric, that address now means two different things.</p>
+<p><img src="img/sap-collision-import.svg" alt="Address collision and the import that resolves it: two sites announce the same group from different SDP origins, so the controller removes the group from the route table. An operator posts to the import endpoint, the controller allocates an address from the 239.193.0.0/16 pool and pushes the translation, and the receiving bridge rewrites the destination MAC and IP on LAN egress and re-announces the stream locally."></p>
+<p><strong>Detection.</strong> On every route recompute, the controller groups all catalogued
+sources by multicast group and counts <strong>distinct SDP origins</strong> — not distinct
+reporting agents. That distinction is the whole correctness of the check: every
+agent that has joined the SAP group catalogues the same announcement, so one
+source is legitimately reported by several agents. That is visibility, not a
+collision. A real collision is two different <em>originators</em> claiming one group.</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Condition</th>
+<th>Consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>duplicate</code></td>
+<td>One group, two or more distinct SDP origins</td>
+<td><strong>The group is removed from the route table.</strong> Logged <code>BLOCKED</code> if it was routed, <code>CONFLICT</code> if nobody had subscribed yet.</td>
+</tr>
+<tr>
+<td><code>ptime</code></td>
+<td>A group an agent subscribes to, sourced elsewhere at a different packet time from that agent’s own predominant ptime</td>
+<td>Logged <code>WARN</code>. The group still routes — match the packet times, as below.</td>
+</tr>
+</tbody></table>
+<p>Serving neither copy is deliberate: forwarding one of two is arbitrary, and
+forwarding both interleaves two unrelated streams into one address, which
+sounds like corruption rather than like a configuration error. Collisions are
+reported even for groups nobody has subscribed to, because a collision you
+learn about <em>before</em> someone subscribes is the cheap one.</p>
+<p>Collisions log on transition, not on every recompute, so the journal shows
+changes rather than repeats.</p>
+<p><strong>Match packet times across a fabric.</strong> The <code>ptime</code> warning is worth acting on
+promptly. A sender running 5 ms packets into receivers expecting 1 ms is
+audible damage — in one measured case, exactly 96 frames of every 240 — while
+every hardware counter at the receiving end reads zero. The fabric carries what
+it is given; it does not re-packetise, and neither does address translation.</p>
+<p><strong>The remedy for a collision: import with address translation.</strong> Rather than
+renumber a plant, give the remote stream a new address on the receiving LAN:</p>
+<pre><code class="language-bash">curl -sX POST http://&lt;controller&gt;:8601/api/import \
+  -H &#39;content-type: application/json&#39; \
+  -d &#39;{"agent":"bridge-studio-a","group":"239.192.7.210","name":"SYD/Studio 1"}&#39;
+# -&gt; {"agent":"...","group":"239.192.7.210","local":"239.193.0.1","name":"SYD/Studio 1"}
+</code></pre>
+<p>The controller allocates an unused address from the <strong>239.193.0.0/16</strong> import
+pool, records it against that agent, and pushes the translation to it. On LAN
+egress the bridge rewrites the destination MAC and IP and patches the IP and
+UDP checksums incrementally (RFC 1624) — the RTP payload, SSRC, sequence and
+timestamps are untouched, so the stream stays byte-identical to receivers. It
+also <strong>re-announces the translated stream locally over SAP every 5 s</strong>, so it
+appears in the plant’s source list under the name you gave it.</p>
+<p>Two things to know when you subscribe. The far end continues to advertise the
+<strong>original</strong> address, which has no audio behind it on this LAN — subscribe to
+the translated address, the one returned as <code>local</code>. And the local
+re-announcement describes the stream as 1 ms with a local reference clock, so
+take the packet time and clock from the originating plant rather than from the
+re-announcement.</p>
+<p>Imports survive an agent reconnect. They are held in controller memory and
+rebuilt from operator input, not from disk, so re-issue the POST after a
+controller restart.</p>
 <h2 id="7-troubleshooting">7. Troubleshooting</h2>
 <table>
 <thead>
@@ -1156,6 +1304,31 @@ credibility of the <code>ccf_fabric_delay_us</code> histogram.</p>
 <td>Check the group is in <strong>Active routes</strong> with the bridge as a target, then <code>ip maddr show dev &lt;iface&gt;</code>. Remember the bridge deliberately never reports its own kernel IGMP state as subscriptions.</td>
 </tr>
 <tr>
+<td>A group stops routing; the journal shows <code>BLOCKED &lt;group&gt;: duplicate multicast</code></td>
+<td>Two sites advertise the same multicast address</td>
+<td>Working as designed (6.9) — serving one of two would be arbitrary. The detail line names both origins and their session names. Import one of them onto a translated address, or renumber a plant.</td>
+</tr>
+<tr>
+<td>A source appears in the plant’s source list but has no audio</td>
+<td>The original address of an imported group</td>
+<td>After an import the far end still advertises the <em>original</em> address, which has no audio behind it on this LAN. Subscribe to the translated address — the one the controller returned as <code>local</code>, in 239.193.0.0/16.</td>
+</tr>
+<tr>
+<td>Journal shows <code>WARN &lt;group&gt;: packet-time mismatch</code></td>
+<td>A site is subscribing to a stream sent at a different ptime</td>
+<td>The group still routes; the fabric does not re-packetise. Match the sender’s packet time to the receiving plant. Audio that arrives but sounds wrong, with every hardware counter reading zero, is this.</td>
+</tr>
+<tr>
+<td>An agent’s catalogue is empty; <strong>Advertised</strong> reads 0</td>
+<td><code>--no-sap</code>, or nothing reaching 239.255.255.255</td>
+<td>Confirm the flag is absent, then <code>ip maddr show dev &lt;iface&gt;</code> for the SAP group and <code>tcpdump -i &lt;iface&gt; host 239.255.255.255 and port 9875</code>. On a bridge, a plant that announces on a VLAN the LAN interface cannot see catalogues nothing while audio still flows.</td>
+</tr>
+<tr>
+<td>Imports are gone after a controller restart</td>
+<td>Imports are controller state, rebuilt from operator input</td>
+<td>They survive an <em>agent</em> reconnect, not a <em>controller</em> restart. Re-POST <code>/api/import</code>; a group already imported returns the address it already has.</td>
+</tr>
+<tr>
 <td>Browser warns about the certificate on :8443</td>
 <td>Self-signed certificate</td>
 <td>Expected in the reference deployment. Replace the Kestrel certificate for anything long-lived.</td>
@@ -1192,6 +1365,13 @@ fabric; receivers lock to the local master, which serves the same
 GPS-traceable time as every other host&#39;s.</p>
 <p><strong>Operations.</strong> The dashboard, the <code>/state</code> endpoint and systemd are the
 operational surface; agent metrics are Prometheus-format on 9464.</p>
+<p><strong>Discovery and addressing.</strong> Agents catalogue SAP/SDP announcements on
+239.255.255.255:9875 and report them to the controller, which builds a single
+inventory and checks it for two sites claiming one multicast group. A group
+with two distinct origins is withheld rather than served arbitrarily, and the
+239.193.0.0/16 range is reserved for imported streams that have been translated
+onto a new local address. A fabric is scoped to one organisation: every
+agent’s catalogue is shared with the controller and visible on the dashboard.</p>
 <p><strong>Controller state.</strong> The controller holds routing state in memory and
 rebuilds it from the agents as they reconnect. Agents keep forwarding on
 their current route table across a controller restart, so a control-plane
