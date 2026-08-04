@@ -75,7 +75,7 @@ kbd{font-family:var(--mono);font-size:.82em;border:1px solid var(--line);
 <nav>
   <a class="brand" href="#top"><span class="mk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="30" height="30" role="img" aria-label="CloudcastFabric"><style>.mk .b0{fill:#99f6e4}.mk .b1{fill:#2dd4bf}.mk .b2{fill:#0d9488}.mk .b3{fill:#115e59}@media (prefers-color-scheme:light){.mk .b0{fill:#2dd4bf}.mk .b1{fill:#0d9488}.mk .b2{fill:#115e59}.mk .b3{fill:#134e4a}}</style><polygon points="28,12 50,12 50,50 28,50" class="b0"/><polygon points="50,28 88,28 88,50 50,50" class="b1"/><polygon points="50,50 72,50 72,88 50,88" class="b2"/><polygon points="12,50 50,50 50,72 12,72" class="b3"/><rect x="44" y="44" width="12" height="12" fill="#0d1117"/></svg></span>
     <span class="name">cloudcast<em>fabric</em></span></a>
-  <a class="l2" href="#contents">Contents</a><a class="l2" href="#1-core-concepts">1. Core concepts</a><a class="l2" href="#2-architecture">2. Architecture</a><div class="kids"><a class="l3" href="#the-data-plane">The data plane</a><a class="l3" href="#the-control-plane">The control plane</a><a class="l3" href="#the-encapsulation-header">The encapsulation header</a><a class="l3" href="#timing-per-host-grandmasters">Timing: per-host grandmasters</a><a class="l3" href="#modes-at-a-glance">Modes at a glance</a></div><a class="l2" href="#3-deployment-requirements">3. Deployment requirements</a><div class="kids"><a class="l3" href="#instances-and-the-phc">Instances and the PHC</a><a class="l3" href="#kernel-and-interface-settings">Kernel and interface settings</a><a class="l3" href="#mtu">MTU</a><a class="l3" href="#ports-and-security-groups">Ports and security groups</a><a class="l3" href="#securing-the-control-plane">Securing the control plane</a></div><a class="l2" href="#4-installation">4. Installation</a><div class="kids"><a class="l3" href="#41-building">4.1 Building</a><a class="l3" href="#42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</a><a class="l3" href="#43-controller">4.3 Controller</a><a class="l3" href="#44-ptp-grandmaster">4.4 PTP grandmaster</a><a class="l3" href="#45-router-optional">4.5 Router (optional)</a><a class="l3" href="#46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</a></div><a class="l2" href="#5-configuration-reference">5. Configuration reference</a><div class="kids"><a class="l3" href="#51-agent-command-line-flags">5.1 Agent command-line flags</a><a class="l3" href="#52-agent-environment-file">5.2 Agent environment file</a><a class="l3" href="#53-controller-environment-variables">5.3 Controller environment variables</a><a class="l3" href="#54-ptp-gmconf">5.4 ptp-gm.conf</a><a class="l3" href="#55-systemd-units">5.5 systemd units</a></div><a class="l2" href="#6-operations">6. Operations</a><div class="kids"><a class="l3" href="#61-the-dashboard">6.1 The dashboard</a><a class="l3" href="#62-http-surface">6.2 HTTP surface</a><a class="l3" href="#63-metrics">6.3 Metrics</a><a class="l3" href="#64-adding-an-agent">6.4 Adding an agent</a><a class="l3" href="#65-bridging-a-site">6.5 Bridging a site</a><a class="l3" href="#66-verifying-a-path-with-ccf-spike">6.6 Verifying a path with ccf-spike</a><a class="l3" href="#67-checking-the-clock">6.7 Checking the clock</a><a class="l3" href="#68-discovery-sap-announcements">6.8 Discovery: SAP</a><a class="l3" href="#69-multicast-address-collisions">6.9 Address collisions</a></div><a class="l2" href="#7-troubleshooting">7. Troubleshooting</a><a class="l2" href="#8-scope-and-platform-support">8. Scope and platform support</a>
+  <a class="l2" href="#contents">Contents</a><a class="l2" href="#1-core-concepts">1. Core concepts</a><a class="l2" href="#2-architecture">2. Architecture</a><div class="kids"><a class="l3" href="#the-data-plane">The data plane</a><a class="l3" href="#the-control-plane">The control plane</a><a class="l3" href="#the-encapsulation-header">The encapsulation header</a><a class="l3" href="#timing-per-host-grandmasters">Timing: per-host grandmasters</a><a class="l3" href="#modes-at-a-glance">Modes at a glance</a></div><a class="l2" href="#3-deployment-requirements">3. Deployment requirements</a><div class="kids"><a class="l3" href="#instances-and-the-phc">Instances and the PHC</a><a class="l3" href="#kernel-and-interface-settings">Kernel and interface settings</a><a class="l3" href="#mtu">MTU</a><a class="l3" href="#ports-and-security-groups">Ports and security groups</a><a class="l3" href="#securing-the-control-plane">Securing the control plane</a></div><a class="l2" href="#4-installation">4. Installation</a><div class="kids"><a class="l3" href="#41-building">4.1 Building</a><a class="l3" href="#42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</a><a class="l3" href="#43-controller">4.3 Controller</a><a class="l3" href="#44-ptp-grandmaster">4.4 PTP grandmaster</a><a class="l3" href="#45-router-optional">4.5 Router (optional)</a><a class="l3" href="#46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</a><a class="l3" href="#47-egress-pacing-and-the-clock-behind-it">4.7 Egress pacing and the clock behind it</a></div><a class="l2" href="#5-configuration-reference">5. Configuration reference</a><div class="kids"><a class="l3" href="#51-agent-command-line-flags">5.1 Agent command-line flags</a><a class="l3" href="#52-agent-environment-file">5.2 Agent environment file</a><a class="l3" href="#53-controller-environment-variables">5.3 Controller environment variables</a><a class="l3" href="#54-ptp-gmconf">5.4 ptp-gm.conf</a><a class="l3" href="#55-systemd-units">5.5 systemd units</a></div><a class="l2" href="#6-operations">6. Operations</a><div class="kids"><a class="l3" href="#61-the-dashboard">6.1 The dashboard</a><a class="l3" href="#62-http-surface">6.2 HTTP surface</a><a class="l3" href="#63-metrics">6.3 Metrics</a><a class="l3" href="#64-adding-an-agent">6.4 Adding an agent</a><a class="l3" href="#65-bridging-a-site">6.5 Bridging a site</a><a class="l3" href="#66-verifying-a-path-with-ccf-spike">6.6 Verifying a path with ccf-spike</a><a class="l3" href="#67-checking-the-clock">6.7 Checking the clock</a><a class="l3" href="#68-discovery-sap-announcements">6.8 Discovery: SAP announcements</a><a class="l3" href="#69-multicast-address-collisions">6.9 Multicast address collisions</a></div><a class="l2" href="#7-troubleshooting">7. Troubleshooting</a><a class="l2" href="#8-scope-and-platform-support">8. Scope and platform support</a>
 </nav>
 <main id="top">
 <h1 id="cloudcastfabric-manual">CloudcastFabric manual</h1>
@@ -92,10 +92,11 @@ things matter more than throughput:</p>
 <li><strong>The jitter tail.</strong> The data plane is Rust with pinned real-time threads,
 batched <code>recvmmsg</code>/<code>sendmmsg</code> and pre-allocated buffers. Measured fabric hop
 delay is p50 17 µs, 100 % under 500 µs at every load tested.</li>
-<li><strong>Clocking.</strong> Every host runs its own PTP grandmaster fed from the AWS Nitro
-PHC. <strong>PTP is never tunnelled through the fabric</strong> — it is deliberately
-dropped at the encapsulation point. Receivers lock to a local master that
-serves the same GPS-traceable time as every other host&#39;s local master.</li>
+<li><strong>Clocking.</strong> Every cloud host runs its own PTP grandmaster fed from the AWS
+Nitro PHC; a bridge instead slaves to the plant&#39;s existing grandmaster and
+paces its LAN egress on plant time. <strong>PTP is never tunnelled through the
+fabric</strong> — it is deliberately dropped at the encapsulation point. Receivers
+lock to a local master serving the same traceable time as every other host&#39;s.</li>
 </ul>
 <p>This manual describes the system as it ships today: agent mesh, router and
 bridge modes, the controller and its web dashboard, the metrics surface, the
@@ -114,7 +115,7 @@ work.</p>
 </ul>
 </li>
 <li><a href="#4-installation">Installation</a><ul>
-<li><a href="#41-building">Building</a> · <a href="#42-cloud-agent-mesh-mode">Cloud agent (mesh)</a> · <a href="#43-controller">Controller</a> · <a href="#44-ptp-grandmaster">PTP grandmaster</a> · <a href="#45-router-optional">Router</a> · <a href="#46-ground-to-cloud-bridge">Ground-to-cloud bridge</a></li>
+<li><a href="#41-building">Building</a> · <a href="#42-cloud-agent-mesh-mode">Cloud agent (mesh)</a> · <a href="#43-controller">Controller</a> · <a href="#44-ptp-grandmaster">PTP grandmaster</a> · <a href="#45-router-optional">Router</a> · <a href="#46-ground-to-cloud-bridge">Ground-to-cloud bridge</a> · <a href="#47-egress-pacing-and-the-clock-behind-it">Egress pacing and the clock</a></li>
 </ul>
 </li>
 <li><a href="#5-configuration-reference">Configuration reference</a><ul>
@@ -267,6 +268,18 @@ share a de-dup window.</p>
 talking to each other. Because inter-instance clock offset is single-digit
 microseconds and standard AES67 receive link-offsets are 1–4 ms, the residual
 disagreement is orders of magnitude inside budget.</p>
+<p><strong>A bridge is the exception, and inverts the relationship.</strong> A plant already has
+a grandmaster — usually a piece of AoIP hardware — and the bridge must not
+compete with it. So a bridge runs <code>ptp4l</code> <strong>slave-only</strong> against the plant
+clock, disciplining its NIC&#39;s PHC to plant time:</p>
+<pre><code>Plant grandmaster (e.g. an Axia xNode)
+   └─ ptp4l slaveOnly=1 on the LAN NIC  ──▶  /dev/ptpN follows plant time
+        └─ ccf-agent --pace-clock /dev/ptpN  ──▶  LAN egress paced on plant time
+</code></pre>
+<p><code>slaveOnly 1</code> guarantees the bridge never announces and so can never win BMCA.
+The PHC is read for <em>pacing only</em> and never written to system time — a Livewire
+grandmaster runs an arbitrary timescale, so <code>phc2sys</code> would destroy the host&#39;s
+wall clock. See <a href="#47-egress-pacing-and-the-clock-behind-it">4.7</a>.</p>
 <h3 id="modes-at-a-glance">Modes at a glance</h3>
 <table>
 <thead>
@@ -536,32 +549,163 @@ via <code>wg0</code>).</p>
 <p>Wired Ethernet is strongly preferred — Wi-Fi access points mangle multicast.
 What the bridge then does, with no static configuration:</p>
 <ul>
-<li><strong>LAN → fabric.</strong> An <code>AF_PACKET</code> socket captures IPv4 frames on the LAN
+<li><p><strong>LAN → fabric.</strong> An <code>AF_PACKET</code> socket captures IPv4 frames on the LAN
 interface. Multicast UDP for a group the controller has routed is
 encapsulated and unicast to the subscribing agents; everything else is
 ignored. A membership manager holds a <strong>real IGMP join</strong> on the LAN for every
 routed group (re-evaluated each second), so plant switches actually forward
-those streams to this port.</li>
-<li><strong>fabric → LAN.</strong> Received fabric packets are de-duplicated and re-emitted as
+those streams to this port.</p>
+</li>
+<li><p><strong>fabric → LAN.</strong> Received fabric packets are de-duplicated and re-emitted as
 genuine multicast frames on the LAN interface, addressed to the original
-destination MAC.</li>
-<li><strong>IGMP snooping.</strong> LAN hosts&#39; IGMPv1/v2/v3 membership reports and leaves are
-parsed and become this bridge&#39;s fabric subscriptions. An entry expires 95 s
-after its last refresh. v3 record types 2/4/5 (EXCLUDE/CHANGE_TO_EXCLUDE/
-ALLOW) count as joins; types 1/3 with no sources count as leaves.</li>
-<li><strong>Querier.</strong> Every 30 s the bridge emits an IGMPv2 general query (router-alert
+destination MAC.</p>
+</li>
+<li><p><strong>IGMP snooping.</strong> LAN hosts&#39; IGMPv1/v2/v3 membership reports and leaves are
+parsed and become this bridge&#39;s fabric subscriptions. v3 record types 2/4/5
+(EXCLUDE/CHANGE_TO_EXCLUDE/ALLOW) count as joins; types 1/3 with no sources
+count as leaves. Liveness is counted in <strong>query rounds, not wall-clock</strong>: a
+group survives four consecutive unanswered general queries. This matters on a
+busy plant, where a receiver spreads its reports across the max-response
+window and an individual one can be missed — counting elapsed time instead
+lets a single missed report withdraw the route and stop the audio.</p>
+</li>
+<li><p><strong>Querier.</strong> Every 30 s the bridge emits an IGMPv2 general query (router-alert
 IP option, max response 10 s, sourced from <code>--lan-ip</code>) so memberships keep
 refreshing on LANs that have no querier. On a plant that already has one,
-both coexist and the lowest source IP wins the election.</li>
-<li><strong>Loop safety.</strong> <code>PACKET_IGNORE_OUTGOING</code> keeps the bridge&#39;s own emissions
+both coexist and the lowest source IP wins the election. A group that has been
+quiet for two rounds additionally gets its <strong>own group-specific query</strong> (max
+response 2 s) before the bridge gives up on it, and expiry logs a warning
+naming the consequence:</p>
+<pre><code>bridge: WARNING dropping 239.70.1.2 after 4 unanswered queries (127s since its
+last report) — the fabric route is being withdrawn and any receiver still
+joined will go silent
+</code></pre>
+</li>
+<li><p><strong>Kernel capture filter.</strong> The capture socket carries a BPF program admitting
+only IGMP plus the currently routed groups, reloaded whenever the route set
+changes. Without it every IPv4 frame on the segment is copied to userspace and
+discarded there: on a plant carrying ~17,000 pps of multicast against ~4,000
+pps the fabric wanted, that is three quarters of the work wasted — and when
+the ring buffer cannot keep up, the frames the kernel drops include the IGMP
+reports above. Watch <code>ccf_lan_capture_drops_total</code>; it should stay at 0.</p>
+</li>
+<li><p><strong>Loop safety.</strong> <code>PACKET_IGNORE_OUTGOING</code> keeps the bridge&#39;s own emissions
 out of its capture path, and the bridge never reports kernel IGMP state — its
 own forwarding joins would otherwise reflect routes straight back as
-subscriptions.</li>
+subscriptions.</p>
+</li>
 </ul>
 <p><code>--lan-subs</code> remains available as a static seed, merged with whatever snooping
 finds. It is no longer required: the validated sequence programs both
 directions from live IGMP alone.</p>
 <p>The bridge appears on the dashboard as <code>bridge-&lt;hostname&gt;</code>.</p>
+<h3 id="47-egress-pacing-and-the-clock-behind-it">4.7 Egress pacing and the clock behind it</h3>
+<p>A WAN delivers AoIP in clumps. Measured London → Adelaide on a residential
+uplink: p50 spacing 0.856 ms against a 1 ms nominal, p99 7.0 ms, bursts to
+53 ms, 128 reordered packets in 25,000 — while the stream itself was intact at
+1000.0 pps. AES67 receivers size their buffers for even delivery and report
+overruns when a clump lands.</p>
+<p>Both modes can absorb this. Set <code>--lan-jitter-ms</code> (bridge) or <code>--jitter-ms</code>
+(mesh) to a budget in milliseconds; frames are then released on the <em>sender&#39;s</em>
+cadence rather than forwarded on arrival. The cost is exactly that much fixed
+latency, and 30–40 ms is the validated range.</p>
+<p><strong>Choosing the clock.</strong> The release cadence is only as stable as the clock
+driving it, and <code>CLOCK_REALTIME</code> is slewed continuously by NTP (~150 µs RMS on
+the reference bridge). <code>--pace-clock</code> selects a PTP hardware clock instead:</p>
+<table>
+<thead>
+<tr>
+<th>Deployment</th>
+<th>What <code>auto</code> picks</th>
+<th>How to make it available</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cloud (AWS Nitro)</td>
+<td><code>/dev/ptp0</code></td>
+<td><code>options ena phc_enable=1</code> in <code>/etc/modprobe.d/ena.conf</code>, then reboot. Check <code>cat /sys/module/ena/parameters/phc_enable</code> returns 1. Not all types support it — <code>c7g</code> does not; <code>m7g</code>, <code>c8g</code>, <code>r7g</code> do.</td>
+</tr>
+<tr>
+<td>Bridge at a plant</td>
+<td>the <code>--lan-iface</code> NIC&#39;s PHC</td>
+<td>Run <code>ptp4l</code> slave-only against the plant grandmaster (below).</td>
+</tr>
+</tbody></table>
+<p>Measured effect, same hardware and path, 1 ms AES67:</p>
+<table>
+<thead>
+<tr>
+<th>Receiver</th>
+<th>Clock</th>
+<th>p99 spacing</th>
+<th>Pacing stdev</th>
+<th>Reordered</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cloud, no pacing</td>
+<td>—</td>
+<td>7.011 ms</td>
+<td>1958 µs</td>
+<td>128</td>
+</tr>
+<tr>
+<td>Cloud, paced</td>
+<td>Nitro PHC</td>
+<td>1.010 ms</td>
+<td>9.4 µs</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Plant, paced</td>
+<td>NIC PHC → plant GM</td>
+<td>1.017 ms</td>
+<td>—</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<p><strong>Be clear about what this does and does not buy.</strong> Within any one-second window
+the short-term cadence is still <code>CLOCK_REALTIME</code>&#39;s, because the PHC is sampled
+once a second off the hot path (see below) rather than read per packet. What the
+hardware clock buys is that the buffer stops drifting against plant time over
+hours, which is the failure that shows up as slowly climbing overrun counters on
+receiving hardware. It is not sample-accurate hardware clocking.</p>
+<p><strong>Why the PHC is not read per packet.</strong> Some PHCs rate-limit <code>clock_gettime</code> —
+the AWS Nitro clock refuses the large majority of calls when polled faster than
+roughly 1 Hz, since it is designed to be sampled at that rate by chrony or
+phc2sys. The agent therefore samples it on a background thread once a second and
+publishes <code>phc − CLOCK_REALTIME</code>; the packet path reads <code>CLOCK_REALTIME</code> (a vDSO
+call, ~29 ns) and applies the offset. If the device stops answering entirely the
+agent holds the last good offset and says so, rather than stalling.</p>
+<p><strong>Locking a bridge to the plant grandmaster.</strong> <code>slaveOnly 1</code> is not optional —
+it guarantees the bridge never announces and so can never win BMCA and disturb
+the plant&#39;s own clock:</p>
+<pre><code class="language-ini"># /etc/ccf/ptp-slave.conf
+[global]
+domainNumber            0
+slaveOnly               1
+time_stamping           hardware
+network_transport       UDPv4
+delay_mechanism         E2E
+announceReceiptTimeout  3
+summary_interval        4
+[eno1]
+</code></pre>
+<pre><code class="language-bash">sudo systemctl enable --now ccf-ptp-slave     # ExecStart=/usr/sbin/ptp4l -f /etc/ccf/ptp-slave.conf
+</code></pre>
+<p>Expect <code>port 1: UNCALIBRATED to SLAVE on MASTER_CLOCK_SELECTED</code> within a few
+seconds, then <code>rms</code> settling to single-digit microseconds. Against an Axia xNode
+grandmaster the reference bridge holds ~3–5 µs; it does not reach sub-microsecond
+because the xNode emits only one sync per second and reports <code>clockClass 248</code>, a
+free-running internal oscillator.</p>
+<blockquote>
+<p><strong>Never run <code>phc2sys</code> against a Livewire grandmaster.</strong> It advertises an
+<strong>arbitrary timescale</strong> — origin timestamps around 1,073,067 s, not a real
+epoch — so disciplining <code>CLOCK_REALTIME</code> from it would throw the host&#39;s wall
+clock decades into the past. <code>ptp4l</code> logs this as <em>&quot;foreign master not using
+PTP timescale / running in a temporal vortex&quot;</em>. The PHC is used for pacing
+only and is never written to system time.</p>
+</blockquote>
 <h2 id="5-configuration-reference">5. Configuration reference</h2>
 <h3 id="51-agent-command-line-flags">5.1 Agent command-line flags</h3>
 <p>Flags are positional-free <code>--key value</code> pairs; an unknown flag is ignored, and
@@ -606,6 +750,11 @@ empty environment variable expands to) is treated as unset.</p>
 <td>off</td>
 <td>Disable the SAP catalogue (mesh and bridge). The agent stops joining 239.255.255.255, advertises nothing to the controller and contributes nothing to the collision check. Router mode has no catalogue either way.</td>
 </tr>
+<tr>
+<td><code>--pace-clock auto|realtime|&lt;dev&gt;</code></td>
+<td><code>auto</code></td>
+<td>Clock driving egress pacing. <code>auto</code> prefers a PHC — the LAN NIC&#39;s in bridge mode, <code>/dev/ptp0</code> otherwise — and falls back to <code>CLOCK_REALTIME</code> with a warning if none is usable. Only matters when a de-jitter budget is set. See <a href="#47-egress-pacing-and-the-clock-behind-it">4.7</a>.</td>
+</tr>
 </tbody></table>
 <p><strong>Mesh mode</strong></p>
 <table>
@@ -640,6 +789,11 @@ empty environment variable expands to) is treated as unset.</p>
 <td><code>--peers &lt;ip:port,...&gt;</code></td>
 <td>empty</td>
 <td>Static replication targets, used only without <code>--controller</code>.</td>
+</tr>
+<tr>
+<td><code>--jitter-ms &lt;n&gt;</code></td>
+<td><code>0</code></td>
+<td>De-jitter budget for TAP egress. <code>0</code> keeps forward-on-arrival, which hands the local application raw WAN jitter. Any cloud consumer of AES67 wants 30–40. Adds exactly this much fixed latency.</td>
 </tr>
 <tr>
 <td><code>--forward-ptp</code></td>
@@ -795,6 +949,7 @@ expands into its <code>ExecStart</code> line:</p>
 <p>Standard ASP.NET Core Kestrel and logging variables also apply. Command-line
 arguments are passed to the web host builder, so <code>--urls</code> works too.</p>
 <h3 id="54-ptp-gmconf">5.4 ptp-gm.conf</h3>
+<p>For the bridge-side slave configuration see <a href="#47-egress-pacing-and-the-clock-behind-it">4.7</a>.</p>
 <p>The shipped grandmaster profile (<code>packaging/ptp-gm.conf</code>), applied to <code>ccf0</code>:</p>
 <table>
 <thead>
@@ -883,6 +1038,11 @@ arguments are passed to the web host builder, so <code>--urls</code> works too.<
 <td><code>ccf-ptp-gm.service</code></td>
 <td><code>/usr/local/sbin/ptp4l -f /etc/ccf/ptp-gm.conf -m</code></td>
 <td><code>Requires=ccf-agent.service</code>; waits for <code>ccf0</code> in <code>ExecStartPre</code>.</td>
+</tr>
+<tr>
+<td><code>ccf-ptp-slave.service</code></td>
+<td><code>/usr/sbin/ptp4l -f /etc/ccf/ptp-slave.conf</code></td>
+<td><strong>Bridges only.</strong> Disciplines the LAN NIC&#39;s PHC to the plant grandmaster, slave-only. Mutually exclusive with <code>ccf-ptp-gm</code> on the same interface — a bridge follows the plant clock, it does not serve one. See <a href="#47-egress-pacing-and-the-clock-behind-it">4.7</a>.</td>
 </tr>
 </tbody></table>
 <h2 id="6-operations">6. Operations</h2>
@@ -974,7 +1134,7 @@ routes are per-group receiver sets&quot;</em>.</p>
 <tr>
 <td>POST</td>
 <td><code>/api/import</code></td>
-<td>Body <code>{"agent","group","name"}</code>. Allocates an address from the 239.193.0.0/16 pool and pushes the translation to that agent (see 6.9). Idempotent — re-posting an existing group returns the address already assigned</td>
+<td>Body <code>{&quot;agent&quot;,&quot;group&quot;,&quot;name&quot;}</code>. Allocates an address from the 239.193.0.0/16 pool and pushes the translation to that agent (see 6.9). Idempotent — re-posting an existing group returns the address already assigned</td>
 </tr>
 <tr>
 <td>GET</td>
@@ -984,8 +1144,7 @@ routes are per-group receiver sets&quot;</em>.</p>
 </tbody></table>
 <h3 id="63-metrics">6.3 Metrics</h3>
 <p>Every agent serves Prometheus text format on <code>0.0.0.0:&lt;--metrics&gt;</code> (default
-9464) with no authentication and no TLS, on every request path except <strong><code>GET /sap</code></strong>,
-which returns that agent’s SAP catalogue as JSON (6.8). All values are
+9464) with no authentication and no TLS, on every request path except <strong><code>GET /sap</code></strong>, which returns that agent’s SAP catalogue as JSON (6.8). All values are
 atomics updated on the hot path.</p>
 <table>
 <thead>
@@ -1044,6 +1203,31 @@ atomics updated on the hot path.</p>
 <td><code>ccf_fabric_delay_us</code></td>
 <td>histogram</td>
 <td>Send-to-receive delay in microseconds. Buckets 10, 20, 50, 100, 200, 500, 1000, 5000, 10000, <code>+Inf</code>, plus <code>_sum</code> and <code>_count</code>.</td>
+</tr>
+<tr>
+<td><code>ccf_lan_pace_depth</code></td>
+<td>gauge</td>
+<td>With a de-jitter budget set (<code>--lan-jitter-ms</code> in bridge mode, <code>--jitter-ms</code> in mesh): packets currently held in the queue. Should sit near <em>jitter budget × packet rate</em> — 40 at 40 ms and 1000 pps. Pinned at the 4096 cap means the pacer cannot keep up.</td>
+</tr>
+<tr>
+<td><code>ccf_lan_pace_late_total</code></td>
+<td>counter</td>
+<td>Packets that arrived after their release deadline had already passed.</td>
+</tr>
+<tr>
+<td><code>ccf_lan_pace_drop_total</code></td>
+<td>counter</td>
+<td>Packets discarded because the queue was full. Any sustained rate here is audible.</td>
+</tr>
+<tr>
+<td><code>ccf_lan_capture_packets_total</code></td>
+<td>counter</td>
+<td>Bridge only: frames the kernel passed up the capture socket, after the BPF filter. Compare against the plant&#39;s total multicast rate to see how much the filter is saving.</td>
+</tr>
+<tr>
+<td><code>ccf_lan_capture_drops_total</code></td>
+<td>counter</td>
+<td>Bridge only: frames the <strong>kernel discarded</strong> because userspace could not keep up. Must stay at 0. A non-zero value means media traffic is starving the capture socket, which loses IGMP reports and silently withdraws routes.</td>
 </tr>
 </tbody></table>
 <p>The controller&#39;s poller scrapes <code>http://&lt;agent data ip&gt;:9464/metrics</code> every 5 s
@@ -1117,6 +1301,22 @@ journalctl -u ccf-ptp-gm    # ptp4l -m logs its master state here
 <p>A host that has lost its PHC reference still forwards media perfectly; what
 degrades is the traceability of the time its local grandmaster serves, and the
 credibility of the <code>ccf_fabric_delay_us</code> histogram.</p>
+<p><strong>On a bridge</strong>, the questions are different — it follows the plant clock rather
+than serving one:</p>
+<pre><code class="language-bash">journalctl -u ccf-ptp-slave     # want: UNCALIBRATED to SLAVE on MASTER_CLOCK_SELECTED
+                                # then rms settling to single-digit microseconds
+journalctl -u ccf-bridge | grep &#39;clock=&#39;   # which clock pacing actually chose
+</code></pre>
+<p>The startup line is the authority on what pacing is using, and it never guesses
+silently:</p>
+<pre><code>pace: /dev/ptp0 offset from CLOCK_REALTIME is -1784761802.124172s, resampling every 1s
+ccf-agent bridge: lan=eth0 (192.168.1.50) ... lan_jitter_ms=40 clock=/dev/ptp0
+</code></pre>
+<p>An offset of roughly −1.78 × 10⁹ s is normal against a Livewire grandmaster and
+confirms the arbitrary timescale — it is not an error. If the line reads
+<code>clock=CLOCK_REALTIME</code> when you expected a PHC, the agent will also have logged
+why (device absent, unreadable, or not answering) followed by a warning that the
+release cadence will wander.</p>
 <h3 id="68-discovery-sap-announcements">6.8 Discovery: SAP announcements</h3>
 <p>AoIP senders advertise themselves with SAP (RFC 2974) carrying an SDP body
 (RFC 4566): a periodic UDP announcement to <strong>239.255.255.255:9875</strong> describing
@@ -1135,8 +1335,7 @@ out rather than lingering.</p>
 <th>Notes</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>Session name (<code>s=</code>)</td>
 <td>Shown as the source name everywhere</td>
 </tr>
@@ -1171,14 +1370,14 @@ IGMP on a bridge, or kernel membership on a mesh agent. What the catalogue
 gives you is an inventory, and the inputs to the collision check.</p>
 <p>One deliberate consequence: because a mesh agent joins 239.255.255.255 on its
 TUN, that join is itself reported as a subscription, so <strong>a mesh node pulls the
-plant’s announcements up the fabric with no extra configuration</strong> — the cloud
+plant&#39;s announcements up the fabric with no extra configuration</strong> — the cloud
 sees what the ground is advertising. Cloud senders announce in the same way, so
-a stream originating in the fabric appears in the plant’s source list like any
+a stream originating in the fabric appears in the plant&#39;s source list like any
 other source.</p>
 <p>Where to look:</p>
 <pre><code class="language-bash">curl -s http://&lt;agent&gt;:9464/sap | jq .     # that agent&#39;s catalogue, as JSON
 </code></pre>
-<p>and on the dashboard, the agent dialog’s <strong>Advertised</strong> row, plus the source
+<p>and on the dashboard, the agent dialog&#39;s <strong>Advertised</strong> row, plus the source
 names shown against any collision.</p>
 <p>A SAP catalogue is an inventory of everything an agent can hear, and every
 agent reports its catalogue to the controller. Scope a fabric to one
@@ -1202,15 +1401,14 @@ collision. A real collision is two different <em>originators</em> claiming one g
 <th>Consequence</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td><code>duplicate</code></td>
 <td>One group, two or more distinct SDP origins</td>
 <td><strong>The group is removed from the route table.</strong> Logged <code>BLOCKED</code> if it was routed, <code>CONFLICT</code> if nobody had subscribed yet.</td>
 </tr>
 <tr>
 <td><code>ptime</code></td>
-<td>A group an agent subscribes to, sourced elsewhere at a different packet time from that agent’s own predominant ptime</td>
+<td>A group an agent subscribes to, sourced elsewhere at a different packet time from that agent&#39;s own predominant ptime</td>
 <td>Logged <code>WARN</code>. The group still routes — match the packet times, as below.</td>
 </tr>
 </tbody></table>
@@ -1230,8 +1428,8 @@ it is given; it does not re-packetise, and neither does address translation.</p>
 renumber a plant, give the remote stream a new address on the receiving LAN:</p>
 <pre><code class="language-bash">curl -sX POST http://&lt;controller&gt;:8601/api/import \
   -H &#39;content-type: application/json&#39; \
-  -d &#39;{"agent":"bridge-studio-a","group":"239.192.7.210","name":"SYD/Studio 1"}&#39;
-# -&gt; {"agent":"...","group":"239.192.7.210","local":"239.193.0.1","name":"SYD/Studio 1"}
+  -d &#39;{&quot;agent&quot;:&quot;bridge-studio-a&quot;,&quot;group&quot;:&quot;239.192.7.210&quot;,&quot;name&quot;:&quot;SYD/Studio 1&quot;}&#39;
+# -&gt; {&quot;agent&quot;:&quot;...&quot;,&quot;group&quot;:&quot;239.192.7.210&quot;,&quot;local&quot;:&quot;239.193.0.1&quot;,&quot;name&quot;:&quot;SYD/Studio 1&quot;}
 </code></pre>
 <p>The controller allocates an unused address from the <strong>239.193.0.0/16</strong> import
 pool, records it against that agent, and pushes the translation to it. On LAN
@@ -1239,7 +1437,7 @@ egress the bridge rewrites the destination MAC and IP and patches the IP and
 UDP checksums incrementally (RFC 1624) — the RTP payload, SSRC, sequence and
 timestamps are untouched, so the stream stays byte-identical to receivers. It
 also <strong>re-announces the translated stream locally over SAP every 5 s</strong>, so it
-appears in the plant’s source list under the name you gave it.</p>
+appears in the plant&#39;s source list under the name you gave it.</p>
 <p>Two things to know when you subscribe. The far end continues to advertise the
 <strong>original</strong> address, which has no audio behind it on this LAN — subscribe to
 the translated address, the one returned as <code>local</code>. And the local
@@ -1309,6 +1507,31 @@ controller restart.</p>
 <td>Working as designed (6.9) — serving one of two would be arbitrary. The detail line names both origins and their session names. Import one of them onto a translated address, or renumber a plant.</td>
 </tr>
 <tr>
+<td><code>BLOCKED &lt;group&gt;: duplicate multicast</code> naming a site that <strong>no longer exists</strong></td>
+<td>A decommissioned agent&#39;s controller session was never closed</td>
+<td>An abruptly terminated host sends no TCP FIN, so its session can linger and the departed node goes on advertising its sources — blocking the group against a live sender. Confirm the named address is gone from <strong>Agents</strong>, then <code>POST /api/action/disconnect/&lt;agent id&gt;</code>. Traffic resumes immediately.</td>
+</tr>
+<tr>
+<td>A sender&#39;s <code>ccf_tun_rx_packets_total</code> climbs but <code>ccf_fabric_tx_packets_total</code> does not</td>
+<td>The group is not in <em>that agent&#39;s</em> route table</td>
+<td>The agent drops frames for groups with no targets, by design. Note the controller&#39;s global <code>/state</code> can show a route while the per-agent push omits it — a blocked duplicate (above) is the usual reason. Capture the push to be sure: <code>tcpdump -i &lt;tunnel&gt; -A -s0 &#39;tcp and port 8600&#39; | grep routes</code>.</td>
+</tr>
+<tr>
+<td><code>ccf_lan_pace_depth</code> pinned at 4096, <code>ccf_lan_pace_drop_total</code> climbing, almost nothing emitted</td>
+<td>The pacer is waiting on a deadline it will never reach</td>
+<td>Check the startup line&#39;s <code>clock=</code> value. If it names a PHC the device may have stopped answering — the journal logs <code>unreadable for Ns, holding the last offset</code>. Falling back with <code>--pace-clock realtime</code> isolates it.</td>
+</tr>
+<tr>
+<td>Snooped groups appear and disappear from an agent&#39;s subscription list</td>
+<td>The capture socket is dropping IGMP under media load</td>
+<td>Check <code>ccf_lan_capture_drops_total</code> — it must be 0. Without kernel-side capture filtering every IPv4 frame on the segment is copied to userspace, and control traffic is lost when the ring fills.</td>
+</tr>
+<tr>
+<td>Bridge egress is smooth for minutes then slowly drifts against the plant, overruns climbing</td>
+<td>Pacing on <code>CLOCK_REALTIME</code> rather than a PHC</td>
+<td>The startup line says which. Run <code>ptp4l</code> slave-only against the plant grandmaster and pass <code>--pace-clock /dev/ptpN</code> (4.7). Never <code>phc2sys</code> a Livewire grandmaster onto system time.</td>
+</tr>
+<tr>
 <td>A source appears in the plant’s source list but has no audio</td>
 <td>The original address of an imported group</td>
 <td>After an import the far end still advertises the <em>original</em> address, which has no audio behind it on this LAN. Subscribe to the translated address — the one the controller returned as <code>local</code>, in 239.193.0.0/16.</td>
@@ -1370,8 +1593,8 @@ operational surface; agent metrics are Prometheus-format on 9464.</p>
 inventory and checks it for two sites claiming one multicast group. A group
 with two distinct origins is withheld rather than served arbitrarily, and the
 239.193.0.0/16 range is reserved for imported streams that have been translated
-onto a new local address. A fabric is scoped to one organisation: every
-agent’s catalogue is shared with the controller and visible on the dashboard.</p>
+onto a new local address. A fabric is scoped to one organisation: every agent&#39;s
+catalogue is shared with the controller and visible on the dashboard.</p>
 <p><strong>Controller state.</strong> The controller holds routing state in memory and
 rebuilds it from the agents as they reconnect. Agents keep forwarding on
 their current route table across a controller restart, so a control-plane
