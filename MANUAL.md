@@ -35,11 +35,11 @@ work.
 3. [Deployment requirements](#3-deployment-requirements)
    - [Instances and the PHC](#instances-and-the-phc) · [Kernel and interface settings](#kernel-and-interface-settings) · [MTU](#mtu) · [Ports and security groups](#ports-and-security-groups)
 4. [Installation](#4-installation)
-   - [Building](#41-building) · [Cloud agent (mesh)](#42-cloud-agent-mesh-mode) · [Controller](#43-controller) · [PTP grandmaster](#44-ptp-grandmaster) · [Router](#45-router-optional) · [Ground-to-cloud bridge](#46-ground-to-cloud-bridge) · [Egress pacing and the clock](#47-egress-pacing-and-the-clock-behind-it)
+   - [Building](#41-building) · [Cloud agent (mesh)](#42-cloud-agent-mesh-mode) · [Controller](#43-controller) · [PTP grandmaster](#44-ptp-grandmaster) · [Router](#45-router-optional) · [Ground-to-cloud bridge](#46-ground-to-cloud-bridge) · [Egress pacing and the clock](#47-egress-pacing-and-the-clock-behind-it) · [Dual-path protection](#48-dual-path-protection)
 5. [Configuration reference](#5-configuration-reference)
    - [Agent flags](#51-agent-command-line-flags) · [Agent environment file](#52-agent-environment-file) · [Controller environment](#53-controller-environment-variables) · [ptp-gm.conf](#54-ptp-gmconf) · [systemd units](#55-systemd-units)
 6. [Operations](#6-operations)
-   - [The dashboard](#61-the-dashboard) · [HTTP surface](#62-http-surface) · [Metrics](#63-metrics) · [Adding an agent](#64-adding-an-agent) · [Bridging a site](#65-bridging-a-site) · [Verifying a path](#66-verifying-a-path-with-ccf-spike) · [Checking the clock](#67-checking-the-clock) · [Discovery: SAP](#68-discovery-sap-announcements) · [Address collisions](#69-multicast-address-collisions)
+   - [The dashboard](#61-the-dashboard) · [HTTP surface](#62-http-surface) · [Metrics](#63-metrics) · [Agent status page](#64-agent-status-page) · [Adding an agent](#65-adding-an-agent) · [Bridging a site](#66-bridging-a-site) · [Verifying a path](#67-verifying-a-path-with-ccf-spike) · [Checking the clock](#68-checking-the-clock) · [Discovery: SAP](#69-discovery-sap-announcements) · [Address collisions](#610-multicast-address-collisions)
 7. [Troubleshooting](#7-troubleshooting)
 8. [Scope and platform support](#8-scope-and-platform-support)
 
@@ -315,7 +315,7 @@ dotnet publish controller -c Release -o /opt/ccf-controller
 ```
 
 `ccf-agent` has one dependency (`libc`) and builds in seconds. `ccf-spike` is
-the bench tool used for verification ([§6.6](#66-verifying-a-path-with-ccf-spike)).
+the bench tool used for verification ([§6.7](#67-verifying-a-path-with-ccf-spike)).
 
 ### 4.2 Cloud agent (mesh mode)
 
@@ -556,6 +556,97 @@ free-running internal oscillator.
 > PTP timescale / running in a temporal vortex"*. The PHC is used for pacing
 > only and is never written to system time.
 
+### 4.8 Dual-path protection
+
+Carry a stream over two disjoint paths and merge them at the receiver, so loss
+or a failure on one path is covered by the other. This is SMPTE ST 2022-7 style
+seamless protection applied at the fabric layer, which means **unmodified
+receivers benefit** — the hardware never sees two streams, only one clean one.
+
+It is **opt in per group**, because duplicating a stream doubles its egress
+bill. That should be a decision, not something that happens by accident.
+
+**Two kinds of diversity, and they compose.**
+
+| | What it does | Survives |
+|---|---|---|
+| `--protect-bind <ip>` | second copy leaves from a different local address, so it takes a different uplink | losing an uplink |
+| `--protect-via <ip:port>` | second copy goes to a different next hop, normally a relay elsewhere | losing a route |
+
+`bind` is classic red/blue: two physical networks at one site, and the only
+form that survives an uplink failing. `via` suits a host with one NIC but
+several possible routes — a relay in another region, usually running
+[router mode](#45-router-optional), which forwards fabric packets byte-for-byte
+so the relayed copy still compares equal to the direct one.
+
+![The fabric map showing both copies of one stream: the solid primary arc and the dashed protection path routed through a relay on another continent](img/05-dual-path-map.jpg)
+
+**Declaring it.** Statically on the sender:
+
+```bash
+ccf-agent --mode mesh ... --protect 239.192.7.210 --protect-via 10.99.0.2:7778
+```
+
+or centrally, which is normally what you want:
+
+```bash
+curl -X POST -H 'Content-Type: application/json' \
+  -d '{"group":"239.192.7.210","via":"10.99.0.2:7778"}' \
+  https://controller:8443/api/protect
+```
+
+The controller **refuses a relay that already receives the group directly** —
+both copies would converge on one next hop and share a failure domain, which is
+two copies of the same outage paid for twice. `--protect-bind` stays a local
+flag: which uplinks a host owns is a property of that host, not something a
+controller can know.
+
+![The multicast flow list showing a protected group, its relay named, and each group in its own colour](img/06-protected-flows.jpg)
+
+The badge reflects the **duplicate rate at the receivers**, not the
+configuration. A group declared protected whose second path is dead renders red
+with *"no duplicates seen"* — because configured-but-dead is precisely the
+failure this feature exists to prevent, and a badge that merely echoed the
+config would hide it.
+
+**How the merge works.** The sender stamps one sequence number and transmits it
+twice. Every packet carries the id of the agent that *assigned* that sequence,
+so the receiver's de-duplication window is keyed on the originator rather than
+on whichever peer delivered the packet — and the second copy is simply a
+duplicate. Without that the two copies would occupy different windows and both
+would be injected.
+
+**Sizing the buffer is not optional.** Protection is only seamless if output is
+held for at least the **differential delay** between the paths. Release the
+first copy immediately and a loss on the fast path arrives too late to fill.
+The de-jitter budget from [4.7](#47-egress-pacing-and-the-clock-behind-it) *is*
+that buffer, and both copies are scheduled against the fastest path, so the
+rule is simply:
+
+> **budget ≥ differential delay + jitter**
+
+The agent measures the differential (`ccf_path_spread_us`) and warns when the
+budget is under it, because that configuration de-duplicates but does **not**
+protect and otherwise looks identical to one that does.
+
+This is why a protection relay belongs **near** the primary path. Two regions
+20 ms apart need 20 ms of buffer. A relay on the far side of the world needs
+hundreds, which is unusable for live audio — measured at 229 ms differential
+across a deliberately extreme three-continent test.
+
+**Is it worth it?** On good cloud paths, both the public internet and
+inter-region peering carried 300 s at 1000 pps with **zero** loss. There,
+protection guards against rare events — a BGP reconvergence, a link or
+availability-zone failure — and doubles egress spend to do it. The edge is where
+it earns its keep: a residential or 4G uplink is where real loss lives, and two
+uplinks at one site have a differential of a few milliseconds, so they are
+seamless inside a budget you are already paying for.
+
+**Verified**: a sender in Sydney feeding a plant in Adelaide, protected via a
+relay in Canada. The direct path was severed for 35 s mid-stream and the audio
+continued with **zero packets lost**; duplicates resumed at 1001/s when it was
+restored.
+
 ## 5. Configuration reference
 
 ### 5.1 Agent command-line flags
@@ -585,6 +676,9 @@ empty environment variable expands to) is treated as unset.
 | `--mtu <n>` | `1300` | MTU set on the interface. |
 | `--controller <ip:port>` | unset | Enables controller-driven routing. When set, `--peers` is ignored. |
 | `--peers <ip:port,...>` | empty | Static replication targets, used only without `--controller`. |
+| `--protect <group,...>` | empty | Groups to carry twice. Needs `--protect-via` and/or `--protect-bind`, or the agent exits rather than pretending to protect. Usually left to the controller instead — see [4.8](#48-dual-path-protection). |
+| `--protect-via <ip:port>` | unset | Send the second copy to this next hop (normally a relay). |
+| `--protect-bind <ip>` | unset | Send the second copy from this local address, so it leaves by another uplink. Warns loudly if it cannot bind, rather than silently sending both copies down one path. |
 | `--jitter-ms <n>` | `0` | De-jitter budget for TAP egress. `0` keeps forward-on-arrival, which hands the local application raw WAN jitter. Any cloud consumer of AES67 wants 30–40. Adds exactly this much fixed latency. |
 | `--forward-ptp` | off | Forward UDP 319/320 across the fabric. Leave off. |
 
@@ -717,6 +811,12 @@ one receiving agent, and **Loss / duplicates / late (totals)** as a table.
 The footer states the operating principle: *"agents report kernel IGMP joins ·
 routes are per-group receiver sets"*.
 
+Each multicast group carries a stable colour across its pill, its map arcs and
+the agent cards, so one stream can be followed by eye. The flow list filters on
+group address or site name, and the map filters with it.
+
+![Filtering the flow list to a single group; the count drops and the map arcs filter with it](img/07-stream-filter.jpg)
+
 ### 6.2 HTTP surface
 
 | Method | Path | Purpose |
@@ -729,14 +829,16 @@ routes are per-group receiver sets"*.
 | GET | `/api/overview` | Everything the dashboard renders: agents, rates, series, routes, events, fabric totals |
 | POST | `/api/action/disconnect/{id}` | Closes that agent's control session; it reconnects within ~2 s |
 | POST | `/api/action/recompute` | Forces a route recompute and push |
-| POST | `/api/import` | Body `{"agent","group","name"}`. Allocates an address from the 239.193.0.0/16 pool and pushes the translation to that agent (see 6.9). Idempotent — re-posting an existing group returns the address already assigned |
+| POST | `/api/import` | Body `{"agent","group","name"}`. Allocates an address from the 239.193.0.0/16 pool and pushes the translation to that agent (see 6.10). Idempotent — re-posting an existing group returns the address already assigned |
+| POST | `/api/protect` | Body `{"group","via"}`. Declares a protection path (4.8). Refused if `via` already receives the group directly, since both copies would then share a failure domain |
+| POST | `/api/unprotect` | Body `{"group"}`. Returns the group to a single path |
 | GET | `/state` | Compact JSON — agents (id, data address, groups) and the full route table. Intended for loopback scripts and health checks |
 
 ### 6.3 Metrics
 
 Every agent serves Prometheus text format on `0.0.0.0:<--metrics>` (default
 9464) with no authentication and no TLS, on every request path except **`GET
-/sap`**, which returns that agent’s SAP catalogue as JSON (6.8). All values are
+/sap`**, which returns that agent’s SAP catalogue as JSON (6.9). All values are
 atomics updated on the hot path.
 
 | Metric | Type | Meaning |
@@ -756,6 +858,12 @@ atomics updated on the hot path.
 | `ccf_lan_pace_drop_total` | counter | Packets discarded because the queue was full. Any sustained rate here is audible. |
 | `ccf_lan_capture_packets_total` | counter | Bridge only: frames the kernel passed up the capture socket, after the BPF filter. Compare against the plant's total multicast rate to see how much the filter is saving. |
 | `ccf_lan_capture_drops_total` | counter | Bridge only: frames the **kernel discarded** because userspace could not keep up. Must stay at 0. A non-zero value means media traffic is starving the capture socket, which loses IGMP reports and silently withdraws routes. |
+| `ccf_protect_tx_total` | counter | Second copies queued on the protection path. Sender side. |
+| `ccf_protect_fail_total` | counter | Second copies that could not be sent — the protection path is unusable. Media keeps flowing on the primary, which is the point, but you are no longer protected. |
+| `ccf_path_spread_us` | gauge | Measured differential delay between the fastest and slowest way a packet reaches this agent. The de-jitter budget must exceed it (4.8). |
+| `ccf_pace_spread_over_budget_total` | counter | Packets where the differential exceeded the budget — de-duplicated but not protected. |
+| `ccf_merge_wins_total{peer}` | counter | Packets this peer delivered **first**, i.e. the copy that was used. |
+| `ccf_merge_dups_total{peer}` | counter | Copies this peer supplied after another had already delivered them. **This is the liveness signal**: a healthy protection path shows dups at roughly the stream rate and wins near zero. When it starts winning it is covering for the primary. Zero of both means it is dead. |
 
 The controller's poller scrapes `http://<agent data ip>:9464/metrics` every 5 s
 and keeps 720 samples (~1 hour) per agent in memory. Nothing is persisted: a
@@ -767,7 +875,30 @@ ago* value in the agent dialog.
 > `--metrics` will register and route normally but show all-zero rates on the
 > dashboard.
 
-### 6.4 Adding an agent
+### 6.4 Agent status page
+
+Every agent serves a small HTML status page at `GET /` on its metrics port
+(default 9464), alongside the Prometheus text on every other path. It is the
+single-host view for when you are on one machine, or when the controller is the
+thing that is broken.
+
+![The agent's own status page: live rates, integrity counters, the per-peer merge table and the SAP inventory](img/08-agent-status-page.jpg)
+
+It is deliberately small — one self-contained page, no dependencies, no build
+step, about 7 KB — and it is built entirely client-side from the same
+`/metrics` the agent already serves, so it cannot drift from the real numbers
+and costs nothing when nobody has it open.
+
+The per-peer merge table labels each peer **primary**, **protection (live)**,
+**covering** or **idle**, which is how you tell at a glance whether a protection
+path is carrying anything. Warnings name the consequence rather than the number:
+capture drops are explained as *"IGMP reports may be lost, which withdraws
+routes and silences receivers"*.
+
+It has **no authentication**, exactly like `/metrics`. Keep the metrics port
+inside a security group or a tunnel.
+
+### 6.5 Adding an agent
 
 1. Launch a PHC-capable instance; set `phc_enable=1` and reboot
    ([§3](#instances-and-the-phc)).
@@ -787,7 +918,7 @@ ago* value in the agent dialog.
 Nothing needs restarting anywhere else: route pushes go to every agent on every
 change.
 
-### 6.5 Bridging a site
+### 6.6 Bridging a site
 
 1. Stand up connectivity to the cloud (WireGuard in the validated deployment),
    with the cloud-side host forwarding and routing the VPC range back down the
@@ -807,7 +938,7 @@ Measured over Canada↔Sydney public internet: 20,000/20,000 packets each way,
 zero loss, ~1.1–1.5 ms jitter (p50→p99.9). The absolute one-way delay was pure
 geography; an in-country site sees 5–15 ms.
 
-### 6.6 Verifying a path with `ccf-spike`
+### 6.7 Verifying a path with `ccf-spike`
 
 `ccf-spike` is the bundled bench tool. Two of its three modes
 are still the quickest way to test a fabric path end to end:
@@ -829,7 +960,7 @@ hosts are PHC-disciplined. `ccf-spike agent --peer <ip:port> --listen <port>
 Start the sink first — a group with no subscriber is not routed, so a sender
 started alone transmits nothing at all (by design).
 
-### 6.7 Checking the clock
+### 6.8 Checking the clock
 
 ```bash
 chronyc tracking            # reference should be PHC0; root dispersion ~1 µs
@@ -865,7 +996,7 @@ confirms the arbitrary timescale — it is not an error. If the line reads
 why (device absent, unreadable, or not answering) followed by a warning that the
 release cadence will wander.
 
-### 6.8 Discovery: SAP announcements
+### 6.9 Discovery: SAP announcements
 
 AoIP senders advertise themselves with SAP (RFC 2974) carrying an SDP body
 (RFC 4566): a periodic UDP announcement to **239.255.255.255:9875** describing
@@ -916,7 +1047,7 @@ agent reports its catalogue to the controller. Scope a fabric to one
 organisation, and use `--no-sap` on any agent that should not contribute to or
 receive that shared inventory.
 
-### 6.9 Multicast address collisions
+### 6.10 Multicast address collisions
 
 Two plants built independently will both be using 239.192.7.210, and neither
 knows. Joined into one fabric, that address now means two different things.
@@ -992,7 +1123,7 @@ controller restart.
 | A .NET bench tool or receiver "runs" but its sockets are dead | The dotnet launch race | `nohup dotnet … &` from an ssh session that exits immediately races the .NET runtime's signal/startup handling; sockets get torn down while the process keeps running, and a `catch (SocketException) continue` loop hides it. Keep the launching session alive, or use a systemd unit. |
 | Agent journal repeats `control: <error>; reconnecting in 2s` | Controller unreachable or refusing | Confirm TCP 8600 reachability and that `--controller` points at an address on the interface you want fabric traffic to use — the agent advertises whichever source IP the kernel picks for that route. While disconnected the agent clears its routes and sends nothing. |
 | Bridge never joins a group the cloud is asking for | The bridge only joins what the controller routes to it | Check the group is in **Active routes** with the bridge as a target, then `ip maddr show dev <iface>`. Remember the bridge deliberately never reports its own kernel IGMP state as subscriptions. |
-| A group stops routing; the journal shows `BLOCKED <group>: duplicate multicast` | Two sites advertise the same multicast address | Working as designed (6.9) — serving one of two would be arbitrary. The detail line names both origins and their session names. Import one of them onto a translated address, or renumber a plant. |
+| A group stops routing; the journal shows `BLOCKED <group>: duplicate multicast` | Two sites advertise the same multicast address | Working as designed (6.10) — serving one of two would be arbitrary. The detail line names both origins and their session names. Import one of them onto a translated address, or renumber a plant. |
 | `BLOCKED <group>: duplicate multicast` naming a site that **no longer exists** | A decommissioned agent's controller session was never closed | An abruptly terminated host sends no TCP FIN, so its session can linger and the departed node goes on advertising its sources — blocking the group against a live sender. Confirm the named address is gone from **Agents**, then `POST /api/action/disconnect/<agent id>`. Traffic resumes immediately. |
 | A sender's `ccf_tun_rx_packets_total` climbs but `ccf_fabric_tx_packets_total` does not | The group is not in *that agent's* route table | The agent drops frames for groups with no targets, by design. Note the controller's global `/state` can show a route while the per-agent push omits it — a blocked duplicate (above) is the usual reason. Capture the push to be sure: `tcpdump -i <tunnel> -A -s0 'tcp and port 8600' \| grep routes`. |
 | `ccf_lan_pace_depth` pinned at 4096, `ccf_lan_pace_drop_total` climbing, almost nothing emitted | The pacer is waiting on a deadline it will never reach | Check the startup line's `clock=` value. If it names a PHC the device may have stopped answering — the journal logs `unreadable for Ns, holding the last offset`. Falling back with `--pace-clock realtime` isolates it. |
