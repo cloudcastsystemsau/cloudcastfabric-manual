@@ -35,7 +35,7 @@ work.
 3. [Deployment requirements](#3-deployment-requirements)
    - [Instances and the PHC](#instances-and-the-phc) · [Kernel and interface settings](#kernel-and-interface-settings) · [MTU](#mtu) · [Ports and security groups](#ports-and-security-groups)
 4. [Installation](#4-installation)
-   - [Building](#41-building) · [Cloud agent (mesh)](#42-cloud-agent-mesh-mode) · [Controller](#43-controller) · [PTP grandmaster](#44-ptp-grandmaster) · [Router](#45-router-optional) · [Ground-to-cloud bridge](#46-ground-to-cloud-bridge) · [Egress pacing and the clock](#47-egress-pacing-and-the-clock-behind-it) · [Dual-path protection](#48-dual-path-protection)
+   - [Building](#41-building) · [Cloud agent (mesh)](#42-cloud-agent-mesh-mode) · [Controller](#43-controller) · [PTP grandmaster](#44-ptp-grandmaster) · [Router](#45-router-optional) · [Ground-to-cloud bridge](#46-ground-to-cloud-bridge) · [Egress pacing and the clock](#47-egress-pacing-and-the-clock-behind-it) · [Dual-path protection](#48-dual-path-protection) · [Codecs](#49-codecs-on-the-wan-leg)
 5. [Configuration reference](#5-configuration-reference)
    - [Agent flags](#51-agent-command-line-flags) · [Agent environment file](#52-agent-environment-file) · [Controller environment](#53-controller-environment-variables) · [ptp-gm.conf](#54-ptp-gmconf) · [systemd units](#55-systemd-units)
 6. [Operations](#6-operations)
@@ -105,7 +105,7 @@ packet path in each of them.
 
 **Mesh** (`--mode mesh`) is what runs on a participating instance. The TX pump
 reads Ethernet frames from `ccf0`, keeps only IPv4 multicast UDP, prepends the
-16-byte fabric header, and unicasts one copy per target. The RX pump receives
+20-byte fabric header, and unicasts one copy per target. The RX pump receives
 fabric datagrams with `recvmmsg` (batch 32, `MSG_WAITFORONE`), de-duplicates,
 and writes the original frame back into `ccf0`, where the kernel delivers it to
 every locally joined socket.
@@ -155,7 +155,7 @@ agent **clears its route table** and stops sending until it reconnects
 
 ### The encapsulation header
 
-16 bytes, big-endian, prepended to the captured Ethernet frame:
+20 bytes, big-endian, prepended to the captured Ethernet frame:
 
 | Offset | Size | Field |
 |---|---|---|
@@ -266,7 +266,7 @@ is unaffected — real senders checksum before the wire.
 ### MTU
 
 `ccf0` defaults to **MTU 1300** (`--mtu`). A 1300-byte IP packet becomes a
-1314-byte Ethernet frame, plus the 16-byte fabric header, plus 28 bytes of
+1314-byte Ethernet frame, plus the 20-byte fabric header, plus 28 bytes of
 outer UDP/IP = 1358 bytes on the wire — inside a 1500-byte path and inside a
 typical WireGuard MTU. Raise it only when the whole path (including any tunnel)
 is known to be jumbo-clean; a VPC supports 9001 intra-VPC. AES67 packets are
@@ -616,6 +616,23 @@ on whichever peer delivered the packet — and the second copy is simply a
 duplicate. Without that the two copies would occupy different windows and both
 would be injected.
 
+**What ST 2022-7 asks of a receiver.** The standard requires the sender to
+transmit at least two streams whose RTP header and payload are identical in
+every copy — the Ethernet and IP headers may differ, which is what lets the
+copies take different paths. The receiver must then reconstruct seamlessly for
+as long as the *path differential* stays inside its class:
+
+| Class | Typical use | Path differential |
+|---|---|---|
+| **D** — ultra low-skew | physical-layer LAN redundancy | ≤ 150 µs |
+| **A** — low-skew | intra-facility | ≤ 10 ms |
+| **B** — moderate-skew | short-haul, within a region | ≤ 50 ms |
+| **C** — high-skew | long-haul | ≤ 450 ms |
+
+Choose the class that matches the pair of paths, and let it set the buffer. A
+long-haul pair is Class C, so it wants a budget in the hundreds of milliseconds
+— far more than jitter alone would suggest.
+
 **Sizing the buffer is not optional.** Protection is only seamless if output is
 held for at least the **differential delay** between the paths. Release the
 first copy immediately and a loss on the fast path arrives too late to fill.
@@ -642,10 +659,99 @@ it earns its keep: a residential or 4G uplink is where real loss lives, and two
 uplinks at one site have a differential of a few milliseconds, so they are
 seamless inside a budget you are already paying for.
 
+**Where it applies.** Dual-path protection is carried by **mesh-mode** agents,
+which is where the fabric's own replication happens. A bridge agent reaching an
+on-prem plant over WireGuard sends a single copy to each target and relies on
+that tunnel; protect the leg between mesh agents, or place a mesh agent at the
+edge of the plant, when you want a stream duplicated across two paths.
+
+**Fabric layer, not the AES67 layer.** What is duplicated and merged is the
+fabric datagram, so receivers on the plant LAN see one clean stream and need no
+2022-7 support of their own. This is ST 2022-7's *method* applied to the fabric
+transport rather than a conformance claim about the AES67 packets themselves.
+
 **Verified**: a sender in Sydney feeding a plant in Adelaide, protected via a
 relay in Canada. The direct path was severed for 35 s mid-stream and the audio
 continued with **zero packets lost**; duplicates resumed at 1001/s when it was
 restored.
+
+### 4.9 Codecs on the WAN leg
+
+Encode a stream as it enters the fabric, carry it compressed, and decode it back
+to ordinary AES67 at the far plant. Nothing downstream changes: receivers see
+`L24/48000/2` at `a=ptime:1`, exactly as they would for an uncompressed group.
+
+The saving is the point. A stereo AES67 stream is about **2.3 Mbit/s** of
+payload, and roughly 3.1 Mbit/s once RTP, UDP, IP, the fabric header and the
+outer encapsulation are counted. Opus at 128 kbit/s lands near 0.15–0.2 Mbit/s —
+a **15–20× reduction**, which is what makes 4G, residential and cross-region
+legs affordable.
+
+| Codec | Frame | Added delay | Bitrate | Suits |
+|---|---|---|---|---|
+| `linear` | — | none | ~2.3 Mbit/s | anything with the bandwidth for it |
+| `opus` | 5 ms | ~7.5 ms | 64–256 kbit/s, continuous | live plant-to-plant, talkback, monitoring |
+| `aptx` | 5 ms | low | 384 kbit/s fixed | hosts with no codec libraries installed |
+| `aptx-hd` | 5 ms | low | 576 kbit/s fixed | as above, higher quality |
+| `aac-lc` | 21.3 ms | ~100 ms typical | 64–576 kbit/s | STL, contribution, distribution |
+| `aac-he-v1` | 42.7 ms + SBR | ~150 ms or more | 16–128 kbit/s | low-bitrate distribution |
+| `aac-he-v2` | 42.7 ms + SBR + parametric stereo | a third of a second or more | 20–64 kbit/s | lowest bitrate; not for live talkback |
+
+> Added-delay figures are design estimates pending measurement, and they are
+> shown beside the selector in the dashboard for the same reason they are here:
+> codec delay is the one cost of this feature that no counter can report. A
+> stream running a third of a second late is a perfectly clean stream — no loss,
+> no late packets, nothing on any dashboard. The moment of choosing is the only
+> chance to see what it costs.
+
+**Encoding happens where a stream enters the fabric.** A codec setting binds to
+the agent that captures the group from its own LAN. An agent that *delivers* a
+source — it imported it, or publishes it back under the original address — also
+sees that source, but setting a codec there has no effect, so the dashboard
+offers the control only where it applies.
+
+**One default, with per-source exceptions.** Set a fabric-wide codec and every
+source follows it, including sources imported later — there is nothing to
+remember to configure at import time. Override individual sources where they
+need something different.
+
+```bash
+# fabric default — applies to every source without an override
+curl -X POST -H 'Content-Type: application/json' \
+  -d '{"codec":"opus","bitrate":128000}' https://controller:8443/api/codec
+
+# one source on one agent
+curl -X POST -H 'Content-Type: application/json' \
+  -d '{"agent":"bridge-syd","group":"239.192.7.210","codec":"aac-lc","bitrate":256000}' \
+  https://controller:8443/api/codec
+
+# remove the override, returning the source to the fabric default
+curl -X POST -H 'Content-Type: application/json' \
+  -d '{"agent":"bridge-syd","group":"239.192.7.210"}' https://controller:8443/api/uncodec
+```
+
+Or per agent in the dashboard — see [6.1](#61-the-dashboard).
+
+**AAC bitrates are a fixed ladder, and off-ladder values are refused.** The
+controller validates the rate before it is stored, because an encoder that
+cannot be built means the stream is carried **uncompressed** instead of dropped.
+Refusing the value at the API is what stops a configuration that looks correct,
+runs clean, and quietly delivers full linear bandwidth. `aptx` and `aptx-hd` are
+fixed-rate and take no bitrate; `linear` is uncompressed and takes none either.
+
+**Decoding is never licensed separately.** Encoding is the licensed capability
+and the one an operator chooses. A receiving plant did not choose the codec, so
+it can always decode and play what it is sent.
+
+**Changing a codec on a live stream** swaps the decoder in place and keeps the
+stream running, and resets the drift correction with it, so the change takes
+effect immediately rather than settling over the following minute.
+
+**What to watch.** `ccf_codec_refused_total` above zero means a stream is not
+being carried at all — an agent was sent a codec it cannot decode. A steady
+`ccf_codec_conceal_total` is audible artefacts on a path every other counter
+calls clean, because the loss happened inside the codec rather than on the wire.
+Full list in [6.3](#63-metrics).
 
 ## 5. Configuration reference
 
@@ -795,11 +901,33 @@ subscription changes, sign-ins, admin actions — or *"quiet"*.
 
 ![The Events feed at the foot of the Overview tab](img/03-dashboard-events.jpg)
 
-Clicking an agent card opens a detail dialog: **Status** (online, and how many
-seconds since its metrics were last scraped), **Subscriptions**, **Rates**,
-**Integrity** (lost/dup/late), **Delay (≤µs)** — the share of packets inside
-each histogram bound — and three buttons: **Disconnect session (agent
-re-registers)**, **Recompute all routes**, **Close**.
+**The fabric map** places each site by geolocation, with an arc per stream
+coloured by group so a flow can be followed by eye, and a dashed pair through
+the relay where a group is protected. Scroll to zoom, drag to pan, and use
+**+ − fit reset** or the keyboard (`+` `-` `0` `f`, arrows) when the map has
+focus. Site markers and labels keep their size as you zoom. Clicking a site
+opens that agent's page.
+
+**The agent page** — click any agent card, or go to `/agent/{id}` — is where a
+single site is configured:
+
+- **Identity and licence** — status, build, licence state and term, stream cap.
+- **Live rates** — captured, sent to the fabric, received, injected, plus loss
+  and duplicates.
+- **Runtime** — de-jitter budget and pace clock. The budget applies live; the
+  clock takes effect at the agent's next restart.
+- **What this agent may receive** — `open` delivers any group a local device
+  joins; `published` delivers only what has been published to it. This filters
+  what the agent receives, not what it captures and sends.
+- **Sources on this LAN** — one card per source, showing where it currently goes
+  and the codec it is carried with ([4.9](#49-codecs-on-the-wan-leg)).
+- **Delivered to this agent** — imports and publications, each removable.
+- **Integrity** — loss, duplicates, late, codec counters, protection copies and
+  measured path differential.
+- **Actions** — disconnect the session, recompute all routes.
+
+Add new deliveries from the source matrix at `/distribute`, which shows every
+source against every destination at once.
 
 **Analytics** charts the poller's history: **Fabric throughput — packets/s**
 (tx and rx per agent), **Injected to apps — packets/s**, **Fabric delay — share
@@ -826,11 +954,19 @@ group address or site name, and the map filters with it.
 | POST | `/login` | Form field `password`; sets the `ccf_session` cookie (HttpOnly, 7 days) |
 | GET | `/auth/cognito` | Starts the OIDC challenge (redirects to `/login` when SSO is off) |
 | GET | `/logout` | Drops the session and cookie |
+| GET | `/agent/{id}` | Per-agent configuration page (6.1) |
+| GET | `/distribute` | Source distribution matrix — every source against every destination |
+| GET | `/api/sources` | The source catalogue plus each agent's policy, publications, imports and codec settings |
 | GET | `/api/overview` | Everything the dashboard renders: agents, rates, series, routes, events, fabric totals |
 | POST | `/api/action/disconnect/{id}` | Closes that agent's control session; it reconnects within ~2 s |
 | POST | `/api/action/recompute` | Forces a route recompute and push |
 | POST | `/api/import` | Body `{"agent","group","name"}`. Allocates an address from the 239.193.0.0/16 pool and pushes the translation to that agent (see 6.10). Idempotent — re-posting an existing group returns the address already assigned |
 | POST | `/api/protect` | Body `{"group","via"}`. Declares a protection path (4.8). Refused if `via` already receives the group directly, since both copies would then share a failure domain |
+| POST | `/api/policy` | Body `{"agent","mode"}`, mode `open` or `published` |
+| POST | `/api/publish` / `/api/unpublish` | Body `{"agent","group"}`. What a `published`-mode agent may receive |
+| POST | `/api/codec` | Body `{"codec","bitrate"}` for the fabric default, or `{"agent","group","codec","bitrate"}` for one source (4.9). The bitrate is validated against the codec's ladder before it is stored |
+| POST | `/api/uncodec` | Body `{"agent","group"}`. Returns the source to the fabric default |
+| POST | `/api/agent/{id}/config` | Body `{"jitterMs","paceClock"}`. Jitter applies live; the pace clock needs a restart |
 | POST | `/api/unprotect` | Body `{"group"}`. Returns the group to a single path |
 | GET | `/state` | Compact JSON — agents (id, data address, groups) and the full route table. Intended for loopback scripts and health checks |
 
@@ -1116,7 +1252,7 @@ controller restart.
 |---|---|---|
 | Agent connects and subscribes, but the receiving application gets nothing; `netstat -su` shows `UdpInErrors` climbing | Reverse-path filtering, or bad checksums from a virtualised capture | `sysctl net.ipv4.conf.all.rp_filter` must be 0 (the kernel takes the max of `all` and the interface value; the agent only sets the interface one). On a virtualised bridge host, `ethtool -K <iface> tx off` — deferred TX checksums in captured frames make the far end drop every packet. |
 | Nothing at all crosses the fabric; no errors anywhere | Host firewall | A `ufw` default-deny policy ate the first bridge run entirely. Allow the fabric port, the tunnel interface (`ufw allow in on wg0`) and, on a bridge, the LAN interface. Check the `INPUT` policy directly if in doubt. |
-| Agent shows on the dashboard with correct routes but all rates read 0 | Metrics unreachable on 9464 | The poller's port is hard-coded — an agent started with a different `--metrics` will never be scraped. Otherwise open TCP 9464 from the controller and confirm `curl http://<agent>:9464/metrics`. The agent dialog's *metrics Ns ago* value tells you how stale the last successful scrape is. |
+| Agent shows on the dashboard with correct routes but all rates read 0 | Metrics unreachable on 9464 | The poller's port is hard-coded — an agent started with a different `--metrics` will never be scraped. Otherwise open TCP 9464 from the controller and confirm `curl http://<agent>:9464/metrics`. The agent page's *metrics Ns ago* value tells you how stale the last successful scrape is. |
 | `/dev/ptp0` does not exist | Missing driver option, or an instance type without PHC support | `options ena phc_enable=1` in `/etc/modprobe.d/` **and a reboot**. If it is still absent, the instance type has no PHC — `c7g` does not support it at all. Check `PhcSupport` in `describe-instance-types` before relaunching. |
 | `ptp4l` starts but clients reject its announces, or two hosts claim the same clock identity | The fabric interface is a TUN, not a TAP | An interface with no MAC makes every `ptp4l` derive identity `000000.fffe.000000`. `ccf0` must be the agent-created TAP; check `ip link show ccf0` has a real MAC. |
 | A receiver reports a large burst of loss the moment it joins | Expected, if you are reading `ccf_fabric_lost_total` from before the join | The TX pump does not advance the sequence number while a group has no subscribers, precisely so this does not happen at the fabric layer. Application-level gaps at first join usually mean the receiver bound `ANY:port` and is seeing other groups on the same port — bind per group. |

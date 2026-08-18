@@ -75,7 +75,7 @@ kbd{font-family:var(--mono);font-size:.82em;border:1px solid var(--line);
 <nav>
   <a class="brand" href="#top"><span class="mk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="30" height="30" role="img" aria-label="CloudcastFabric"><style>.mk .b0{fill:#99f6e4}.mk .b1{fill:#2dd4bf}.mk .b2{fill:#0d9488}.mk .b3{fill:#115e59}@media (prefers-color-scheme:light){.mk .b0{fill:#2dd4bf}.mk .b1{fill:#0d9488}.mk .b2{fill:#115e59}.mk .b3{fill:#134e4a}}</style><polygon points="28,12 50,12 50,50 28,50" class="b0"/><polygon points="50,28 88,28 88,50 50,50" class="b1"/><polygon points="50,50 72,50 72,88 50,88" class="b2"/><polygon points="12,50 50,50 50,72 12,72" class="b3"/><rect x="44" y="44" width="12" height="12" fill="#0d1117"/></svg></span>
     <span class="name">cloudcast<em>fabric</em></span></a>
-  <a class="l2" href="#contents">Contents</a><a class="l2" href="#1-core-concepts">1. Core concepts</a><a class="l2" href="#2-architecture">2. Architecture</a><div class="kids"><a class="l3" href="#the-data-plane">The data plane</a><a class="l3" href="#the-control-plane">The control plane</a><a class="l3" href="#the-encapsulation-header">The encapsulation header</a><a class="l3" href="#timing-per-host-grandmasters">Timing: per-host grandmasters</a><a class="l3" href="#modes-at-a-glance">Modes at a glance</a></div><a class="l2" href="#3-deployment-requirements">3. Deployment requirements</a><div class="kids"><a class="l3" href="#instances-and-the-phc">Instances and the PHC</a><a class="l3" href="#kernel-and-interface-settings">Kernel and interface settings</a><a class="l3" href="#mtu">MTU</a><a class="l3" href="#ports-and-security-groups">Ports and security groups</a><a class="l3" href="#securing-the-control-plane">Securing the control plane</a></div><a class="l2" href="#4-installation">4. Installation</a><div class="kids"><a class="l3" href="#41-building">4.1 Building</a><a class="l3" href="#42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</a><a class="l3" href="#43-controller">4.3 Controller</a><a class="l3" href="#44-ptp-grandmaster">4.4 PTP grandmaster</a><a class="l3" href="#45-router-optional">4.5 Router (optional)</a><a class="l3" href="#46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</a><a class="l3" href="#47-egress-pacing-and-the-clock-behind-it">4.7 Egress pacing and the clock behind it</a><a class="l3" href="#48-dual-path-protection">4.8 Dual-path protection</a></div><a class="l2" href="#5-configuration-reference">5. Configuration reference</a><div class="kids"><a class="l3" href="#51-agent-command-line-flags">5.1 Agent command-line flags</a><a class="l3" href="#52-agent-environment-file">5.2 Agent environment file</a><a class="l3" href="#53-controller-environment-variables">5.3 Controller environment variables</a><a class="l3" href="#54-ptp-gmconf">5.4 ptp-gm.conf</a><a class="l3" href="#55-systemd-units">5.5 systemd units</a></div><a class="l2" href="#6-operations">6. Operations</a><div class="kids"><a class="l3" href="#61-the-dashboard">6.1 The dashboard</a><a class="l3" href="#62-http-surface">6.2 HTTP surface</a><a class="l3" href="#63-metrics">6.3 Metrics</a><a class="l3" href="#64-agent-status-page">6.4 Agent status page</a><a class="l3" href="#65-adding-an-agent">6.5 Adding an agent</a><a class="l3" href="#66-bridging-a-site">6.6 Bridging a site</a><a class="l3" href="#67-verifying-a-path-with-ccf-spike">6.7 Verifying a path with ccf-spike</a><a class="l3" href="#68-checking-the-clock">6.8 Checking the clock</a><a class="l3" href="#69-discovery-sap-announcements">6.9 Discovery: SAP announcements</a><a class="l3" href="#610-multicast-address-collisions">6.10 Multicast address collisions</a></div><a class="l2" href="#7-troubleshooting">7. Troubleshooting</a><a class="l2" href="#8-scope-and-platform-support">8. Scope and platform support</a>
+  <a class="l2" href="#contents">Contents</a><a class="l2" href="#1-core-concepts">1. Core concepts</a><a class="l2" href="#2-architecture">2. Architecture</a><div class="kids"><a class="l3" href="#the-data-plane">The data plane</a><a class="l3" href="#the-control-plane">The control plane</a><a class="l3" href="#the-encapsulation-header">The encapsulation header</a><a class="l3" href="#timing-per-host-grandmasters">Timing: per-host grandmasters</a><a class="l3" href="#modes-at-a-glance">Modes at a glance</a></div><a class="l2" href="#3-deployment-requirements">3. Deployment requirements</a><div class="kids"><a class="l3" href="#instances-and-the-phc">Instances and the PHC</a><a class="l3" href="#kernel-and-interface-settings">Kernel and interface settings</a><a class="l3" href="#mtu">MTU</a><a class="l3" href="#ports-and-security-groups">Ports and security groups</a><a class="l3" href="#securing-the-control-plane">Securing the control plane</a></div><a class="l2" href="#4-installation">4. Installation</a><div class="kids"><a class="l3" href="#41-building">4.1 Building</a><a class="l3" href="#42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</a><a class="l3" href="#43-controller">4.3 Controller</a><a class="l3" href="#44-ptp-grandmaster">4.4 PTP grandmaster</a><a class="l3" href="#45-router-optional">4.5 Router (optional)</a><a class="l3" href="#46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</a><a class="l3" href="#47-egress-pacing-and-the-clock-behind-it">4.7 Egress pacing and the clock behind it</a><a class="l3" href="#48-dual-path-protection">4.8 Dual-path protection</a><a class="l3" href="#49-codecs-on-the-wan-leg">4.9 Codecs on the WAN leg</a></div><a class="l2" href="#5-configuration-reference">5. Configuration reference</a><div class="kids"><a class="l3" href="#51-agent-command-line-flags">5.1 Agent command-line flags</a><a class="l3" href="#52-agent-environment-file">5.2 Agent environment file</a><a class="l3" href="#53-controller-environment-variables">5.3 Controller environment variables</a><a class="l3" href="#54-ptp-gmconf">5.4 ptp-gm.conf</a><a class="l3" href="#55-systemd-units">5.5 systemd units</a></div><a class="l2" href="#6-operations">6. Operations</a><div class="kids"><a class="l3" href="#61-the-dashboard">6.1 The dashboard</a><a class="l3" href="#62-http-surface">6.2 HTTP surface</a><a class="l3" href="#63-metrics">6.3 Metrics</a><a class="l3" href="#64-agent-status-page">6.4 Agent status page</a><a class="l3" href="#65-adding-an-agent">6.5 Adding an agent</a><a class="l3" href="#66-bridging-a-site">6.6 Bridging a site</a><a class="l3" href="#67-verifying-a-path-with-ccf-spike">6.7 Verifying a path with ccf-spike</a><a class="l3" href="#68-checking-the-clock">6.8 Checking the clock</a><a class="l3" href="#69-discovery-sap-announcements">6.9 Discovery: SAP announcements</a><a class="l3" href="#610-multicast-address-collisions">6.10 Multicast address collisions</a></div><a class="l2" href="#7-troubleshooting">7. Troubleshooting</a><a class="l2" href="#8-scope-and-platform-support">8. Scope and platform support</a>
 </nav>
 <main id="top">
 <h1 id="cloudcastfabric-manual">CloudcastFabric manual</h1>
@@ -115,7 +115,7 @@ work.</p>
 </ul>
 </li>
 <li><a href="#4-installation">Installation</a><ul>
-<li><a href="#41-building">Building</a> · <a href="#42-cloud-agent-mesh-mode">Cloud agent (mesh)</a> · <a href="#43-controller">Controller</a> · <a href="#44-ptp-grandmaster">PTP grandmaster</a> · <a href="#45-router-optional">Router</a> · <a href="#46-ground-to-cloud-bridge">Ground-to-cloud bridge</a> · <a href="#47-egress-pacing-and-the-clock-behind-it">Egress pacing and the clock</a> · <a href="#48-dual-path-protection">Dual-path protection</a></li>
+<li><a href="#41-building">Building</a> · <a href="#42-cloud-agent-mesh-mode">Cloud agent (mesh)</a> · <a href="#43-controller">Controller</a> · <a href="#44-ptp-grandmaster">PTP grandmaster</a> · <a href="#45-router-optional">Router</a> · <a href="#46-ground-to-cloud-bridge">Ground-to-cloud bridge</a> · <a href="#47-egress-pacing-and-the-clock-behind-it">Egress pacing and the clock</a> · <a href="#48-dual-path-protection">Dual-path protection</a> · <a href="#49-codecs-on-the-wan-leg">Codecs</a></li>
 </ul>
 </li>
 <li><a href="#5-configuration-reference">Configuration reference</a><ul>
@@ -179,7 +179,7 @@ time. Do not &quot;fix&quot; this.</p>
 packet path in each of them.</p>
 <p><strong>Mesh</strong> (<code>--mode mesh</code>) is what runs on a participating instance. The TX pump
 reads Ethernet frames from <code>ccf0</code>, keeps only IPv4 multicast UDP, prepends the
-16-byte fabric header, and unicasts one copy per target. The RX pump receives
+20-byte fabric header, and unicasts one copy per target. The RX pump receives
 fabric datagrams with <code>recvmmsg</code> (batch 32, <code>MSG_WAITFORONE</code>), de-duplicates,
 and writes the original frame back into <code>ccf0</code>, where the kernel delivers it to
 every locally joined socket.</p>
@@ -219,7 +219,7 @@ disconnects, or changes its subscription set. If the control session drops, the
 agent <strong>clears its route table</strong> and stops sending until it reconnects
 (retry every 2 s).</p>
 <h3 id="the-encapsulation-header">The encapsulation header</h3>
-<p>16 bytes, big-endian, prepended to the captured Ethernet frame:</p>
+<p>20 bytes, big-endian, prepended to the captured Ethernet frame:</p>
 <table>
 <thead>
 <tr>
@@ -384,7 +384,7 @@ them as <code>UdpInErrors</code>. <code>sudo ethtool -K $IFACE tx off</code>. Ph
 is unaffected — real senders checksum before the wire.</p>
 <h3 id="mtu">MTU</h3>
 <p><code>ccf0</code> defaults to <strong>MTU 1300</strong> (<code>--mtu</code>). A 1300-byte IP packet becomes a
-1314-byte Ethernet frame, plus the 16-byte fabric header, plus 28 bytes of
+1314-byte Ethernet frame, plus the 20-byte fabric header, plus 28 bytes of
 outer UDP/IP = 1358 bytes on the wire — inside a 1500-byte path and inside a
 typical WireGuard MTU. Raise it only when the whole path (including any tunnel)
 is known to be jumbo-clean; a VPC supports 9001 intra-VPC. AES67 packets are
@@ -764,6 +764,43 @@ so the receiver&#39;s de-duplication window is keyed on the originator rather th
 on whichever peer delivered the packet — and the second copy is simply a
 duplicate. Without that the two copies would occupy different windows and both
 would be injected.</p>
+<p><strong>What ST 2022-7 asks of a receiver.</strong> The standard requires the sender to
+transmit at least two streams whose RTP header and payload are identical in
+every copy — the Ethernet and IP headers may differ, which is what lets the
+copies take different paths. The receiver must then reconstruct seamlessly for
+as long as the <em>path differential</em> stays inside its class:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Typical use</th>
+<th>Path differential</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>D</strong> — ultra low-skew</td>
+<td>physical-layer LAN redundancy</td>
+<td>≤ 150 µs</td>
+</tr>
+<tr>
+<td><strong>A</strong> — low-skew</td>
+<td>intra-facility</td>
+<td>≤ 10 ms</td>
+</tr>
+<tr>
+<td><strong>B</strong> — moderate-skew</td>
+<td>short-haul, within a region</td>
+<td>≤ 50 ms</td>
+</tr>
+<tr>
+<td><strong>C</strong> — high-skew</td>
+<td>long-haul</td>
+<td>≤ 450 ms</td>
+</tr>
+</tbody></table>
+<p>Choose the class that matches the pair of paths, and let it set the buffer. A
+long-haul pair is Class C, so it wants a budget in the hundreds of milliseconds
+— far more than jitter alone would suggest.</p>
 <p><strong>Sizing the buffer is not optional.</strong> Protection is only seamless if output is
 held for at least the <strong>differential delay</strong> between the paths. Release the
 first copy immediately and a loss on the fast path arrives too late to fill.
@@ -787,10 +824,136 @@ availability-zone failure — and doubles egress spend to do it. The edge is whe
 it earns its keep: a residential or 4G uplink is where real loss lives, and two
 uplinks at one site have a differential of a few milliseconds, so they are
 seamless inside a budget you are already paying for.</p>
+<p><strong>Where it applies.</strong> Dual-path protection is carried by <strong>mesh-mode</strong> agents,
+which is where the fabric&#39;s own replication happens. A bridge agent reaching an
+on-prem plant over WireGuard sends a single copy to each target and relies on
+that tunnel; protect the leg between mesh agents, or place a mesh agent at the
+edge of the plant, when you want a stream duplicated across two paths.</p>
+<p><strong>Fabric layer, not the AES67 layer.</strong> What is duplicated and merged is the
+fabric datagram, so receivers on the plant LAN see one clean stream and need no
+2022-7 support of their own. This is ST 2022-7&#39;s <em>method</em> applied to the fabric
+transport rather than a conformance claim about the AES67 packets themselves.</p>
 <p><strong>Verified</strong>: a sender in Sydney feeding a plant in Adelaide, protected via a
 relay in Canada. The direct path was severed for 35 s mid-stream and the audio
 continued with <strong>zero packets lost</strong>; duplicates resumed at 1001/s when it was
 restored.</p>
+<h3 id="49-codecs-on-the-wan-leg">4.9 Codecs on the WAN leg</h3>
+<p>Encode a stream as it enters the fabric, carry it compressed, and decode it back
+to ordinary AES67 at the far plant. Nothing downstream changes: receivers see
+<code>L24/48000/2</code> at <code>a=ptime:1</code>, exactly as they would for an uncompressed group.</p>
+<p>The saving is the point. A stereo AES67 stream is about <strong>2.3 Mbit/s</strong> of
+payload, and roughly 3.1 Mbit/s once RTP, UDP, IP, the fabric header and the
+outer encapsulation are counted. Opus at 128 kbit/s lands near 0.15–0.2 Mbit/s —
+a <strong>15–20× reduction</strong>, which is what makes 4G, residential and cross-region
+legs affordable.</p>
+<table>
+<thead>
+<tr>
+<th>Codec</th>
+<th>Frame</th>
+<th>Added delay</th>
+<th>Bitrate</th>
+<th>Suits</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>linear</code></td>
+<td>—</td>
+<td>none</td>
+<td>~2.3 Mbit/s</td>
+<td>anything with the bandwidth for it</td>
+</tr>
+<tr>
+<td><code>opus</code></td>
+<td>5 ms</td>
+<td>~7.5 ms</td>
+<td>64–256 kbit/s, continuous</td>
+<td>live plant-to-plant, talkback, monitoring</td>
+</tr>
+<tr>
+<td><code>aptx</code></td>
+<td>5 ms</td>
+<td>low</td>
+<td>384 kbit/s fixed</td>
+<td>hosts with no codec libraries installed</td>
+</tr>
+<tr>
+<td><code>aptx-hd</code></td>
+<td>5 ms</td>
+<td>low</td>
+<td>576 kbit/s fixed</td>
+<td>as above, higher quality</td>
+</tr>
+<tr>
+<td><code>aac-lc</code></td>
+<td>21.3 ms</td>
+<td>~100 ms typical</td>
+<td>64–576 kbit/s</td>
+<td>STL, contribution, distribution</td>
+</tr>
+<tr>
+<td><code>aac-he-v1</code></td>
+<td>42.7 ms + SBR</td>
+<td>~150 ms or more</td>
+<td>16–128 kbit/s</td>
+<td>low-bitrate distribution</td>
+</tr>
+<tr>
+<td><code>aac-he-v2</code></td>
+<td>42.7 ms + SBR + parametric stereo</td>
+<td>a third of a second or more</td>
+<td>20–64 kbit/s</td>
+<td>lowest bitrate; not for live talkback</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>Added-delay figures are design estimates pending measurement, and they are
+shown beside the selector in the dashboard for the same reason they are here:
+codec delay is the one cost of this feature that no counter can report. A
+stream running a third of a second late is a perfectly clean stream — no loss,
+no late packets, nothing on any dashboard. The moment of choosing is the only
+chance to see what it costs.</p>
+</blockquote>
+<p><strong>Encoding happens where a stream enters the fabric.</strong> A codec setting binds to
+the agent that captures the group from its own LAN. An agent that <em>delivers</em> a
+source — it imported it, or publishes it back under the original address — also
+sees that source, but setting a codec there has no effect, so the dashboard
+offers the control only where it applies.</p>
+<p><strong>One default, with per-source exceptions.</strong> Set a fabric-wide codec and every
+source follows it, including sources imported later — there is nothing to
+remember to configure at import time. Override individual sources where they
+need something different.</p>
+<pre><code class="language-bash"># fabric default — applies to every source without an override
+curl -X POST -H &#39;Content-Type: application/json&#39; \
+  -d &#39;{&quot;codec&quot;:&quot;opus&quot;,&quot;bitrate&quot;:128000}&#39; https://controller:8443/api/codec
+
+# one source on one agent
+curl -X POST -H &#39;Content-Type: application/json&#39; \
+  -d &#39;{&quot;agent&quot;:&quot;bridge-syd&quot;,&quot;group&quot;:&quot;239.192.7.210&quot;,&quot;codec&quot;:&quot;aac-lc&quot;,&quot;bitrate&quot;:256000}&#39; \
+  https://controller:8443/api/codec
+
+# remove the override, returning the source to the fabric default
+curl -X POST -H &#39;Content-Type: application/json&#39; \
+  -d &#39;{&quot;agent&quot;:&quot;bridge-syd&quot;,&quot;group&quot;:&quot;239.192.7.210&quot;}&#39; https://controller:8443/api/uncodec
+</code></pre>
+<p>Or per agent in the dashboard — see <a href="#61-the-dashboard">6.1</a>.</p>
+<p><strong>AAC bitrates are a fixed ladder, and off-ladder values are refused.</strong> The
+controller validates the rate before it is stored, because an encoder that
+cannot be built means the stream is carried <strong>uncompressed</strong> instead of dropped.
+Refusing the value at the API is what stops a configuration that looks correct,
+runs clean, and quietly delivers full linear bandwidth. <code>aptx</code> and <code>aptx-hd</code> are
+fixed-rate and take no bitrate; <code>linear</code> is uncompressed and takes none either.</p>
+<p><strong>Decoding is never licensed separately.</strong> Encoding is the licensed capability
+and the one an operator chooses. A receiving plant did not choose the codec, so
+it can always decode and play what it is sent.</p>
+<p><strong>Changing a codec on a live stream</strong> swaps the decoder in place and keeps the
+stream running, and resets the drift correction with it, so the change takes
+effect immediately rather than settling over the following minute.</p>
+<p><strong>What to watch.</strong> <code>ccf_codec_refused_total</code> above zero means a stream is not
+being carried at all — an agent was sent a codec it cannot decode. A steady
+<code>ccf_codec_conceal_total</code> is audible artefacts on a path every other counter
+calls clean, because the loss happened inside the codec rather than on the wire.
+Full list in <a href="#63-metrics">6.3</a>.</p>
 <h2 id="5-configuration-reference">5. Configuration reference</h2>
 <h3 id="51-agent-command-line-flags">5.1 Agent command-line flags</h3>
 <p>Flags are positional-free <code>--key value</code> pairs; an unknown flag is ignored, and
@@ -1170,11 +1333,32 @@ and <strong>Events</strong> shows the last 40 controller events — agent up/dow
 subscription changes, sign-ins, admin actions — or <em>&quot;quiet&quot;</em>.</p>
 <p><img src="img/02-dashboard-agents.jpg" alt="Agent cards with their subscription pills and live rates, and the multicast flow list beside them"></p>
 <p><img src="img/03-dashboard-events.jpg" alt="The Events feed at the foot of the Overview tab"></p>
-<p>Clicking an agent card opens a detail dialog: <strong>Status</strong> (online, and how many
-seconds since its metrics were last scraped), <strong>Subscriptions</strong>, <strong>Rates</strong>,
-<strong>Integrity</strong> (lost/dup/late), <strong>Delay (≤µs)</strong> — the share of packets inside
-each histogram bound — and three buttons: <strong>Disconnect session (agent
-re-registers)</strong>, <strong>Recompute all routes</strong>, <strong>Close</strong>.</p>
+<p><strong>The fabric map</strong> places each site by geolocation, with an arc per stream
+coloured by group so a flow can be followed by eye, and a dashed pair through
+the relay where a group is protected. Scroll to zoom, drag to pan, and use
+<strong>+ − fit reset</strong> or the keyboard (<code>+</code> <code>-</code> <code>0</code> <code>f</code>, arrows) when the map has
+focus. Site markers and labels keep their size as you zoom. Clicking a site
+opens that agent&#39;s page.</p>
+<p><strong>The agent page</strong> — click any agent card, or go to <code>/agent/{id}</code> — is where a
+single site is configured:</p>
+<ul>
+<li><strong>Identity and licence</strong> — status, build, licence state and term, stream cap.</li>
+<li><strong>Live rates</strong> — captured, sent to the fabric, received, injected, plus loss
+and duplicates.</li>
+<li><strong>Runtime</strong> — de-jitter budget and pace clock. The budget applies live; the
+clock takes effect at the agent&#39;s next restart.</li>
+<li><strong>What this agent may receive</strong> — <code>open</code> delivers any group a local device
+joins; <code>published</code> delivers only what has been published to it. This filters
+what the agent receives, not what it captures and sends.</li>
+<li><strong>Sources on this LAN</strong> — one card per source, showing where it currently goes
+and the codec it is carried with (<a href="#49-codecs-on-the-wan-leg">4.9</a>).</li>
+<li><strong>Delivered to this agent</strong> — imports and publications, each removable.</li>
+<li><strong>Integrity</strong> — loss, duplicates, late, codec counters, protection copies and
+measured path differential.</li>
+<li><strong>Actions</strong> — disconnect the session, recompute all routes.</li>
+</ul>
+<p>Add new deliveries from the source matrix at <code>/distribute</code>, which shows every
+source against every destination at once.</p>
 <p><strong>Analytics</strong> charts the poller&#39;s history: <strong>Fabric throughput — packets/s</strong>
 (tx and rx per agent), <strong>Injected to apps — packets/s</strong>, <strong>Fabric delay — share
 ≤ bound (latest)</strong> as a bar chart over the 20/50/100/200/500/1000 µs bounds for
@@ -1222,6 +1406,21 @@ group address or site name, and the map filters with it.</p>
 </tr>
 <tr>
 <td>GET</td>
+<td><code>/agent/{id}</code></td>
+<td>Per-agent configuration page (6.1)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/distribute</code></td>
+<td>Source distribution matrix — every source against every destination</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/sources</code></td>
+<td>The source catalogue plus each agent&#39;s policy, publications, imports and codec settings</td>
+</tr>
+<tr>
+<td>GET</td>
 <td><code>/api/overview</code></td>
 <td>Everything the dashboard renders: agents, rates, series, routes, events, fabric totals</td>
 </tr>
@@ -1244,6 +1443,31 @@ group address or site name, and the map filters with it.</p>
 <td>POST</td>
 <td><code>/api/protect</code></td>
 <td>Body <code>{&quot;group&quot;,&quot;via&quot;}</code>. Declares a protection path (4.8). Refused if <code>via</code> already receives the group directly, since both copies would then share a failure domain</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/policy</code></td>
+<td>Body <code>{&quot;agent&quot;,&quot;mode&quot;}</code>, mode <code>open</code> or <code>published</code></td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/publish</code> / <code>/api/unpublish</code></td>
+<td>Body <code>{&quot;agent&quot;,&quot;group&quot;}</code>. What a <code>published</code>-mode agent may receive</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/codec</code></td>
+<td>Body <code>{&quot;codec&quot;,&quot;bitrate&quot;}</code> for the fabric default, or <code>{&quot;agent&quot;,&quot;group&quot;,&quot;codec&quot;,&quot;bitrate&quot;}</code> for one source (4.9). The bitrate is validated against the codec&#39;s ladder before it is stored</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/uncodec</code></td>
+<td>Body <code>{&quot;agent&quot;,&quot;group&quot;}</code>. Returns the source to the fabric default</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/agent/{id}/config</code></td>
+<td>Body <code>{&quot;jitterMs&quot;,&quot;paceClock&quot;}</code>. Jitter applies live; the pace clock needs a restart</td>
 </tr>
 <tr>
 <td>POST</td>
@@ -1630,7 +1854,7 @@ controller restart.</p>
 <tr>
 <td>Agent shows on the dashboard with correct routes but all rates read 0</td>
 <td>Metrics unreachable on 9464</td>
-<td>The poller&#39;s port is hard-coded — an agent started with a different <code>--metrics</code> will never be scraped. Otherwise open TCP 9464 from the controller and confirm <code>curl http://&lt;agent&gt;:9464/metrics</code>. The agent dialog&#39;s <em>metrics Ns ago</em> value tells you how stale the last successful scrape is.</td>
+<td>The poller&#39;s port is hard-coded — an agent started with a different <code>--metrics</code> will never be scraped. Otherwise open TCP 9464 from the controller and confirm <code>curl http://&lt;agent&gt;:9464/metrics</code>. The agent page&#39;s <em>metrics Ns ago</em> value tells you how stale the last successful scrape is.</td>
 </tr>
 <tr>
 <td><code>/dev/ptp0</code> does not exist</td>
