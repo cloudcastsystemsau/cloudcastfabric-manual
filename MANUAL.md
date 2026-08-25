@@ -35,11 +35,11 @@ work.
 3. [Deployment requirements](#3-deployment-requirements)
    - [Instances and the PHC](#instances-and-the-phc) · [Kernel and interface settings](#kernel-and-interface-settings) · [MTU](#mtu) · [Ports and security groups](#ports-and-security-groups)
 4. [Installation](#4-installation)
-   - [Building](#41-building) · [Cloud agent (mesh)](#42-cloud-agent-mesh-mode) · [Controller](#43-controller) · [PTP grandmaster](#44-ptp-grandmaster) · [Router](#45-router-optional) · [Ground-to-cloud bridge](#46-ground-to-cloud-bridge) · [Egress pacing and the clock](#47-egress-pacing-and-the-clock-behind-it) · [Dual-path protection](#48-dual-path-protection) · [Codecs](#49-codecs-on-the-wan-leg)
+   - [Building](#41-building) · [Cloud agent (mesh)](#42-cloud-agent-mesh-mode) · [Controller](#43-controller) · [PTP grandmaster](#44-ptp-grandmaster) · [Router](#45-router-optional) · [Ground-to-cloud bridge](#46-ground-to-cloud-bridge) · [Egress pacing and the clock](#47-egress-pacing-and-the-clock-behind-it) · [Dual-path protection](#48-dual-path-protection) · [Codecs](#49-codecs-on-the-wan-leg) · [Running in Docker](#410-running-in-docker)
 5. [Configuration reference](#5-configuration-reference)
    - [Agent flags](#51-agent-command-line-flags) · [Agent environment file](#52-agent-environment-file) · [Controller environment](#53-controller-environment-variables) · [ptp-gm.conf](#54-ptp-gmconf) · [systemd units](#55-systemd-units)
 6. [Operations](#6-operations)
-   - [The dashboard](#61-the-dashboard) · [HTTP surface](#62-http-surface) · [Metrics](#63-metrics) · [Agent status page](#64-agent-status-page) · [Adding an agent](#65-adding-an-agent) · [Bridging a site](#66-bridging-a-site) · [Verifying a path](#67-verifying-a-path-with-ccf-spike) · [Checking the clock](#68-checking-the-clock) · [Discovery: SAP](#69-discovery-sap-announcements) · [Address collisions](#610-multicast-address-collisions)
+   - [The dashboard](#61-the-dashboard) · [HTTP surface](#62-http-surface) · [Metrics](#63-metrics) · [Agent status page](#64-agent-status-page) · [Adding an agent](#65-adding-an-agent) · [Bridging a site](#66-bridging-a-site) · [Verifying a path](#67-verifying-a-path-with-ccf-spike) · [Checking the clock](#68-checking-the-clock) · [Discovery: SAP](#69-discovery-sap-announcements) · [Address collisions](#610-multicast-address-collisions) · [Fabric event log](#611-fabric-event-log)
 7. [Troubleshooting](#7-troubleshooting)
 8. [Scope and platform support](#8-scope-and-platform-support)
 
@@ -753,6 +753,151 @@ being carried at all — an agent was sent a codec it cannot decode. A steady
 calls clean, because the loss happened inside the codec rather than on the wire.
 Full list in [6.3](#63-metrics).
 
+### 4.10 Running in Docker
+
+CCF agents carry the **DOCKER licence type** (Airlock AIR-309): hardware-*unbound*,
+precisely because containers and cloud instances have unstable hardware IDs. The
+serial you pass fetches a signed licence from `https://ccsystems.io/DockerLicense`
+at start and caches it, so one serial runs in a container, survives a rebuild, and
+moves between hosts. Docker is the intended way to deploy an agent.
+
+An agent is not a sandbox-friendly workload — it captures raw multicast, holds IGMP
+memberships, brings up WireGuard, puts a NIC in allmulti, and paces egress off a
+PTP clock. So it runs with **host networking** and two capabilities, not on an
+isolated bridge network.
+
+**Host prerequisites** — the container shares the host's kernel and NICs:
+
+- The [*Kernel and interface settings*](#kernel-and-interface-settings) of §3 apply
+  to the **host**, not the container (`rp_filter`, multicast, RT limits).
+- **WireGuard** in the host kernel (`modprobe wireguard`; standard on modern
+  kernels). The container brings `wg0` up in the host's network namespace.
+- **PTP** runs on the **host**: `ptp4l` is bound to the NIC hardware, so it
+  disciplines the NIC's PHC as in [§4.7](#47-egress-pacing-and-the-clock-behind-it).
+  The container only *reads* that PHC through `--device /dev/ptpN`; it does not run
+  `ptp4l` itself.
+
+**Building an image.** Build the static `musl` binary and copy it into a minimal
+base:
+
+```dockerfile
+# Dockerfile
+FROM rust:1-alpine AS build
+RUN apk add --no-cache musl-dev
+WORKDIR /src
+COPY . .
+RUN cargo build --release -p ccf-agent --target x86_64-unknown-linux-musl
+FROM alpine:3
+COPY --from=build \
+  /src/target/x86_64-unknown-linux-musl/release/ccf-agent /usr/local/bin/ccf-agent
+ENTRYPOINT ["/usr/local/bin/ccf-agent"]
+```
+
+**Enrol once** to get `wg0.conf` and a fabric address, then mount `/etc/wireguard`
+and `/etc/ccf` into the running container:
+
+```bash
+docker run --rm --cap-add NET_ADMIN --network host \
+  -v /etc/wireguard:/etc/wireguard -v /etc/ccf:/etc/ccf \
+  ccf-agent:latest enrol --token ccf_join_<…> --serial <SERIAL> --name syd-bridge
+```
+
+**Run a bridge:**
+
+```bash
+docker run -d --name ccf-bridge --restart unless-stopped \
+  --network host \
+  --cap-add NET_ADMIN --cap-add NET_RAW \
+  --device /dev/ptp0 \
+  --ulimit rtprio=99 \
+  -e CCF_SERIAL=<SERIAL> \
+  -v /etc/ccf:/etc/ccf -v /etc/wireguard:/etc/wireguard \
+  ccf-agent:latest \
+  --mode bridge --lan-iface eth0 --lan-ip 192.168.1.50 \
+  --controller 10.99.0.1:8600 --pace-clock /dev/ptp0 \
+  --lan-jitter-ms 40 --listen 7777 --metrics 9464 --rt
+```
+
+Why each non-obvious flag is there:
+
+| Docker flag | What the agent needs it for |
+|---|---|
+| `--network host` | Captures raw multicast on a real NIC, holds IGMP memberships, uses the host's `wg0`. A bridged container network sees none of that. |
+| `--cap-add NET_RAW` | The `AF_PACKET SOCK_RAW` capture socket. |
+| `--cap-add NET_ADMIN` | Bringing up WireGuard, the mesh TUN, and putting the capture NIC in **allmulti** so IGMPv2 membership reports reach the snooper. |
+| `--device /dev/ptp0` | The PTP hardware clock `--pace-clock` reads for egress pacing. Omit only if you pace on `CLOCK_REALTIME` (NTP-slewed — see §4.7). |
+| `--device /dev/net/tun` | **Mesh mode only** — the TAP the agent creates. A bridge has no TAP and does not need it. |
+| `--ulimit rtprio=99` | `--rt` runs the hot path at `SCHED_FIFO`; the container needs the RT priority ceiling raised. |
+
+**Mesh and router** are the same picture with different arguments (mesh also needs
+the TUN device):
+
+```bash
+# mesh (a cloud agent) — add --device /dev/net/tun
+  ... --device /dev/net/tun ...  ccf-agent:latest \
+  --mode mesh --addr 10.77.0.5/24 --controller 10.99.0.1:8600 \
+  --pace-clock auto --jitter-ms 40 --rt
+
+# router — no TAP, no LAN
+  ccf-agent:latest --mode router --members 10.77.0.1:7777,10.77.0.2:7777 --rt
+```
+
+**The serial.** `CCF_SERIAL` (env, or a mounted `/etc/ccf/licence.env`) is the
+licence. On start the agent fetches and caches the unbound Docker licence for it;
+an agent with **no** serial runs unlicensed — a 2-stream cap and no codec, carrying
+everything linear — and the dashboard reports that state per agent.
+
+**PTP settings, for containers.** The PHC lives on the host; the container reads it:
+
+- Discipline the host NIC's PHC to the plant grandmaster with the `slaveOnly`
+  `ptp4l` of [§4.7](#47-egress-pacing-and-the-clock-behind-it) — a bridge must be
+  slave-only so it never disturbs the plant clock.
+- Pass `--pace-clock /dev/ptp0` (bridge) or `--pace-clock auto` (mesh), and mount
+  the device with `--device /dev/ptp0`.
+- **Never** `phc2sys` a Livewire grandmaster onto `CLOCK_REALTIME` — its arbitrary
+  timescale would throw the host clock decades off, which in a container also breaks
+  TLS to the controller. The PHC is for pacing only. (A NIC with **no** PHC — some
+  small-form-factor boards only expose the Wi-Fi clock — cannot be a clean reclock
+  plant; use one with an Intel PHC.)
+
+**Sample-rate conversion (SRC).** SRC is not a container flag — it is enabled per
+source *at the controller*, because it is a property of the delivery, not the agent:
+
+```bash
+curl -sk -X POST https://<controller>:8443/api/src \
+  -H 'content-type: application/json' \
+  -d '{"agent":"bridge-syd","group":"239.70.1.3","on":true}'
+```
+
+With SRC on, the destination bridge resamples that stream onto its **local** media
+clock (the PHC above) instead of only re-stamping it — the only thing that
+reconciles two independent grandmasters, and required whenever a plant receives
+audio clocked to a *different* grandmaster than its own (see
+[§8](#8-scope-and-platform-support)). Any compressed codec import gets this for free
+(it is decoded and re-originated on the local clock); **linear** crossing between
+grandmasters needs SRC turned on explicitly.
+
+**docker-compose** ties it together:
+
+```yaml
+services:
+  ccf-bridge:
+    image: ccf-agent:latest
+    restart: unless-stopped
+    network_mode: host
+    cap_add: [NET_ADMIN, NET_RAW]
+    devices: ["/dev/ptp0:/dev/ptp0"]
+    ulimits: { rtprio: 99 }
+    environment: { CCF_SERIAL: "<SERIAL>" }
+    volumes:
+      - /etc/ccf:/etc/ccf
+      - /etc/wireguard:/etc/wireguard
+    command: >
+      --mode bridge --lan-iface eth0 --lan-ip 192.168.1.50
+      --controller 10.99.0.1:8600 --pace-clock /dev/ptp0
+      --lan-jitter-ms 40 --listen 7777 --metrics 9464 --rt
+```
+
 ## 5. Configuration reference
 
 ### 5.1 Agent command-line flags
@@ -830,6 +975,7 @@ expands into its `ExecStart` line:
 | Variable | Default | Effect |
 |---|---|---|
 | `CCF_ADMIN_PASSWORD` | empty | Break-glass password. Empty disables password sign-in. |
+| `CCF_API_KEYS` | empty | Comma-separated API keys for non-interactive clients. Present one as `X-API-Key: <key>` or `Authorization: Bearer <key>`; it grants the same access a dashboard session does. Empty disables key auth. |
 | `CCF_OIDC_AUTHORITY` | empty | Cognito user-pool issuer URL. |
 | `CCF_OIDC_CLIENT_ID` | empty | App client id. SSO turns on only when authority *and* client id are both set. |
 | `CCF_OIDC_CLIENT_SECRET` | empty | App client secret. |
@@ -958,6 +1104,8 @@ group address or site name, and the map filters with it.
 | GET | `/distribute` | Source distribution matrix — every source against every destination |
 | GET | `/api/sources` | The source catalogue plus each agent's policy, publications, imports and codec settings |
 | GET | `/api/overview` | Everything the dashboard renders: agents, rates, series, routes, events, fabric totals |
+| GET | `/api/events` | The fabric event log (6.11). Filter with `?cat=`, `?agent=`, `?since=<ms>`, `?limit=`; most-recent-first |
+| GET | `/api/deliveries` | The flat list of currently-routed agent-to-agent flows, each with its resolved codec |
 | POST | `/api/action/disconnect/{id}` | Closes that agent's control session; it reconnects within ~2 s |
 | POST | `/api/action/recompute` | Forces a route recompute and push |
 | POST | `/api/import` | Body `{"agent","group","name"}`. Allocates an address from the 239.193.0.0/16 pool and pushes the translation to that agent (see 6.10). Idempotent — re-posting an existing group returns the address already assigned |
@@ -1033,6 +1181,29 @@ routes and silences receivers"*.
 
 It has **no authentication**, exactly like `/metrics`. Keep the metrics port
 inside a security group or a tunnel.
+
+#### Front panel
+
+The same agent also serves a **1U rack-panel front display** at `GET /panel`, in
+the house style of the other CloudCast products' panels. It is meant for a NOC
+wall or a shared screen — full page width, true 19″ rack proportions, read-only.
+
+```
+http://<agent>:9464/panel
+```
+
+![The agent's 1U rack-panel front display](img/09-agent-panel.jpg)
+
+A left brand block, two throughput read-outs (to/from the fabric as achieved
+Mb/s), a stat rail — sources advertised, encoded streams in, delivered pps, path
+spread, and loss/refused counters — and a green/amber/red health lamp that goes
+amber when paths spread past the de-jitter budget and red on refused, loss or
+capture drops. Like the status page it is self-contained and polls the same
+`/metrics` + `/sap`, so it never disagrees with the real numbers.
+
+The agent's other read-only endpoints on the same port are `GET /sap` (its SAP
+catalogue as JSON, 6.9) and `GET /monitor?group=<addr>&side=<a|b>` (a live audio
+tap for the dashboard monitor, CCF-90).
 
 ### 6.5 Adding an agent
 
@@ -1245,6 +1416,40 @@ re-announcement.
 Imports survive an agent reconnect. They are held in controller memory and
 rebuilt from operator input, not from disk, so re-issue the POST after a
 controller restart.
+
+### 6.11 Fabric event log
+
+The controller keeps a categorised, agent-attributed timeline of what the fabric
+is doing — the answer to "who requested what, when did that stream start, and
+what codec is it carrying". It feeds the dashboard's Events panel and is exposed
+at `GET /api/events` (filter with `?cat=`, `?agent=`, `?since=<ms>`, `?limit=`).
+
+| Category | What it records |
+|---|---|
+| `discovery` | Each source a plant's SAP discovers or withdraws, by **name and address** — not just a count |
+| `request` | A plant's subscription set, on change (the groups its LAN has joined) |
+| `delivery` | Every **agent-to-agent flow starting and stopping, with its resolved codec** — diffed on each route recompute, so a steady fabric stays quiet |
+| `stream` | What an agent **actually began or ceased transmitting**, reported by the agent itself (see below) |
+| `op` | Operator actions: publish/unpublish, codec config, import, SRC, policy, licence and conflict transitions |
+
+**Durability.** Events are held in a live in-memory ring for the dashboard *and*
+appended as one JSON line each to a file that **rotates once at a size cap**, so
+history survives a controller restart while the on-disk footprint stays bounded
+at roughly twice the cap. The path and cap are set by `CCF_EVENT_LOG` (default
+`/etc/ccf/events.jsonl`) and `CCF_EVENT_LOG_CAP` (default 8 MB). Greppable:
+
+```bash
+# every delivery that started or stopped in the last hour
+jq -c 'select(.Cat=="delivery")' /etc/ccf/events.jsonl
+```
+
+**Store-and-forward from the agents.** The controller can log what routing
+*intended*, but only the agent knows what it *actually* started sending. Each
+agent buffers its `stream` events in a bounded in-memory ring and flushes them to
+the controller over the existing control channel; while the controller or the WAN
+is unreachable they accumulate (oldest dropped past the cap) and a failed flush is
+requeued — a blip buffers rather than loses them. Emission is on stream-lifecycle
+transitions only, never per packet, so it is off the audio path.
 
 ## 7. Troubleshooting
 
