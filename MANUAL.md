@@ -35,7 +35,7 @@ work.
 3. [Deployment requirements](#3-deployment-requirements)
    - [Instances and the PHC](#instances-and-the-phc) · [Kernel and interface settings](#kernel-and-interface-settings) · [MTU](#mtu) · [Ports and security groups](#ports-and-security-groups)
 4. [Installation](#4-installation)
-   - [Building](#41-building) · [Cloud agent (mesh)](#42-cloud-agent-mesh-mode) · [Controller](#43-controller) · [PTP grandmaster](#44-ptp-grandmaster) · [Router](#45-router-optional) · [Ground-to-cloud bridge](#46-ground-to-cloud-bridge) · [Egress pacing and the clock](#47-egress-pacing-and-the-clock-behind-it) · [Dual-path protection](#48-dual-path-protection) · [Codecs](#49-codecs-on-the-wan-leg) · [Running in Docker](#410-running-in-docker)
+   - [Building](#41-building) · [Cloud agent (mesh)](#42-cloud-agent-mesh-mode) · [Controller](#43-controller) · [PTP grandmaster](#44-ptp-grandmaster) · [Router](#45-router-optional) · [Ground-to-cloud bridge](#46-ground-to-cloud-bridge) · [Egress pacing and the clock](#47-egress-pacing-and-the-clock-behind-it) · [Dual-path protection](#48-dual-path-protection) · [Codecs](#49-codecs-on-the-wan-leg) · [Running in Docker](#410-running-in-docker) · [Source generator](#411-built-in-source-generator) · [Contribution: Tieline & Thread](#412-contribution-tieline-codecs-and-fabric-thread)
 5. [Configuration reference](#5-configuration-reference)
    - [Agent flags](#51-agent-command-line-flags) · [Agent environment file](#52-agent-environment-file) · [Controller environment](#53-controller-environment-variables) · [ptp-gm.conf](#54-ptp-gmconf) · [systemd units](#55-systemd-units)
 6. [Operations](#6-operations)
@@ -897,6 +897,74 @@ services:
       --controller 10.99.0.1:8600 --pace-clock /dev/ptp0
       --lan-jitter-ms 40 --listen 7777 --metrics 9464 --rt
 ```
+
+### 4.11 Built-in source generator
+
+Every agent can *be* an AES67 source. `ccf-agent --mode aes67-source` emits a
+**standards-clean AES67 stream** — L16/L24 multicast RTP, 48 kHz, fixed ptime —
+whose RTP timestamp is derived from the **PTP clock** (it reuses the same
+`pace::Clock` PHC the bridge paces on), so a strict AES67 receiver locks to it
+exactly as it would to a hardware source. The audio is either an internal **sine
+tone** or **any file ffmpeg can read** (wav, flac, mp3 …), resampled to 48 kHz
+once at setup and looped from memory for gapless repeat. It announces itself over
+**SAP**, so receivers discover it by name like any other source.
+
+```bash
+# a 1 kHz line-up tone as a discoverable AES67 source
+ccf-agent --mode aes67-source --iface 192.168.2.205 --group 239.99.9.99 \
+          --port 5006 --format l24 --channels 2 --tone 1000 --sap
+
+# a looping bed / test file
+ccf-agent --mode aes67-source --iface 192.168.2.205 --group 239.99.9.99 \
+          --port 5006 --file /srv/audio/bed.wav --loop --sap
+```
+
+Sources can also be defined, started, stopped and persisted **live from the
+agent's `/sources` page** (on the metrics port) rather than the command line — a
+source with autostart set comes back after an agent restart. Run alongside a
+bridge/mesh agent by giving the generator distinct `--listen`/`--metrics` ports.
+It is the fastest way to put a known, PTP-locked signal on a plant for a codec
+line-up, a receiver test, or a hold feed — without patching in hardware.
+
+### 4.12 Contribution: Tieline codecs and Fabric Thread
+
+Beyond carrying multicast between plants, the fabric terminates **contribution
+codecs** — the remotes, reporters and guests who dial *into* a studio. Three
+agent modes and one companion app cover this:
+
+- **A hardware Tieline dials into the fabric** — `ccf-agent --mode tieline-listen`
+  answers a **Tieline** (ViA / Merlin / Gateway) dialing in, using the proven
+  Gateway answerer handshake, and **bridges the call to AES67 groups**: the field
+  unit's audio becomes a multicast source in the studio, and a studio group is
+  Opus-encoded back to the dialer as the return leg. It serves one or more
+  pre-configured lines, each with its own listen/audio ports, AES67 send/recv
+  groups and an IP allowlist, so it runs unchanged in a studio agent or on a
+  public gateway.
+
+  ```bash
+  ccf-agent --mode tieline-listen --iface 192.168.2.205 \
+    --line "name=studio1;listen=9002;audio=9000;\
+            send=239.99.9.80:5004:l24;recv=239.99.9.81:5004:l24;\
+            channels=2;bitrate=64000;allow=192.168.1.10,192.168.1.11"
+  ```
+
+- **The fabric answers a SIP dial** — `ccf-agent --mode sip` is a SIP answerer
+  (UAS): it accepts an `INVITE`, answers with an Opus offer, and runs full-duplex
+  Opus/RTP bridged to the soundcard or AES67. This is the endpoint a soft codec —
+  including **Fabric Thread** — dials to reach the studio.
+
+- **Browser and conference endpoints** — the controller brokers a browser
+  (WebRTC) caller to an agent codec endpoint and relays it through its STUN/TURN,
+  point-to-point or as an **MCU** conference room where every caller gets a
+  mix-minus (the programme plus every other caller, minus their own audio).
+
+**Fabric Thread** is the contribution front-end to all of this: a codec in a
+browser and an iPhone app that dials a Tieline, a SIP endpoint or a Fabric studio
+room, full-duplex Opus, with metering, a mix, per-user mic processing and **GPIO
+control surfaces** (cough / talkback buttons and on-air / cue tally lamps carried
+as GPIO alongside the audio). It discovers its codec endpoints straight from a
+Fabric controller's API. Thread has its own manual —
+**<https://cloudcastsystemsau.github.io/cloudcastfabric-thread-manual/>**.
 
 ## 5. Configuration reference
 

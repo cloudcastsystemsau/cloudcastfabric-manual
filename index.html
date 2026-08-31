@@ -75,7 +75,7 @@ kbd{font-family:var(--mono);font-size:.82em;border:1px solid var(--line);
 <nav>
   <a class="brand" href="#top"><span class="mk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="30" height="30" role="img" aria-label="CloudcastFabric"><style>.mk .b0{fill:#99f6e4}.mk .b1{fill:#2dd4bf}.mk .b2{fill:#0d9488}.mk .b3{fill:#115e59}@media (prefers-color-scheme:light){.mk .b0{fill:#2dd4bf}.mk .b1{fill:#0d9488}.mk .b2{fill:#115e59}.mk .b3{fill:#134e4a}}</style><polygon points="28,12 50,12 50,50 28,50" class="b0"/><polygon points="50,28 88,28 88,50 50,50" class="b1"/><polygon points="50,50 72,50 72,88 50,88" class="b2"/><polygon points="12,50 50,50 50,72 12,72" class="b3"/><rect x="44" y="44" width="12" height="12" fill="#0d1117"/></svg></span>
     <span class="name">cloudcast<em>fabric</em></span></a>
-  <a class="l2" href="#contents">Contents</a><a class="l2" href="#1-core-concepts">1. Core concepts</a><a class="l2" href="#2-architecture">2. Architecture</a><div class="kids"><a class="l3" href="#the-data-plane">The data plane</a><a class="l3" href="#the-control-plane">The control plane</a><a class="l3" href="#the-encapsulation-header">The encapsulation header</a><a class="l3" href="#timing-per-host-grandmasters">Timing: per-host grandmasters</a><a class="l3" href="#modes-at-a-glance">Modes at a glance</a></div><a class="l2" href="#3-deployment-requirements">3. Deployment requirements</a><div class="kids"><a class="l3" href="#instances-and-the-phc">Instances and the PHC</a><a class="l3" href="#kernel-and-interface-settings">Kernel and interface settings</a><a class="l3" href="#mtu">MTU</a><a class="l3" href="#ports-and-security-groups">Ports and security groups</a><a class="l3" href="#securing-the-control-plane">Securing the control plane</a></div><a class="l2" href="#4-installation">4. Installation</a><div class="kids"><a class="l3" href="#41-building">4.1 Building</a><a class="l3" href="#42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</a><a class="l3" href="#43-controller">4.3 Controller</a><a class="l3" href="#44-ptp-grandmaster">4.4 PTP grandmaster</a><a class="l3" href="#45-router-optional">4.5 Router (optional)</a><a class="l3" href="#46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</a><a class="l3" href="#47-egress-pacing-and-the-clock-behind-it">4.7 Egress pacing and the clock behind it</a><a class="l3" href="#48-dual-path-protection">4.8 Dual-path protection</a><a class="l3" href="#49-codecs-on-the-wan-leg">4.9 Codecs on the WAN leg</a><a class="l3" href="#410-running-in-docker">4.10 Running in Docker</a></div><a class="l2" href="#5-configuration-reference">5. Configuration reference</a><div class="kids"><a class="l3" href="#51-agent-command-line-flags">5.1 Agent command-line flags</a><a class="l3" href="#52-agent-environment-file">5.2 Agent environment file</a><a class="l3" href="#53-controller-environment-variables">5.3 Controller environment variables</a><a class="l3" href="#54-ptp-gmconf">5.4 ptp-gm.conf</a><a class="l3" href="#55-systemd-units">5.5 systemd units</a></div><a class="l2" href="#6-operations">6. Operations</a><div class="kids"><a class="l3" href="#61-the-dashboard">6.1 The dashboard</a><a class="l3" href="#62-http-surface">6.2 HTTP surface</a><a class="l3" href="#63-metrics">6.3 Metrics</a><a class="l3" href="#64-agent-status-page">6.4 Agent status page</a><a class="l3" href="#65-adding-an-agent">6.5 Adding an agent</a><a class="l3" href="#66-bridging-a-site">6.6 Bridging a site</a><a class="l3" href="#67-verifying-a-path-with-ccf-spike">6.7 Verifying a path with ccf-spike</a><a class="l3" href="#68-checking-the-clock">6.8 Checking the clock</a><a class="l3" href="#69-discovery-sap-announcements">6.9 Discovery: SAP announcements</a><a class="l3" href="#610-multicast-address-collisions">6.10 Multicast address collisions</a><a class="l3" href="#611-fabric-event-log">6.11 Fabric event log</a></div><a class="l2" href="#7-troubleshooting">7. Troubleshooting</a><a class="l2" href="#8-scope-and-platform-support">8. Scope and platform support</a>
+  <a class="l2" href="#contents">Contents</a><a class="l2" href="#1-core-concepts">1. Core concepts</a><a class="l2" href="#2-architecture">2. Architecture</a><div class="kids"><a class="l3" href="#the-data-plane">The data plane</a><a class="l3" href="#the-control-plane">The control plane</a><a class="l3" href="#the-encapsulation-header">The encapsulation header</a><a class="l3" href="#timing-per-host-grandmasters">Timing: per-host grandmasters</a><a class="l3" href="#modes-at-a-glance">Modes at a glance</a></div><a class="l2" href="#3-deployment-requirements">3. Deployment requirements</a><div class="kids"><a class="l3" href="#instances-and-the-phc">Instances and the PHC</a><a class="l3" href="#kernel-and-interface-settings">Kernel and interface settings</a><a class="l3" href="#mtu">MTU</a><a class="l3" href="#ports-and-security-groups">Ports and security groups</a><a class="l3" href="#securing-the-control-plane">Securing the control plane</a></div><a class="l2" href="#4-installation">4. Installation</a><div class="kids"><a class="l3" href="#41-building">4.1 Building</a><a class="l3" href="#42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</a><a class="l3" href="#43-controller">4.3 Controller</a><a class="l3" href="#44-ptp-grandmaster">4.4 PTP grandmaster</a><a class="l3" href="#45-router-optional">4.5 Router (optional)</a><a class="l3" href="#46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</a><a class="l3" href="#47-egress-pacing-and-the-clock-behind-it">4.7 Egress pacing and the clock behind it</a><a class="l3" href="#48-dual-path-protection">4.8 Dual-path protection</a><a class="l3" href="#49-codecs-on-the-wan-leg">4.9 Codecs on the WAN leg</a><a class="l3" href="#410-running-in-docker">4.10 Running in Docker</a><a class="l3" href="#411-built-in-source-generator">4.11 Built-in source generator</a><a class="l3" href="#412-contribution-tieline-codecs-and-fabric-thread">4.12 Contribution: Tieline codecs and Fabric Thread</a></div><a class="l2" href="#5-configuration-reference">5. Configuration reference</a><div class="kids"><a class="l3" href="#51-agent-command-line-flags">5.1 Agent command-line flags</a><a class="l3" href="#52-agent-environment-file">5.2 Agent environment file</a><a class="l3" href="#53-controller-environment-variables">5.3 Controller environment variables</a><a class="l3" href="#54-ptp-gmconf">5.4 ptp-gm.conf</a><a class="l3" href="#55-systemd-units">5.5 systemd units</a></div><a class="l2" href="#6-operations">6. Operations</a><div class="kids"><a class="l3" href="#61-the-dashboard">6.1 The dashboard</a><a class="l3" href="#62-http-surface">6.2 HTTP surface</a><a class="l3" href="#63-metrics">6.3 Metrics</a><a class="l3" href="#64-agent-status-page">6.4 Agent status page</a><a class="l3" href="#65-adding-an-agent">6.5 Adding an agent</a><a class="l3" href="#66-bridging-a-site">6.6 Bridging a site</a><a class="l3" href="#67-verifying-a-path-with-ccf-spike">6.7 Verifying a path with ccf-spike</a><a class="l3" href="#68-checking-the-clock">6.8 Checking the clock</a><a class="l3" href="#69-discovery-sap-announcements">6.9 Discovery: SAP announcements</a><a class="l3" href="#610-multicast-address-collisions">6.10 Multicast address collisions</a><a class="l3" href="#611-fabric-event-log">6.11 Fabric event log</a></div><a class="l2" href="#7-troubleshooting">7. Troubleshooting</a><a class="l2" href="#8-scope-and-platform-support">8. Scope and platform support</a>
 </nav>
 <main id="top">
 <h1 id="cloudcastfabric-manual">CloudcastFabric manual</h1>
@@ -115,7 +115,7 @@ work.</p>
 </ul>
 </li>
 <li><a href="#4-installation">Installation</a><ul>
-<li><a href="#41-building">Building</a> · <a href="#42-cloud-agent-mesh-mode">Cloud agent (mesh)</a> · <a href="#43-controller">Controller</a> · <a href="#44-ptp-grandmaster">PTP grandmaster</a> · <a href="#45-router-optional">Router</a> · <a href="#46-ground-to-cloud-bridge">Ground-to-cloud bridge</a> · <a href="#47-egress-pacing-and-the-clock-behind-it">Egress pacing and the clock</a> · <a href="#48-dual-path-protection">Dual-path protection</a> · <a href="#49-codecs-on-the-wan-leg">Codecs</a> · <a href="#410-running-in-docker">Running in Docker</a></li>
+<li><a href="#41-building">Building</a> · <a href="#42-cloud-agent-mesh-mode">Cloud agent (mesh)</a> · <a href="#43-controller">Controller</a> · <a href="#44-ptp-grandmaster">PTP grandmaster</a> · <a href="#45-router-optional">Router</a> · <a href="#46-ground-to-cloud-bridge">Ground-to-cloud bridge</a> · <a href="#47-egress-pacing-and-the-clock-behind-it">Egress pacing and the clock</a> · <a href="#48-dual-path-protection">Dual-path protection</a> · <a href="#49-codecs-on-the-wan-leg">Codecs</a> · <a href="#410-running-in-docker">Running in Docker</a> · <a href="#411-built-in-source-generator">Source generator</a> · <a href="#412-contribution-tieline-codecs-and-fabric-thread">Contribution: Tieline &amp; Thread</a></li>
 </ul>
 </li>
 <li><a href="#5-configuration-reference">Configuration reference</a><ul>
@@ -1098,6 +1098,66 @@ grandmasters needs SRC turned on explicitly.</p>
       --controller 10.99.0.1:8600 --pace-clock /dev/ptp0
       --lan-jitter-ms 40 --listen 7777 --metrics 9464 --rt
 </code></pre>
+<h3 id="411-built-in-source-generator">4.11 Built-in source generator</h3>
+<p>Every agent can <em>be</em> an AES67 source. <code>ccf-agent --mode aes67-source</code> emits a
+<strong>standards-clean AES67 stream</strong> — L16/L24 multicast RTP, 48 kHz, fixed ptime —
+whose RTP timestamp is derived from the <strong>PTP clock</strong> (it reuses the same
+<code>pace::Clock</code> PHC the bridge paces on), so a strict AES67 receiver locks to it
+exactly as it would to a hardware source. The audio is either an internal <strong>sine
+tone</strong> or <strong>any file ffmpeg can read</strong> (wav, flac, mp3 …), resampled to 48 kHz
+once at setup and looped from memory for gapless repeat. It announces itself over
+<strong>SAP</strong>, so receivers discover it by name like any other source.</p>
+<pre><code class="language-bash"># a 1 kHz line-up tone as a discoverable AES67 source
+ccf-agent --mode aes67-source --iface 192.168.2.205 --group 239.99.9.99 \
+          --port 5006 --format l24 --channels 2 --tone 1000 --sap
+
+# a looping bed / test file
+ccf-agent --mode aes67-source --iface 192.168.2.205 --group 239.99.9.99 \
+          --port 5006 --file /srv/audio/bed.wav --loop --sap
+</code></pre>
+<p>Sources can also be defined, started, stopped and persisted <strong>live from the
+agent&#39;s <code>/sources</code> page</strong> (on the metrics port) rather than the command line — a
+source with autostart set comes back after an agent restart. Run alongside a
+bridge/mesh agent by giving the generator distinct <code>--listen</code>/<code>--metrics</code> ports.
+It is the fastest way to put a known, PTP-locked signal on a plant for a codec
+line-up, a receiver test, or a hold feed — without patching in hardware.</p>
+<h3 id="412-contribution-tieline-codecs-and-fabric-thread">4.12 Contribution: Tieline codecs and Fabric Thread</h3>
+<p>Beyond carrying multicast between plants, the fabric terminates <strong>contribution
+codecs</strong> — the remotes, reporters and guests who dial <em>into</em> a studio. Three
+agent modes and one companion app cover this:</p>
+<ul>
+<li><p><strong>A hardware Tieline dials into the fabric</strong> — <code>ccf-agent --mode tieline-listen</code>
+answers a <strong>Tieline</strong> (ViA / Merlin / Gateway) dialing in, using the proven
+Gateway answerer handshake, and <strong>bridges the call to AES67 groups</strong>: the field
+unit&#39;s audio becomes a multicast source in the studio, and a studio group is
+Opus-encoded back to the dialer as the return leg. It serves one or more
+pre-configured lines, each with its own listen/audio ports, AES67 send/recv
+groups and an IP allowlist, so it runs unchanged in a studio agent or on a
+public gateway.</p>
+<pre><code class="language-bash">ccf-agent --mode tieline-listen --iface 192.168.2.205 \
+  --line &quot;name=studio1;listen=9002;audio=9000;\
+          send=239.99.9.80:5004:l24;recv=239.99.9.81:5004:l24;\
+          channels=2;bitrate=64000;allow=192.168.1.10,192.168.1.11&quot;
+</code></pre>
+</li>
+<li><p><strong>The fabric answers a SIP dial</strong> — <code>ccf-agent --mode sip</code> is a SIP answerer
+(UAS): it accepts an <code>INVITE</code>, answers with an Opus offer, and runs full-duplex
+Opus/RTP bridged to the soundcard or AES67. This is the endpoint a soft codec —
+including <strong>Fabric Thread</strong> — dials to reach the studio.</p>
+</li>
+<li><p><strong>Browser and conference endpoints</strong> — the controller brokers a browser
+(WebRTC) caller to an agent codec endpoint and relays it through its STUN/TURN,
+point-to-point or as an <strong>MCU</strong> conference room where every caller gets a
+mix-minus (the programme plus every other caller, minus their own audio).</p>
+</li>
+</ul>
+<p><strong>Fabric Thread</strong> is the contribution front-end to all of this: a codec in a
+browser and an iPhone app that dials a Tieline, a SIP endpoint or a Fabric studio
+room, full-duplex Opus, with metering, a mix, per-user mic processing and <strong>GPIO
+control surfaces</strong> (cough / talkback buttons and on-air / cue tally lamps carried
+as GPIO alongside the audio). It discovers its codec endpoints straight from a
+Fabric controller&#39;s API. Thread has its own manual —
+<strong><a href="https://cloudcastsystemsau.github.io/cloudcastfabric-thread-manual/">https://cloudcastsystemsau.github.io/cloudcastfabric-thread-manual/</a></strong>.</p>
 <h2 id="5-configuration-reference">5. Configuration reference</h2>
 <h3 id="51-agent-command-line-flags">5.1 Agent command-line flags</h3>
 <p>Flags are positional-free <code>--key value</code> pairs; an unknown flag is ignored, and
