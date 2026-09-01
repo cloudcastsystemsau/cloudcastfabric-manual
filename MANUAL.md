@@ -753,6 +753,35 @@ being carried at all — an agent was sent a codec it cannot decode. A steady
 calls clean, because the loss happened inside the codec rather than on the wire.
 Full list in [6.3](#63-metrics).
 
+**Newly added: aptX and aptX-HD.** The two aptX rows are the most recent codecs,
+and the only compressed options with **no native library behind them** — they are
+pure Rust in the agent, so they run on a host with no codec packages installed at
+all. Standard `aptx` is carried as *aptX-compatible*. `aptx-hd` is 24-bit at
+576 kbit/s and is a **paid tier**, licensed and selected on its own. Opus (the
+default) and the three AAC profiles run on a runtime-loaded audio library, so a
+host without it refuses those streams — naming what to install — rather than
+quietly carrying them uncompressed.
+
+**The codec matrix — which codec runs on which leg.** The table above is the menu
+for the WAN leg: a source encoded as it enters the fabric and carried compressed.
+Everywhere else the codec is fixed by whatever sits at the far end, not chosen:
+
+| Agent mode / leg | Codec | Chosen or fixed | Notes |
+|---|---|---|---|
+| `bridge` / `mesh` — fabric WAN leg | `linear`, `opus`, `aac-lc`, `aac-he-v1`/`v2`, `aptx`, `aptx-hd` | **chosen** — fabric default + per-source override | encoded on ingress; encoding is licensed, decoding is not |
+| `aes67-source` — [source generator](#411-built-in-source-generator) | `linear` (L16/L24) | fixed | a standards-clean, PTP-locked AES67 stream; never compressed |
+| `tieline-listen` — [a Tieline dials in](#412-contribution-tieline-codecs-and-fabric-thread) | Tieline session inbound; **`opus`** on the return leg; `l24` AES67 into the studio | fixed | the field unit becomes a multicast source; a studio group returns to the dialer, Opus-encoded |
+| `sip` — SIP answerer | **`opus`** full-duplex | fixed | the endpoint a soft codec (including Thread) dials |
+| Browser / MCU conference | **`opus`** (WebRTC) | fixed | point-to-point, or a mix-minus conference room |
+| **Fabric Thread** (browser + iPhone) | **`opus`** — 48 kHz, 5 ms, independent send/recv bitrate | fixed | dials `tieline`, `sip` or a Fabric room; see [§4.12](#412-contribution-tieline-codecs-and-fabric-thread) |
+
+Two things fall out of it. The **WAN leg is the only place you pick a codec** —
+everywhere else the peer's standard decides (a Tieline's session, SIP's Opus
+offer, WebRTC). And **Opus is the contribution codec end to end**: every dial-in
+path — the Tieline return leg, SIP, browser and Thread — is Opus, so a
+contributor's audio crosses at most one encode/decode boundary before it is
+linear AES67 on the studio LAN.
+
 ### 4.10 Running in Docker
 
 CCF agents carry the **DOCKER licence type** (Airlock AIR-309): hardware-*unbound*,

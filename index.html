@@ -78,6 +78,26 @@ kbd{font-family:var(--mono);font-size:.82em;border:1px solid var(--line);
   <a class="l2" href="#contents">Contents</a><a class="l2" href="#1-core-concepts">1. Core concepts</a><a class="l2" href="#2-architecture">2. Architecture</a><div class="kids"><a class="l3" href="#the-data-plane">The data plane</a><a class="l3" href="#the-control-plane">The control plane</a><a class="l3" href="#the-encapsulation-header">The encapsulation header</a><a class="l3" href="#timing-per-host-grandmasters">Timing: per-host grandmasters</a><a class="l3" href="#modes-at-a-glance">Modes at a glance</a></div><a class="l2" href="#3-deployment-requirements">3. Deployment requirements</a><div class="kids"><a class="l3" href="#instances-and-the-phc">Instances and the PHC</a><a class="l3" href="#kernel-and-interface-settings">Kernel and interface settings</a><a class="l3" href="#mtu">MTU</a><a class="l3" href="#ports-and-security-groups">Ports and security groups</a><a class="l3" href="#securing-the-control-plane">Securing the control plane</a></div><a class="l2" href="#4-installation">4. Installation</a><div class="kids"><a class="l3" href="#41-building">4.1 Building</a><a class="l3" href="#42-cloud-agent-mesh-mode">4.2 Cloud agent (mesh mode)</a><a class="l3" href="#43-controller">4.3 Controller</a><a class="l3" href="#44-ptp-grandmaster">4.4 PTP grandmaster</a><a class="l3" href="#45-router-optional">4.5 Router (optional)</a><a class="l3" href="#46-ground-to-cloud-bridge">4.6 Ground-to-cloud bridge</a><a class="l3" href="#47-egress-pacing-and-the-clock-behind-it">4.7 Egress pacing and the clock behind it</a><a class="l3" href="#48-dual-path-protection">4.8 Dual-path protection</a><a class="l3" href="#49-codecs-on-the-wan-leg">4.9 Codecs on the WAN leg</a><a class="l3" href="#410-running-in-docker">4.10 Running in Docker</a><a class="l3" href="#411-built-in-source-generator">4.11 Built-in source generator</a><a class="l3" href="#412-contribution-tieline-codecs-and-fabric-thread">4.12 Contribution: Tieline codecs and Fabric Thread</a></div><a class="l2" href="#5-configuration-reference">5. Configuration reference</a><div class="kids"><a class="l3" href="#51-agent-command-line-flags">5.1 Agent command-line flags</a><a class="l3" href="#52-agent-environment-file">5.2 Agent environment file</a><a class="l3" href="#53-controller-environment-variables">5.3 Controller environment variables</a><a class="l3" href="#54-ptp-gmconf">5.4 ptp-gm.conf</a><a class="l3" href="#55-systemd-units">5.5 systemd units</a></div><a class="l2" href="#6-operations">6. Operations</a><div class="kids"><a class="l3" href="#61-the-dashboard">6.1 The dashboard</a><a class="l3" href="#62-http-surface">6.2 HTTP surface</a><a class="l3" href="#63-metrics">6.3 Metrics</a><a class="l3" href="#64-agent-status-page">6.4 Agent status page</a><a class="l3" href="#65-adding-an-agent">6.5 Adding an agent</a><a class="l3" href="#66-bridging-a-site">6.6 Bridging a site</a><a class="l3" href="#67-verifying-a-path-with-ccf-spike">6.7 Verifying a path with ccf-spike</a><a class="l3" href="#68-checking-the-clock">6.8 Checking the clock</a><a class="l3" href="#69-discovery-sap-announcements">6.9 Discovery: SAP announcements</a><a class="l3" href="#610-multicast-address-collisions">6.10 Multicast address collisions</a><a class="l3" href="#611-fabric-event-log">6.11 Fabric event log</a></div><a class="l2" href="#7-troubleshooting">7. Troubleshooting</a><a class="l2" href="#8-scope-and-platform-support">8. Scope and platform support</a>
 </nav>
 <main id="top">
+<!--
+  THE PUBLIC EDITION of the manual. Source of truth for
+  https://github.com/cloudcastsystemsau/cloudcastfabric-manual, which is a
+  publishing target and must not be hand-edited.
+
+  This is NOT generated from MANUAL.md. It is a deliberate customer-facing
+  edit of it, and the differences are the point:
+
+    * section 8 is "Scope and platform support", not "Limits and known gaps" —
+      the candid defect list is internal;
+    * "Securing the control plane" (3.x) exists only here;
+    * the branding block and the PLAN.md / VALIDATION.md references are dropped;
+    * limitations are stated as scope rather than as defects.
+
+  When MANUAL.md gains something customers should see, port it here by hand and
+  re-run: node build/build-manual.mjs docs/MANUAL.public.md <target>/index.html
+  It exits non-zero on a broken in-page anchor.
+
+  Lived on the abandoned branch ccf-10-manual-publish until CCF-85.
+-->
 <h1 id="cloudcastfabric-manual">CloudcastFabric manual</h1>
 <p><strong>CloudcastFabric</strong> carries real IP multicast between machines that have no
 multicast network — cloud instances, and on-prem plants reached over a VPN.
@@ -954,6 +974,69 @@ being carried at all — an agent was sent a codec it cannot decode. A steady
 <code>ccf_codec_conceal_total</code> is audible artefacts on a path every other counter
 calls clean, because the loss happened inside the codec rather than on the wire.
 Full list in <a href="#63-metrics">6.3</a>.</p>
+<p><strong>Newly added: aptX and aptX-HD.</strong> The two aptX rows are the most recent codecs,
+and the only compressed options with <strong>no native library behind them</strong> — they are
+pure Rust in the agent, so they run on a host with no codec packages installed at
+all. Standard <code>aptx</code> is carried as <em>aptX-compatible</em>. <code>aptx-hd</code> is 24-bit at
+576 kbit/s and is a <strong>paid tier</strong>, licensed and selected on its own. Opus (the
+default) and the three AAC profiles run on a runtime-loaded audio library, so a
+host without it refuses those streams — naming what to install — rather than
+quietly carrying them uncompressed.</p>
+<p><strong>The codec matrix — which codec runs on which leg.</strong> The table above is the menu
+for the WAN leg: a source encoded as it enters the fabric and carried compressed.
+Everywhere else the codec is fixed by whatever sits at the far end, not chosen:</p>
+<table>
+<thead>
+<tr>
+<th>Agent mode / leg</th>
+<th>Codec</th>
+<th>Chosen or fixed</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>bridge</code> / <code>mesh</code> — fabric WAN leg</td>
+<td><code>linear</code>, <code>opus</code>, <code>aac-lc</code>, <code>aac-he-v1</code>/<code>v2</code>, <code>aptx</code>, <code>aptx-hd</code></td>
+<td><strong>chosen</strong> — fabric default + per-source override</td>
+<td>encoded on ingress; encoding is licensed, decoding is not</td>
+</tr>
+<tr>
+<td><code>aes67-source</code> — <a href="#411-built-in-source-generator">source generator</a></td>
+<td><code>linear</code> (L16/L24)</td>
+<td>fixed</td>
+<td>a standards-clean, PTP-locked AES67 stream; never compressed</td>
+</tr>
+<tr>
+<td><code>tieline-listen</code> — <a href="#412-contribution-tieline-codecs-and-fabric-thread">a Tieline dials in</a></td>
+<td>Tieline session inbound; <strong><code>opus</code></strong> on the return leg; <code>l24</code> AES67 into the studio</td>
+<td>fixed</td>
+<td>the field unit becomes a multicast source; a studio group returns to the dialer, Opus-encoded</td>
+</tr>
+<tr>
+<td><code>sip</code> — SIP answerer</td>
+<td><strong><code>opus</code></strong> full-duplex</td>
+<td>fixed</td>
+<td>the endpoint a soft codec (including Thread) dials</td>
+</tr>
+<tr>
+<td>Browser / MCU conference</td>
+<td><strong><code>opus</code></strong> (WebRTC)</td>
+<td>fixed</td>
+<td>point-to-point, or a mix-minus conference room</td>
+</tr>
+<tr>
+<td><strong>Fabric Thread</strong> (browser + iPhone)</td>
+<td><strong><code>opus</code></strong> — 48 kHz, 5 ms, independent send/recv bitrate</td>
+<td>fixed</td>
+<td>dials <code>tieline</code>, <code>sip</code> or a Fabric room; see <a href="#412-contribution-tieline-codecs-and-fabric-thread">§4.12</a></td>
+</tr>
+</tbody></table>
+<p>Two things fall out of it. The <strong>WAN leg is the only place you pick a codec</strong> —
+everywhere else the peer&#39;s standard decides (a Tieline&#39;s session, SIP&#39;s Opus
+offer, WebRTC). And <strong>Opus is the contribution codec end to end</strong>: every dial-in
+path — the Tieline return leg, SIP, browser and Thread — is Opus, so a
+contributor&#39;s audio crosses at most one encode/decode boundary before it is
+linear AES67 on the studio LAN.</p>
 <h3 id="410-running-in-docker">4.10 Running in Docker</h3>
 <p>CCF agents carry the <strong>DOCKER licence type</strong> (Airlock AIR-309): hardware-<em>unbound</em>,
 precisely because containers and cloud instances have unstable hardware IDs. The
