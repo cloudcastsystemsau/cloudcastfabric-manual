@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 470" width="880" height="470" role="img" aria-labelledby="t d">
+<title id="t">How a SAP announcement travels</title>
+<desc id="d">An AoIP sender announces to 239.255.255.255 port 9875. The bridge agent joins that group and catalogues each source, keeping an entry for 300 seconds after its last announcement, then reports its catalogue to the controller over the control channel on TCP 8600. The controller aggregates every agent's catalogue into the dashboard inventory and the address-collision check. On the cloud side a mesh agent joins the same group on ccf0, and because that join is itself a subscription the plant's announcements travel up the fabric without extra configuration; cloud senders announce in the same way, so a fabric-originated stream appears in the plant's source list like any other.</desc>
+<style>
+  .box{fill:#151d27;stroke:#243040}
+  .zone{fill:none;stroke:#243040;stroke-dasharray:4 4}
+  .ink{fill:#e6edf6}
+  .mut{fill:#8b9bb0}
+  .acc{fill:#2dd4bf}
+  .arw{stroke:#2dd4bf;fill:none}
+  .ah{fill:#2dd4bf}
+  .num{fill:#0d1117}
+  .numbg{fill:#2dd4bf}
+  text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+  .mono{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}
+  .h{font-size:13px;font-weight:600}
+  .b{font-size:12.5px}
+  .s{font-size:11.5px}
+  .z{font-size:10.5px;letter-spacing:.08em}
+  @media (prefers-color-scheme:light){
+    .box{fill:#f3f6fa;stroke:#d3dbe6}
+    .zone{stroke:#d3dbe6}
+    .ink{fill:#0d1117}
+    .mut{fill:#5b6b7f}
+    .acc{fill:#0d9488}
+    .arw{stroke:#0d9488}
+    .ah{fill:#0d9488}
+    .numbg{fill:#0d9488}
+    .num{fill:#ffffff}
+  }
+</style>
+
+<!-- left column: the flow -->
+<text class="z mut" x="24" y="26">ON-PREM PLANT</text>
+
+<rect class="box" x="24" y="38" width="456" height="66" rx="7" stroke-width="1"/>
+<text class="h ink" x="44" y="64">AoIP sender</text>
+<text class="s mut" x="44" y="86">console · xNode · Dante · Airlock</text>
+
+<path class="arw" d="M64 104 V156" stroke-width="1.5"/>
+<polygon class="ah" points="64,156 60,148 68,148"/>
+<circle class="numbg" cx="64" cy="130" r="9"/>
+<text class="num s" x="64" y="134" text-anchor="middle">1</text>
+<text class="s ink" x="84" y="126">SAP/SDP announcement, repeated every few seconds</text>
+<text class="s mono acc" x="84" y="143">239.255.255.255:9875</text>
+
+<rect class="box" x="24" y="156" width="456" height="84" rx="7" stroke-width="1"/>
+<text class="h ink" x="44" y="182">Bridge agent</text>
+<text class="s mut" x="44" y="204">joins the SAP group and catalogues each source it hears</text>
+<text class="s mut" x="44" y="224">name · group · ptime · refclk — 300 s TTL</text>
+
+<path class="arw" d="M64 240 V292" stroke-width="1.5"/>
+<polygon class="ah" points="64,292 60,284 68,284"/>
+<circle class="numbg" cx="64" cy="266" r="9"/>
+<text class="num s" x="64" y="270" text-anchor="middle">2</text>
+<text class="s ink" x="84" y="262">catalogue reported over the control channel</text>
+<text class="s mono acc" x="84" y="279">TCP 8600</text>
+
+<rect class="box" x="24" y="292" width="456" height="84" rx="7" stroke-width="1"/>
+<text class="h ink" x="44" y="318">Controller</text>
+<text class="s mut" x="44" y="340">aggregates every agent's catalogue into one inventory</text>
+<text class="s mut" x="44" y="360">→ dashboard source list, and the address-collision check</text>
+
+<!-- right column: the cloud side -->
+<text class="z mut" x="530" y="26">CLOUD</text>
+
+<rect class="zone" x="514" y="38" width="342" height="338" rx="8"/>
+
+<rect class="box" x="534" y="62" width="302" height="130" rx="7" stroke-width="1"/>
+<circle class="numbg" cx="554" cy="88" r="9"/>
+<text class="num s" x="554" y="92" text-anchor="middle">3</text>
+<text class="h ink" x="570" y="92">Mesh agent</text>
+<text class="s mut" x="554" y="116">joins the SAP group on ccf0 — and</text>
+<text class="s mut" x="554" y="134">that join is itself a subscription</text>
+<text class="s acc" x="554" y="158">so the plant's announcements travel</text>
+<text class="s acc" x="554" y="176">up the fabric with no extra config</text>
+
+<rect class="box" x="534" y="212" width="302" height="112" rx="7" stroke-width="1"/>
+<circle class="numbg" cx="554" cy="238" r="9"/>
+<text class="num s" x="554" y="242" text-anchor="middle">4</text>
+<text class="h ink" x="570" y="242">Cloud senders announce too</text>
+<text class="s mut" x="554" y="266">a stream originating in the fabric</text>
+<text class="s mut" x="554" y="284">appears in the plant's source list</text>
+<text class="s mut" x="554" y="302">like any other source</text>
+
+<!-- footnote -->
+<path d="M24 404 H856" stroke="#243040" stroke-dasharray="4 4"/>
+<text class="b acc" x="24" y="432">Cataloguing changes no forwarding decision.</text>
+<text class="b mut" x="24" y="452">Subscriptions still come from IGMP on a bridge, or kernel membership on a mesh agent.</text>
+</svg>

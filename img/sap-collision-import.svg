@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 470" width="880" height="470" role="img" aria-labelledby="t2 d2">
+<title id="t2">Address collision, and the import that resolves it</title>
+<desc id="d2">Two sites independently announce the same multicast group from different SDP origins. The controller counts distinct origins, finds two, and removes the group from the route table rather than serving an arbitrary one of them. An operator posts to the import endpoint; the controller allocates an unused address from the 239.193.0.0/16 pool and pushes the translation to the receiving bridge. On LAN egress that bridge rewrites the destination MAC and IP and patches the checksums, leaving the RTP payload untouched, and re-announces the translated stream locally over SAP so it appears in the plant's source list.</desc>
+<style>
+  .box{fill:#151d27;stroke:#243040}
+  .warnbox{fill:#151d27;stroke:#f0a03c}
+  .okbox{fill:#151d27;stroke:#2dd4bf}
+  .ink{fill:#e6edf6}
+  .mut{fill:#8b9bb0}
+  .acc{fill:#2dd4bf}
+  .warn{fill:#f0a03c}
+  .arw{stroke:#2dd4bf;fill:none}
+  .ah{fill:#2dd4bf}
+  .warw{stroke:#f0a03c;fill:none}
+  .wah{fill:#f0a03c}
+  .num{fill:#0d1117}
+  .numbg{fill:#2dd4bf}
+  text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+  .mono{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}
+  .h{font-size:13px;font-weight:600}
+  .b{font-size:12.5px}
+  .s{font-size:11.5px}
+  .z{font-size:10.5px;letter-spacing:.08em}
+  @media (prefers-color-scheme:light){
+    .box{fill:#f3f6fa;stroke:#d3dbe6}
+    .warnbox{fill:#fdf6ec;stroke:#b9761a}
+    .okbox{fill:#f3f6fa;stroke:#0d9488}
+    .ink{fill:#0d1117}
+    .mut{fill:#5b6b7f}
+    .acc{fill:#0d9488}
+    .warn{fill:#a86412}
+    .arw{stroke:#0d9488}
+    .ah{fill:#0d9488}
+    .warw{stroke:#b9761a}
+    .wah{fill:#b9761a}
+    .numbg{fill:#0d9488}
+    .num{fill:#ffffff}
+  }
+</style>
+
+<text class="z mut" x="22" y="26">DETECTION</text>
+
+<!-- site A -->
+<rect class="box" x="24" y="40" width="200" height="66" rx="7" stroke-width="1"/>
+<text class="h ink" x="40" y="63">Site A</text>
+<text class="s mono mut" x="40" y="82">origin 10.1.0.9</text>
+<text class="s mono acc" x="40" y="98">239.192.7.210</text>
+
+<!-- site B -->
+<rect class="box" x="24" y="122" width="200" height="66" rx="7" stroke-width="1"/>
+<text class="h ink" x="40" y="145">Site B</text>
+<text class="s mono mut" x="40" y="164">origin 10.2.0.4</text>
+<text class="s mono acc" x="40" y="180">239.192.7.210</text>
+
+<!-- arrows into controller -->
+<path class="arw" d="M228 73 H300 V104" stroke-width="1.5"/>
+<path class="arw" d="M228 155 H300 V126" stroke-width="1.5"/>
+<polygon class="ah" points="300,114 296,106 304,106"/>
+
+<!-- controller decision -->
+<rect class="warnbox" x="316" y="52" width="290" height="124" rx="7" stroke-width="1.5"/>
+<text class="h ink" x="334" y="76">Controller counts distinct</text>
+<text class="h ink" x="334" y="94">SDP origins — finds 2</text>
+<text class="b warn" x="334" y="120">BLOCKED — the group is removed</text>
+<text class="b warn" x="334" y="138">from the route table</text>
+<text class="s mut" x="334" y="160">serving one of two would be arbitrary</text>
+
+<text class="s mut" x="624" y="86">Not a collision: the same</text>
+<text class="s mut" x="624" y="102">source catalogued by several</text>
+<text class="s mut" x="624" y="118">agents. That is visibility —</text>
+<text class="s mut" x="624" y="134">the check counts origins,</text>
+<text class="s mut" x="624" y="150">not reporting agents.</text>
+
+<!-- divider -->
+<path d="M24 208 H856" stroke="#243040" stroke-dasharray="4 4"/>
+<text class="z mut" x="22" y="236">RESOLUTION</text>
+
+<!-- step 1: operator -->
+<rect class="box" x="24" y="250" width="238" height="76" rx="7" stroke-width="1"/>
+<circle class="numbg" cx="44" cy="272" r="9"/>
+<text class="num s" x="44" y="276" text-anchor="middle">1</text>
+<text class="h ink" x="60" y="276">Operator imports</text>
+<text class="s mono mut" x="40" y="298">POST /api/import</text>
+<text class="s mono mut" x="40" y="314">{agent, group, name}</text>
+
+<path class="arw" d="M266 288 H322" stroke-width="1.5"/>
+<polygon class="ah" points="322,288 314,284 314,292"/>
+
+<!-- step 2: controller allocates -->
+<rect class="box" x="326" y="250" width="238" height="76" rx="7" stroke-width="1"/>
+<circle class="numbg" cx="346" cy="272" r="9"/>
+<text class="num s" x="346" y="276" text-anchor="middle">2</text>
+<text class="h ink" x="362" y="276">Controller allocates</text>
+<text class="s mono acc" x="342" y="298">239.193.0.1</text>
+<text class="s mut" x="342" y="314">from the import pool, pushes xlat</text>
+
+<path class="arw" d="M568 288 H624" stroke-width="1.5"/>
+<polygon class="ah" points="624,288 616,284 616,292"/>
+
+<!-- step 3: bridge rewrites -->
+<rect class="okbox" x="628" y="250" width="228" height="76" rx="7" stroke-width="1.5"/>
+<circle class="numbg" cx="648" cy="272" r="9"/>
+<text class="num s" x="648" y="276" text-anchor="middle">3</text>
+<text class="h ink" x="664" y="276">Bridge rewrites</text>
+<text class="s mut" x="644" y="298">dst MAC + IP, checksums patched</text>
+<text class="s mut" x="644" y="314">RTP payload untouched</text>
+
+<!-- step 4 -->
+<rect class="box" x="326" y="352" width="530" height="66" rx="7" stroke-width="1"/>
+<circle class="numbg" cx="346" cy="374" r="9"/>
+<text class="num s" x="346" y="378" text-anchor="middle">4</text>
+<text class="h ink" x="362" y="378">Bridge re-announces locally over SAP, every 5 s</text>
+<text class="b mut" x="342" y="400">the stream appears in the plant's source list under the name you gave it</text>
+
+<path class="arw" d="M742 330 V348" stroke-width="1.5"/>
+<polygon class="ah" points="742,348 738,340 746,340"/>
+
+<text class="b acc" x="24" y="452">Subscribe to the translated address — the one returned as local, in 239.193.0.0/16.</text>
+</svg>

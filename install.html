@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CloudCast Fabric — Installation Guide</title>
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#0d1117; --surface:#151d27; --stage:#1b2530; --ink:#e6edf6; --muted:#8b9bb0;
+  --acc:#2dd4bf; --acc-2:#0d9488; --acc-3:#115e59; --line:#243040;
+  --display:'Space Grotesk',system-ui,sans-serif;
+  --body:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:light){
+  :root{
+    --bg:#ffffff; --surface:#f0fdfa; --stage:#ccfbf1; --ink:#0d1117; --muted:#5b6b80;
+    /* The ramp steps down a stop on a light surface. The brand's own rule:
+       #2dd4bf is a dark-surface accent only and #115e59 is the readable
+       accent on white — #0d9488 is ~3.5:1 there, which fails AA for body
+       text, so it is kept for rules and edges rather than for anything read. */
+    --acc:#115e59; --acc-2:#0d9488; --acc-3:#134e4a; --line:#cfe6e2;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:290px minmax(0,1fr);gap:0;max-width:1440px;margin:0 auto}
+nav{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:26px 18px 60px;
+  border-right:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:22px;text-decoration:none;color:inherit}
+.brand .name{font-family:var(--display);font-weight:600;letter-spacing:-.01em;font-size:17px}
+.brand .name em{font-style:normal;color:var(--acc)}
+nav a{display:block;text-decoration:none;color:var(--muted);padding:5px 10px;border-radius:7px;
+  font-size:13.5px;line-height:1.4}
+nav a:hover{background:var(--stage);color:var(--ink)}
+nav a.l2{color:var(--ink);font-weight:550;margin-top:9px}
+.kids{margin:2px 0 6px 9px;border-left:1px solid var(--line);padding-left:7px}
+nav a.l3{font-size:12.5px}
+main{padding:44px 52px 120px;min-width:0}
+h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.015em;line-height:1.25}
+h1{font-size:2.1rem;margin:0 0 .6em}
+h2{font-size:1.5rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line)}
+h3{font-size:1.16rem;margin:1.9em 0 .5em;color:var(--acc)}
+h4{font-size:1rem;margin:1.5em 0 .4em}
+p,li{max-width:78ch}
+a{color:var(--acc);text-decoration-thickness:1px;text-underline-offset:2px}
+code{font-family:var(--mono);font-size:.875em;background:var(--stage);
+  padding:.14em .4em;border-radius:5px}
+pre{background:var(--stage);border:1px solid var(--line);border-radius:10px;
+  padding:14px 16px;overflow-x:auto}
+pre code{background:none;padding:0;font-size:.83rem;line-height:1.6}
+table{border-collapse:collapse;width:100%;margin:1.1em 0;font-size:.93rem;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:var(--stage);font-family:var(--display);font-weight:600;font-size:.86rem;
+  letter-spacing:.01em}
+blockquote{margin:1.2em 0;padding:.6em 1.1em;border-left:3px solid var(--acc);
+  background:var(--surface);border-radius:0 9px 9px 0;color:var(--ink)}
+blockquote p{margin:.45em 0}
+img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:9px;display:block;margin:1.2em 0}
+hr{border:0;border-top:1px solid var(--line);margin:2.4em 0}
+kbd{font-family:var(--mono);font-size:.82em;border:1px solid var(--line);
+  border-bottom-width:2px;border-radius:5px;padding:.1em .4em;background:var(--surface)}
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr}
+  nav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+  main{padding:28px 20px 80px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <a class="brand" href="#top"><span class="mk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="30" height="30" role="img" aria-label="CloudcastFabric"><style>.mk .b0{fill:#99f6e4}.mk .b1{fill:#2dd4bf}.mk .b2{fill:#0d9488}.mk .b3{fill:#115e59}@media (prefers-color-scheme:light){.mk .b0{fill:#2dd4bf}.mk .b1{fill:#0d9488}.mk .b2{fill:#115e59}.mk .b3{fill:#134e4a}}</style><polygon points="28,12 50,12 50,50 28,50" class="b0"/><polygon points="50,28 88,28 88,50 50,50" class="b1"/><polygon points="50,50 72,50 72,88 50,88" class="b2"/><polygon points="12,50 50,50 50,72 12,72" class="b3"/><rect x="44" y="44" width="12" height="12" fill="#0d1117"/></svg></span>
+    <span class="name">cloudcast<em>fabric</em></span></a>
+  <a class="l2" href="#1-ports-and-hosts">1. Ports and hosts</a><a class="l2" href="#2-install-the-controller">2. Install the controller</a><div class="kids"><a class="l3" href="#controller-options">Controller options</a></div><a class="l2" href="#3-install-an-agent-and-join-it-to-the-fabric">3. Install an agent and join it to the fabric</a><div class="kids"><a class="l3" href="#3a-mint-a-join-token-on-the-controller">3a. Mint a join token (on the controller)</a><a class="l3" href="#3b-install-and-enrol-on-the-agent-host">3b. Install and enrol (on the agent host)</a></div><a class="l2" href="#4-agent-modes">4. Agent modes</a><div class="kids"><a class="l3" href="#generating-test-sources">Generating test sources</a></div><a class="l2" href="#5-verify">5. Verify</a><a class="l2" href="#6-direct-peering-and-nat-traversal">6. Direct peering and NAT traversal</a><a class="l2" href="#7-upgrading-and-removing">7. Upgrading and removing</a><a class="l2" href="#8-platforms-and-troubleshooting">8. Platforms and troubleshooting</a>
+</nav>
+<main id="top">
+<h1 id="cloudcast-fabric-installation-guide">CloudCast Fabric — Installation Guide</h1>
+<p>CloudCast Fabric is two programs:</p>
+<ul>
+<li>the <strong>controller</strong> — the control plane. Agents connect to it on <strong>:8600</strong>;
+operators use the dashboard on <strong>:8601</strong> (http) / <strong>:8443</strong> (https). One per
+fabric. It carries no audio — it only coordinates the network.</li>
+<li>the <strong>agent</strong> (<code>ccf-agent</code>) — runs at every site: studios, transmitter sites,
+cloud instances. Agents build encrypted WireGuard tunnels to each other and
+carry audio <strong>directly, edge to edge</strong>.</li>
+</ul>
+<p>This guide takes you from nothing to a running fabric with one controller and
+one or more agents. Everything you need is a single download per machine.</p>
+<blockquote>
+<p><strong>Downloads:</strong> all installers live at
+<strong><a href="https://cloudcast-fabric-dist.s3.ap-southeast-2.amazonaws.com/fabric/latest/">https://cloudcast-fabric-dist.s3.ap-southeast-2.amazonaws.com/fabric/latest/</a></strong>
+with a checksum file (<code>SHA256SUMS</code>) beside them. Pinned versions are under
+<code>…/fabric/&lt;version&gt;/</code>. The download page lists every file:
+<strong><a href="http://cloudcast-fabric-dist.s3-website-ap-southeast-2.amazonaws.com/">http://cloudcast-fabric-dist.s3-website-ap-southeast-2.amazonaws.com/</a></strong></p>
+</blockquote>
+<hr>
+<h2 id="1-ports-and-hosts">1. Ports and hosts</h2>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Who connects</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>8600</strong> / tcp</td>
+<td>agents → controller</td>
+<td>control channel (routes, discovery, peering)</td>
+</tr>
+<tr>
+<td><strong>8601</strong> / tcp</td>
+<td>operators → controller</td>
+<td>dashboard (http)</td>
+</tr>
+<tr>
+<td><strong>8443</strong> / tcp</td>
+<td>operators / enrolling agents → controller</td>
+<td>dashboard + <code>/enrol</code> (https)</td>
+</tr>
+<tr>
+<td><strong>51820</strong> / udp</td>
+<td>agents → controller</td>
+<td>WireGuard (the controller is the fabric&#39;s reachable endpoint)</td>
+</tr>
+<tr>
+<td><strong>7777</strong> / udp</td>
+<td>agent ↔ agent</td>
+<td>fabric media (direct, over WireGuard)</td>
+</tr>
+</tbody></table>
+<p>The controller needs a <strong>public, stable address</strong> for :51820 and :8443 so agents
+anywhere can reach it. Agents need only <strong>outbound</strong> UDP — they dial the
+controller and each other; nothing inbound has to be opened for a NAT&#39;d agent.</p>
+<hr>
+<h2 id="2-install-the-controller">2. Install the controller</h2>
+<p>The controller ships as a <strong>self-contained</strong> build — the .NET runtime is bundled,
+so the host needs nothing preinstalled. Pick the tarball for the host&#39;s CPU:
+<code>linux-arm64</code> (AWS Graviton and other ARM) or <code>linux-x64</code> (Intel/AMD).</p>
+<pre><code class="language-bash"># on the controller host (example: arm64 / Graviton)
+BASE=https://cloudcast-fabric-dist.s3.ap-southeast-2.amazonaws.com/fabric/latest
+curl -fsSLO $BASE/ccf-controller-latest-linux-arm64.tar.gz
+curl -fsSLO $BASE/SHA256SUMS &amp;&amp; sha256sum -c --ignore-missing SHA256SUMS
+
+tar xzf ccf-controller-latest-linux-arm64.tar.gz
+cd ccf-controller-*-linux-arm64
+sudo ./install-controller.sh --admin-password &#39;pick-a-strong-one&#39;
+</code></pre>
+<p>That installs to <code>/opt/ccf-controller</code>, writes <code>/etc/ccf/controller.env</code>,
+enables a <code>ccf-controller</code> systemd service, and starts it. When it comes up:</p>
+<pre><code>ccf-controller is up.
+  dashboard : http://&lt;this-host&gt;:8601   (https :8443)
+  agents    : point --controller at &lt;this-host&gt;:8600
+</code></pre>
+<p>Open the firewall for <strong>8600, 8601, 8443</strong> (tcp) and <strong>51820</strong> (udp), then browse
+<code>http://&lt;host&gt;:8601</code> and log in with the admin password.</p>
+<h3 id="controller-options">Controller options</h3>
+<p><code>install-controller.sh</code> keeps any value you set on a later run unless you pass
+the flag again. The ones that matter for a real deployment:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>What it sets</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--admin-password &lt;pw&gt;</code></td>
+<td>dashboard login (written 0600, never on the command line)</td>
+</tr>
+<tr>
+<td><code>--wg-endpoint &lt;ip:port&gt;</code></td>
+<td>the <strong>public</strong> WireGuard endpoint agents dial (e.g. <code>203.0.113.9:51820</code>)</td>
+</tr>
+<tr>
+<td><code>--hub &lt;fabric-ip&gt;</code></td>
+<td>a forwarding node that carries the <code>10.99.0.0/24</code> catch-all so agents reach every site; leave unset to keep agents control-plane + direct-peer only</td>
+</tr>
+<tr>
+<td><code>--relay off</code></td>
+<td>disable the automatic hub relay fallback (see §6)</td>
+</tr>
+</tbody></table>
+<p>For enrolment to work the controller also needs its <strong>public HTTPS base</strong> set, so
+tokens embed a reachable <code>/enrol</code> URL. If you installed behind a name like
+<code>fabric.example.com:8443</code>, add to <code>/etc/ccf/controller.env</code>:</p>
+<pre><code class="language-ini">CCF_PUBLIC_HTTPS=https://fabric.example.com:8443
+CCF_WG_ENDPOINT=&lt;public-ip&gt;:51820
+</code></pre>
+<p>then <code>sudo systemctl restart ccf-controller</code>. The <code>/enrol</code> endpoint must present
+a <strong>trusted</strong> TLS certificate — an enrolling agent rejects a self-signed cert.
+Front it with a real certificate (e.g. Caddy or a load balancer) for the public
+name.</p>
+<hr>
+<h2 id="3-install-an-agent-and-join-it-to-the-fabric">3. Install an agent and join it to the fabric</h2>
+<p>Joining is two steps: <strong>mint a one-time token</strong> on the controller, then <strong>enrol</strong>
+the agent with it. The token is self-describing — it carries the controller&#39;s URL,
+so you never type an address twice.</p>
+<h3 id="3a-mint-a-join-token-on-the-controller">3a. Mint a join token (on the controller)</h3>
+<p>From the dashboard, or over the loopback (which counts as admin on the controller
+host):</p>
+<pre><code class="language-bash">curl -s -X POST http://127.0.0.1:8601/api/join-tokens \
+     -H &#39;Content-Type: application/json&#39; \
+     -d &#39;{&quot;name&quot;:&quot;studio-1&quot;,&quot;ttlSeconds&quot;:7200}&#39;
+# -&gt; {&quot;token&quot;:&quot;ccf_join_…&quot;,&quot;note&quot;:&quot;copy this now — it is never shown again&quot;}
+</code></pre>
+<h3 id="3b-install-and-enrol-on-the-agent-host">3b. Install and enrol (on the agent host)</h3>
+<p>The Linux agent is one static binary plus an installer. Download, enrol, then
+install the service for the mode this site runs.</p>
+<pre><code class="language-bash">BASE=https://cloudcast-fabric-dist.s3.ap-southeast-2.amazonaws.com/fabric/latest
+curl -fsSLO $BASE/ccf-latest-linux-x86_64.tar.gz
+curl -fsSLO $BASE/SHA256SUMS &amp;&amp; sha256sum -c --ignore-missing SHA256SUMS
+tar xzf ccf-latest-linux-x86_64.tar.gz
+cd ccf-*-linux-x86_64
+
+# put the binary in place, then enrol (writes /etc/wireguard/wg0.conf, brings up the tunnel)
+sudo install -m755 ccf-agent /usr/local/bin/ccf-agent
+sudo ccf-agent enrol --token &#39;ccf_join_…&#39; --name studio-1
+</code></pre>
+<p>A good enrol prints <code>admitted as 10.99.0.N</code> and <code>brought up wg0</code>. Confirm the
+tunnel and reach the controller over the fabric:</p>
+<pre><code class="language-bash">sudo wg show wg0            # a recent handshake to the controller
+ping -c2 10.99.0.4          # the controller on the fabric
+</code></pre>
+<p>Then install the agent service for this site&#39;s <strong>mode</strong> (§4). For a site that
+bridges a real AoIP LAN:</p>
+<pre><code class="language-bash">sudo ./install.sh --mode bridge --lan-iface eth0 \
+                  --controller 10.99.0.4:8600 --lan-jitter-ms 40 --apply-peers
+</code></pre>
+<p>The installer pulls its own dependencies (<code>wireguard-tools</code>, <code>libasound2</code>), writes
+<code>/etc/ccf/agent.env</code>, and starts a <code>ccf-agent</code> service. The agent now appears on
+the controller&#39;s <strong>Fabric</strong> page.</p>
+<blockquote>
+<p><code>--apply-peers</code> lets the controller wire <strong>direct</strong> peer-to-peer tunnels between
+this agent and the sites it exchanges audio with (with automatic NAT-traversal
+recovery — see §6). Without it the agent stays hub-and-spoke. Recommended on.</p>
+</blockquote>
+<hr>
+<h2 id="4-agent-modes">4. Agent modes</h2>
+<p>Pass one <code>--mode</code> to <code>install.sh</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Use it when</th>
+<th>Key flags</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>bridge</strong></td>
+<td>the site has a real AoIP LAN (Axia/Livewire, AES67 hardware) to attach to</td>
+<td><code>--lan-iface</code>, <code>--lan-ip</code>, <code>--lan-jitter-ms</code></td>
+</tr>
+<tr>
+<td><strong>mesh</strong></td>
+<td>the instance itself sends/receives multicast on a virtual NIC (<code>ccf0</code>)</td>
+<td><code>--addr &lt;cidr&gt;</code></td>
+</tr>
+<tr>
+<td><strong>router</strong></td>
+<td>a fan-out relay for large subscriber counts</td>
+<td><code>--members a:7777,b:7777</code></td>
+</tr>
+</tbody></table>
+<p>A bridge learns what its LAN wants either from a downstream switch&#39;s IGMP
+snooping table (<code>--switch-snoop-cmd &lt;cmd&gt;</code>) or a static <code>--lan-subs</code>. It
+discovers local sources automatically over <strong>SAP</strong> and <strong>Livewire</strong>, and reports
+them to the controller so an operator can publish them to other sites.</p>
+<h3 id="generating-test-sources">Generating test sources</h3>
+<p>Any agent host can run standalone AES67 source generators — useful for a soak
+test or a new region before real hardware arrives:</p>
+<pre><code class="language-bash">ccf-agent --mode aes67-source --iface &lt;ip&gt; --group 239.120.1.10 --port 5004 \
+          --format l24 --channels 2 --ptime 1 --sap \
+          --name &quot;Test Tone 440&quot; --pace-clock auto --tone 440 --gain-db -20
+</code></pre>
+<p>Run the generators on a <strong>different IP</strong> from the bridge&#39;s <code>--lan-ip</code> (a second
+address on the NIC is fine) — a bridge ignores SAP that originates from its own
+address, exactly as it ignores its own re-announcements. On a real plant the
+sources are separate devices, so this is automatic.</p>
+<hr>
+<h2 id="5-verify">5. Verify</h2>
+<ul>
+<li><strong>Dashboard → Fabric</strong> lists every agent, its fabric IP, discovered source
+count, and a peer matrix showing which pairs can exchange audio directly
+(green), are relaying while a punch recovers (amber <strong>R</strong>), or have no path
+(red).</li>
+<li>On any agent, <code>curl -s localhost:9464/metrics | grep ccf_</code> shows fabric and
+per-peer counters, including <code>ccf_wg_peer_handshake_age_seconds</code>.</li>
+</ul>
+<hr>
+<h2 id="6-direct-peering-and-nat-traversal">6. Direct peering and NAT traversal</h2>
+<p>Agents carry audio <strong>directly</strong> to each other. The controller coordinates the
+connection (it observes each agent&#39;s public address and tells the pair to punch
+simultaneously), but WireGuard itself has no NAT traversal, so occasionally a
+punch fails. With <code>--apply-peers</code> the agent recovers on its own:</p>
+<ol>
+<li>audio <strong>falls back through the controller</strong> immediately, so it never drops;</li>
+<li>in the background the agent rotates its port to get a fresh path and keeps
+retrying the direct tunnel;</li>
+<li>the moment the direct tunnel is up, audio moves back off the controller.</li>
+</ol>
+<p>The relay uses controller bandwidth, so it is a fallback, not the norm — set
+<code>--relay off</code> on the controller to disable it, or leave it on (default) for
+resilience. The <strong>Fabric</strong> page shows which pairs are direct vs relaying.</p>
+<hr>
+<h2 id="7-upgrading-and-removing">7. Upgrading and removing</h2>
+<p><strong>Upgrade</strong> — download the new tarball and re-run the same installer; settings in
+<code>/etc/ccf</code> are kept:</p>
+<pre><code class="language-bash"># agent
+sudo install -m755 ccf-agent /usr/local/bin/ccf-agent &amp;&amp; sudo systemctl restart ccf-agent
+# controller
+cd ccf-controller-*-linux-arm64 &amp;&amp; sudo ./install-controller.sh
+</code></pre>
+<p><strong>Remove</strong> — units and program files go, <code>/etc/ccf</code> is kept so you can reinstall:</p>
+<pre><code class="language-bash">sudo ./install.sh --uninstall              # agent
+sudo ./install-controller.sh --uninstall   # controller
+</code></pre>
+<hr>
+<h2 id="8-platforms-and-troubleshooting">8. Platforms and troubleshooting</h2>
+<p><strong>Platforms.</strong> Controller: <code>linux-arm64</code> and <code>linux-x64</code> (self-contained). Agent:
+<code>linux-x86_64</code>. A Windows agent MSI is available for plant PCs; ask your
+CloudCast contact. The controller runs happily on a small instance (2 vCPU / 2 GB);
+an agent runs on anything from a NUC to a cloud VM.</p>
+<p><strong>Time / PTP.</strong> For sample-accurate AES67 media, an agent should run on a clock
+disciplined to the plant&#39;s PTP grandmaster (a bridge follows the LAN&#39;s PHC
+automatically). On AWS, enable the Nitro hardware clock and point chrony at it —
+this needs a <strong>reboot</strong> to take effect. Without it you get NTP-grade time, which
+is fine for a data overlay and for testing, not for a production media clock.</p>
+<p><strong>Common issues.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause / fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>libasound.so.2: cannot open shared object file</code></td>
+<td>missing ALSA runtime; <code>install.sh</code> installs it, or <code>apt install libasound2t64</code> (24.04) / <code>libasound2</code></td>
+</tr>
+<tr>
+<td>enrol: <em>request to …/enrol failed</em> / cert rejected</td>
+<td>the controller&#39;s <code>:8443</code> must present a <strong>trusted</strong> certificate; front it with a real cert</td>
+</tr>
+<tr>
+<td>agent shows up but carries no audio</td>
+<td>check the site actually <strong>subscribes</strong> (a device IGMP-joins the group) and the source is <strong>published</strong> to it on the dashboard</td>
+</tr>
+<tr>
+<td>a pair is stuck <strong>relaying</strong> (amber R)</td>
+<td>the direct punch is still recovering; it re-converges on its own. Confirm both ends run <code>--apply-peers</code></td>
+</tr>
+<tr>
+<td><code>no ptp dev</code> on a cloud host</td>
+<td>the Nitro PHC is not enabled — see <em>Time / PTP</em> above</td>
+</tr>
+</tbody></table>
+<hr>
+<p><em>CloudCast Fabric is a Cloudcast Systems product.</em></p>
+
+</main>
+</div>
+</body>
+</html>
